@@ -145,3 +145,230 @@ class Barangay(db.Model):
     )
 
     municipality = db.relationship('Municipality', back_populates='barangays')
+
+
+
+# =========================
+# CTMS TABLES
+# =========================
+
+class CTMS2320(db.Model):
+    __tablename__ = 'CTMS2320'
+
+    DISPOSCODE = db.Column(db.Integer, primary_key=True)
+    DESCRP = db.Column(db.Text)
+    CREATEDT = db.Column(db.Text)
+    CREATEBY = db.Column(db.Text)
+
+
+class CTMS3200(db.Model):
+    __tablename__ = 'CTMS3200'
+
+    LOGID = db.Column(db.Integer, primary_key=True)
+    LOGDATE = db.Column(db.Text)
+    LOGTIME = db.Column(db.Text)
+    USERID = db.Column(db.Text)
+    MODULE = db.Column(db.Text)
+    ACTION = db.Column(db.Text)
+    EMPNUM = db.Column(db.Text)
+    PTAG = db.Column(db.Integer)
+
+
+class TCOURT(db.Model):
+    __tablename__ = 'TCOURT'
+
+    CRTTYPE = db.Column(db.Text, primary_key=True)
+    CRTDESC = db.Column(db.Text)
+
+
+class TREGION(db.Model):
+    __tablename__ = 'TREGION'
+
+    REG_CODE = db.Column(db.Text, primary_key=True)
+    REG_DESC = db.Column(db.Text)
+
+
+class CTMS3100(db.Model):
+    __tablename__ = 'ctms3100'
+
+    USERID = db.Column(db.Text, primary_key=True)
+    USERNAME = db.Column(db.Text)
+    USERDESIG = db.Column(db.Text)
+    USERPASS = db.Column(db.Text)
+    LASTLOGIN = db.Column(db.Text)
+    LASTPW = db.Column(db.Text)
+    PTAG = db.Column(db.Integer)
+
+
+class CTMS4000(db.Model):
+    __tablename__ = 'ctms4000'
+
+    PERSONID = db.Column(db.Integer, primary_key=True)
+    ENAME = db.Column(db.Text)
+    FNAME = db.Column(db.Text)
+    LNAME = db.Column(db.Text)
+    MNAME = db.Column(db.Text)
+    ANAME = db.Column(db.Text)
+    DBIRTH = db.Column(db.Text)
+    GENDER = db.Column(db.Text)
+    ADDRESS1 = db.Column(db.Text)
+    ADDRESS2 = db.Column(db.Text)
+    ADDRESS3 = db.Column(db.Text)
+    TELNO = db.Column(db.Text)
+    PSTATUS = db.Column(db.Text)
+    STATCASEID = db.Column(db.Integer)
+    CREATEBY = db.Column(db.Text)
+    CREATEDT = db.Column(db.Text)
+
+
+class CTMS1000(db.Model):
+    __tablename__ = 'ctms1000'
+
+    CASEID = db.Column(db.Integer, primary_key=True)
+    COURTID = db.Column(db.Integer)
+    NATURECODE = db.Column(db.Text)
+    CATEGORY = db.Column(db.Text)
+    CASENUM = db.Column(db.Text)
+    CASETITLE = db.Column(db.Text)
+    DTFILED = db.Column(db.Text)
+    DTRECEIVED = db.Column(db.Text)
+    DTTRANSFER = db.Column(db.Text)
+    TRANSFER = db.Column(db.Integer)
+    CASETYPE = db.Column(db.Text)
+    CLOSEDATE = db.Column(db.Text)
+    CLOSETAG = db.Column(db.Text)
+    CLOSEDET = db.Column(db.Text)
+    NATUREREM = db.Column(db.Text)
+    IAMOUNT = db.Column(db.Float)
+    IWEIGHT = db.Column(db.Float)
+    CSTATUS = db.Column(db.Text)
+    CSTATUSID = db.Column(db.Text)
+    CLOSESTAT = db.Column(db.Text)
+    CREATEBY = db.Column(db.Text)
+    CREATEDT = db.Column(db.Text)
+    MODIFYBY = db.Column(db.Text)
+    MODIFYDT = db.Column(db.Text)
+
+
+class CTMS2100(db.Model):
+    __tablename__ = 'ctms2100'
+
+    COURTID = db.Column(db.Integer, primary_key=True)
+    CRTTYPE = db.Column(db.Text)
+    REGION = db.Column(db.Text)
+    BRANCH = db.Column(db.Text)
+    TOWN = db.Column(db.Text)
+    PLACEASS = db.Column(db.Text)
+    PLACEASS2 = db.Column(db.Text)
+    ORDER = db.Column(db.Integer)
+    ON = db.Column(db.Text)
+    CITYTOWN = db.Column(db.Text)
+
+
+class CTMS2310(db.Model):
+    __tablename__ = 'ctms2310'
+
+    NATURECODE = db.Column(db.Text, primary_key=True)
+    CATEGORY = db.Column(db.Text)
+    NATUREDESC = db.Column(db.Text)
+    CRTTYPE = db.Column(db.Text)
+    CREATEBY = db.Column(db.Text)
+    CREATEDT = db.Column(db.Text)
+
+
+class CTMS4100(db.Model):
+    __tablename__ = 'ctms4100'
+
+    PARTYID = db.Column(db.Integer, primary_key=True)
+    CASEID = db.Column(db.Integer)
+    PERSONID = db.Column(db.Integer)
+    PSTATUS = db.Column(db.Text)
+    PARTYNAME = db.Column(db.Text)
+    DETAINED = db.Column(db.Integer)
+    DTIARRAIGN = db.Column(db.Text)
+    DTPRETRIAL = db.Column(db.Text)
+    DTARRAIGN = db.Column(db.Text)
+    PLEA = db.Column(db.Integer)
+    PBARGAIN = db.Column(db.Integer)
+    JRENDERED = db.Column(db.Integer)
+    DTSETTING = db.Column(db.Text)
+    DTINITIAL = db.Column(db.Text)
+    DTLAST = db.Column(db.Text)
+    DTOFFERPRO = db.Column(db.Text)
+    DTDEMURRER = db.Column(db.Text)
+    DTDEFENSE = db.Column(db.Text)
+    DTACTUAL = db.Column(db.Text)
+    DTLTTRIAL = db.Column(db.Text)
+    PPOSTPONED = db.Column(db.Integer)
+    DPOSTPONED = db.Column(db.Integer)
+    DTOFFERDEF = db.Column(db.Text)
+    DTREBUTTAL = db.Column(db.Text)
+    DTSURREBUT = db.Column(db.Text)
+    DTSUBMIT = db.Column(db.Text)
+    DTPROMUL = db.Column(db.Text)
+    DISPOSCODE = db.Column(db.Integer)
+    PENALTY = db.Column(db.Text)
+    REMARKS = db.Column(db.Text)
+    DTPLEA = db.Column(db.Text)
+    DTSENTENCE = db.Column(db.Text)
+    DTARCHIVED = db.Column(db.Text)
+    DTREFERRED = db.Column(db.Text)
+    DTRETURNED = db.Column(db.Text)
+    AGECOMIT = db.Column(db.Integer)
+    DTDETAINED = db.Column(db.Text)
+    DECIDECODE = db.Column(db.Text)
+    DTREVIVED = db.Column(db.Text)
+    MEDIATION = db.Column(db.Text)
+    DTARREST = db.Column(db.Text)
+    DTSURRENDR = db.Column(db.Text)
+    DTBAIL = db.Column(db.Text)
+    BAILREM = db.Column(db.Text)
+    DTRELEASED = db.Column(db.Text)
+    RELEASED = db.Column(db.Text)
+    CREATEBY = db.Column(db.Text)
+    CREATEDT = db.Column(db.Text)
+    MODIFYBY = db.Column(db.Text)
+    MODIFYDT = db.Column(db.Text)
+
+
+# =========================
+# SETTINGSB
+# =========================
+
+class SettingsB(db.Model):
+    __tablename__ = 'settingsb'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    DPATH = db.Column(db.Text)
+    TPATH = db.Column(db.Text)
+    LPATH = db.Column(db.Text)
+    RPATH = db.Column(db.Text)
+    SPATH = db.Column(db.Text)
+    FPATH = db.Column(db.Text)
+    PPATH = db.Column(db.Text)
+    OPATH = db.Column(db.Text)
+    VPATH = db.Column(db.Text)
+    BPATH = db.Column(db.Text)
+    SC2MSPROC = db.Column(db.Text)
+    COURTID = db.Column(db.Integer)
+    MODIDT = db.Column(db.Text)
+    MODIBY = db.Column(db.Text)
+
+class SettingsCTMS(db.Model):
+    __tablename__ = 'settingsctms'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    COURTID = db.Column(db.Integer)
+    CRTTYPE = db.Column(db.Text)
+    JNAME = db.Column(db.Text)
+    JPDESCRP = db.Column(db.Text)
+    BNAME = db.Column(db.Text)
+    BPDESCRP = db.Column(db.Text)
+    EMAIL = db.Column(db.Text)
+    TELNO = db.Column(db.Text)
+    ADDRESS = db.Column(db.Text)
+    ISSINGLE = db.Column(db.Integer)
+    MODIDT = db.Column(db.Text)
+    MODIBY = db.Column(db.Text)
