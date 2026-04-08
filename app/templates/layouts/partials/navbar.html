@@ -1,0 +1,204 @@
+<nav class="mt-2">
+  <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+    
+    <li class="nav-item">
+      <a href="/dashboard" class="nav-link">
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>Dashboard</p>
+      </a>
+    </li>
+
+
+
+
+{% if user_modules %}
+
+  <!-- Civil Cases (6-8) -->
+  {% set civil_modules = modules 
+    | selectattr('id', 'in', user_modules) 
+    | selectattr('id', 'in', [6,7,8]) 
+    | list %}
+
+  {% if civil_modules %}
+    <li class="nav-header">Civil Cases</li>
+    <li class="nav-item">
+      <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-folder"></i>
+        <p>
+          Civil
+          <i class="right fas fa-angle-left"></i>
+        </p>
+      </a>
+      <ul class="nav nav-treeview">
+        {% for m in civil_modules %}
+          <li class="nav-item">
+            <a href="/{{ m.url }}" class="nav-link">
+              <i class="nav-icon fa {{ m.icon }}"></i>
+              <p>{{ m.description }}</p>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </li>
+  {% endif %}
+
+  <!-- Standalone Modules (9-10) -->
+  {% set standalone_modules = modules 
+    | selectattr('id', 'in', user_modules) 
+    | selectattr('id', 'in', [9,10,16]) 
+    | list %}
+
+  {% for m in standalone_modules %}
+    <li class="nav-item">
+      <a href="/{{ m.url }}" class="nav-link">
+        <i class="nav-icon fa {{ m.icon }}"></i>
+        <p>{{ m.name }}</p>
+      </a>
+    </li>
+  {% endfor %}
+
+{% endif %}
+
+
+
+
+
+<!-- Certificate / Clearance -->
+{% set cert_modules = modules 
+  | selectattr('id', 'in', user_modules) 
+  | selectattr('id', 'in', [5]) 
+  | list %}
+
+{% if cert_modules %}
+  <li class="nav-header">Files</li>
+  <li class="nav-item">
+    <a href="#" class="nav-link">
+      <i class="nav-icon fas fa-file-alt"></i>
+      <p>
+        Certificate
+        <i class="right fas fa-angle-left"></i>
+      </p>
+    </a>
+    <ul class="nav nav-treeview">
+      {% for m in cert_modules %}
+        <li class="nav-item">
+          <a href="/{{ m.url }}" class="nav-link">
+            <i class="nav-icon fa {{ m.icon }}"></i>
+            <p>{{ m.name }}</p>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </li>
+{% endif %}
+
+
+
+<!-- Schedule / Calendar -->
+{% set sched_modules = modules 
+  | selectattr('id', 'in', user_modules) 
+  | selectattr('id', 'in', [11,12]) 
+  | list %}
+
+{% if sched_modules %}
+  <li class="nav-header">Schedules</li>
+  <li class="nav-item">
+    <a href="#" class="nav-link">
+      <i class="nav-icon fas fa-calendar-alt"></i>
+      <p>
+        Schedule
+        <i class="right fas fa-angle-left"></i>
+      </p>
+    </a>
+    <ul class="nav nav-treeview">
+      {% for m in sched_modules %}
+        <li class="nav-item">
+          <a href="/{{ m.url }}" class="nav-link">
+            <i class="nav-icon fa {{ m.icon }}"></i>
+            <p>{{ m.name }}</p>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </li>
+{% endif %}
+
+
+
+
+
+
+
+<!-- Logs -->
+{% set logs_modules = modules 
+  | selectattr('id', 'in', user_modules) 
+  | selectattr('id', 'in', [13,14,15]) 
+  | list %}
+
+{% if logs_modules %}
+  <li class="nav-header">Logs</li>
+  <li class="nav-item">
+    <a href="#" class="nav-link">
+      <i class="nav-icon fas fa-clipboard-list"></i>
+      <p>
+        Logs
+        <i class="right fas fa-angle-left"></i>
+      </p>
+    </a>
+    <ul class="nav nav-treeview">
+      {% for m in logs_modules %}
+        <li class="nav-item">
+          <a href="/{{ m.url }}" class="nav-link">
+            <i class="nav-icon fa {{ m.icon }}"></i>
+            <p>{{ m.name }}</p>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </li>
+{% endif %}
+
+
+
+
+
+
+
+
+    {% if user_modules %}
+
+      <!-- Administrator Tools (1-4) -->
+      {% set admin_modules = modules 
+        | selectattr('id', 'in', user_modules) 
+        | selectattr('id', 'in', [1,2,3,4]) 
+        | list %}
+
+      {% if admin_modules %}
+        <li class="nav-header">Administrator Tools</li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-cogs"></i>
+            <p>
+              Setting
+              <i class="right fas fa-angle-left"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            {% for m in admin_modules %}
+              <li class="nav-item">
+                <a href="/{{ m.url }}" class="nav-link">
+                  <i class="nav-icon fa {{ m.icon }}"></i>
+                  <p>{{ m.name }}</p>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endif %}
+
+ 
+
+    {% endif %}
+
+  </ul>
+</nav>

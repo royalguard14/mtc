@@ -1,0 +1,209 @@
+{% extends "layouts/layout1.html" %}
+
+{% block head %}
+<style>
+  .select2-container .select2-selection--single {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+  }
+
+  .select2-selection__rendered {
+    line-height: 1.5 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .select2-container--default .select2-selection--single:focus {
+    box-shadow: none;
+    outline: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="col-lg-5 connectedSortable">
+  <div class="card card-info">
+    <div class="card-header">
+      <h3 class="card-title">Create Module</h3>
+    </div>
+    <form method="POST" action="{{ url_for('modules.modules_create') }}" class="form-horizontal">
+      <div class="card-body">
+        <div class="form-group">
+          <label>Module Name</label>
+          <input type="text" name="name" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label>Icon</label>
+          <select id="iconSelect" class="form-control" name="icon" required>
+            {% for icon in icons %}
+              <option value="fa-{{ icon }}">{{ icon }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>URL</label>
+          <input type="text" name="url" class="form-control" placeholder="/dashboard" required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" class="form-control"></textarea>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button type="submit" class="btn btn-success btn-block">Create Module</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="col-lg-7 connectedSortable">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Modules List</h3>
+    </div>
+    <div class="card-body">
+      <table id="modulesTable" class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="text-center" style="width: 40px;">Icon</th>
+            <th>URL</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for module in modules %}
+        <tr>
+  <td>{{ module.name }}</td>
+  <td class="text-center" style="width: 40px;">
+    <i class="fa {{ module.icon }}"></i>
+  </td>
+  <td>{{ module.url }}</td>
+  <td>
+    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editModuleModal{{ module.id }}">✏️</button>
+    <form action="{{ url_for('modules.modules_delete', module_id=module.id) }}" method="POST" style="display:inline;">
+      <button type="submit" class="btn btn-sm btn-danger"
+        {% if module.id in [1, 2, 3, 4] %} disabled title="Protected module"{% endif %}
+        onclick="return confirm('Delete this module?')">
+        🗑️
+      </button>
+    </form>
+  </td>
+</tr>
+
+
+          <!-- Edit Modal -->
+          <div class="modal fade" id="editModuleModal{{ module.id }}" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+              <form method="POST" action="{{ url_for('modules.modules_edit', module_id=module.id) }}">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5>Edit Module</h5>
+                  </div>
+                  <div class="modal-body">
+                    <input type="text" name="name" class="form-control mb-2" value="{{ module.name }}" required>
+
+                    <div class="form-group">
+                      <select class="form-control iconSelect mb-2" name="icon" id="iconSelectModal{{ module.id }}" required>
+                        {% for icon in icons %}
+                          <option value="fa-{{ icon }}"
+                            {% if module.icon == 'fa-' ~ icon %} selected {% endif %}>
+                            {{ icon }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <input type="text" name="url" class="form-control mb-2" value="{{ module.url }}">
+                    <textarea name="description" class="form-control">{{ module.description }}</textarea>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(function () {
+    $('#modulesTable').DataTable({
+      paging: true,
+      searching: true,
+      ordering: false,
+      responsive: true
+    });
+  });
+
+  function formatIcon(option) {
+    if (!option.id) return option.text;
+    const iconClass = option.id;
+    const fullClass = getValidIconClass(iconClass);
+    return $('<span><i class="' + fullClass + '"></i> ' + option.text + '</span>');
+  }
+
+  function initializeSelect2Icon(selectElement) {
+    const $select = $(selectElement);
+    const isInModal = $select.closest('.modal').length > 0;
+
+    $select.select2({
+      templateResult: formatIcon,
+      templateSelection: formatIcon,
+      escapeMarkup: markup => markup,
+      width: '100%',
+      ...(isInModal ? { dropdownParent: $select.closest('.modal') } : {})
+    });
+  }
+
+  // Auto-detects the correct FontAwesome prefix for a given icon
+  function getValidIconClass(baseIcon) {
+    const prefixes = ['fas', 'fab', 'far'];
+    const testEl = document.createElement('i');
+
+    for (let prefix of prefixes) {
+      testEl.className = `${prefix} ${baseIcon}`;
+      document.body.appendChild(testEl);
+      const font = window.getComputedStyle(testEl).getPropertyValue('font-family');
+      document.body.removeChild(testEl);
+      if (font && font !== 'none' && font !== '') {
+        return `${prefix} ${baseIcon}`;
+      }
+    }
+    return `fas ${baseIcon}`; // fallback
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    initializeSelect2Icon('#iconSelect');
+
+    $('.modal').on('shown.bs.modal', function () {
+      $(this).find('select.iconSelect').each(function () {
+        if (!$(this).hasClass('select2-hidden-accessible')) {
+          initializeSelect2Icon(this);
+        }
+      });
+    });
+
+    // Apply dynamic icons
+    document.querySelectorAll('.fa-icon').forEach(function (el) {
+      const base = el.dataset.icon;
+      const fullClass = getValidIconClass(base);
+      el.className = fullClass;
+    });
+  });
+</script>
+{% endblock %}

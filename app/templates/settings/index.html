@@ -1,0 +1,133 @@
+{% extends "layouts/layout1.html" %}
+{% block content %}
+<section class="col-lg-6 connectedSortable">
+  <div class="card card-info">
+    <div class="card-header">
+      <h3 class="card-title">Create Setting</h3>
+    </div>
+    <form method="POST" action="{{ url_for('settings.settings_create') }}" class="form-horizontal">
+      <div class="card-body">
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" name="function_desc" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Value</label>
+          <textarea name="function" class="form-control" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select name="type" class="form-control" required>
+            <option value="frontend">Frontend</option>
+            <option value="backend">Backend</option>
+          </select>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button type="submit" class="btn btn-success btn-block">Create Setting</button>
+      </div>
+    </form>
+  </div>
+</section>
+<section class="col-lg-6 connectedSortable">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Settings List</h3>
+    </div>
+    <div class="card-body">
+      <table id="settingsTable" class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Value</th>
+            <th style="width: 80px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for setting in settings %}
+          <tr>
+            <td>{{ setting.function_desc }}</td>
+            <td style="max-width: 300px; ">
+              {% if setting.function == '0' %}
+              ❌
+              {% elif setting.function == '1' %}
+              ✅
+              {% else %}
+              {{ setting.function }}
+              {% endif %}
+            </td>
+            <td>
+             {% if current_user.is_authenticated and current_user.role.id == 1 and current_user.username == 'zear' %}
+             <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#editSettingModal{{ setting.id }}">✏️</button>
+             <form action="{{ url_for('settings.settings_delete', setting_id=setting.id) }}" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-danger"
+              {% if setting.id in [1,2,3,4,5,6,7,8] %} disabled title="Protected setting"{% endif %}
+              onclick="return confirm('Delete this setting?')">
+              🗑️
+            </button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      <!-- Edit Modal -->
+      <div class="modal fade" id="editSettingModal{{ setting.id }}" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <form method="POST" action="{{ url_for('settings.settings_edit', setting_id=setting.id) }}">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5>Edit Setting</h5>
+              </div>
+              <div class="modal-body">
+                <!-- Read-only Description -->
+                <div class="form-group">
+                  <label>Description</label>
+                  <input type="text" class="form-control" value="{{ setting.function_desc }}" readonly>
+                </div>
+                <!-- Value Input: Checkbox or Textarea -->
+                <div class="form-group">
+                  <label>Value</label>
+                  {% if setting.function in ['0', '1'] %}
+                  <div class="form-check">
+                    <input type="checkbox" name="function" value="1" class="form-check-input" id="checkFunction{{ setting.id }}" {% if setting.function == '1' %}checked{% endif %}>
+                    <label class="form-check-label" for="checkFunction{{ setting.id }}">Enabled</label>
+                  </div>
+                  {% else %}
+                  <textarea name="function" class="form-control" rows="4">{{ setting.function }}</textarea>
+                  {% endif %}
+                </div>
+                <!-- Type Dropdown -->
+                <div class="form-group">
+                  <label>Type</label>
+                  <select name="type" class="form-control" required>
+                    <option value="frontend" {% if setting.type == 'frontend' %}selected{% endif %}>Frontend</option>
+                    <option value="backend" {% if setting.type == 'backend' %}selected{% endif %}>Backend</option>
+                  </select>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  $(function () {
+    $('#settingsTable').DataTable({
+      paging: true,
+      searching: true,
+      ordering: false,
+      responsive: true
+    });
+  });
+</script>
+{% endblock %}
