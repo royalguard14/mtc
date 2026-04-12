@@ -25,7 +25,7 @@ def add_host_entry():
         print("❌ Admin rights required to modify hosts file.")
 
 def get_appdata_path():
-    return os.path.join(os.environ.get("LOCALAPPDATA", "."), "PyZar")
+    return os.path.join(os.environ.get("LOCALAPPDATA", "."), "PyZar-MTCBADN")
 
 def ensure_db_folder():
     appdata_dir = get_appdata_path()

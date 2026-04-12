@@ -1,0 +1,190 @@
+{% extends "layouts/layout1.html" %}
+
+{% block content %}
+
+<form method="POST" action="/cc/update-person/{{ person.PERSONID }}">
+
+<div class="col-12">
+  <div class="card card-primary card-outline card-outline-tabs">
+
+    <!-- HEADER -->
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Person Details</h5>
+
+      <div>
+        <button type="button" id="btn-edit" class="btn btn-primary btn-sm">Edit</button>
+        <button type="submit" id="btn-save" class="btn btn-success btn-sm d-none">Save</button>
+        <button type="button" id="btn-cancel" class="btn btn-secondary btn-sm d-none">Cancel</button>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="card-header p-0 border-bottom-0">
+      <ul class="nav nav-tabs" id="case-tabs" role="tablist">
+
+        <li class="nav-item">
+          <a class="nav-link active" data-toggle="pill" href="#tab-accused">
+            I. Accused Information
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="pill" href="#tab-arraignment">
+            II. Arraignment and Pre-Trial
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="pill" href="#tab-mediation">
+            III. Mediation
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="pill" href="#tab-prosecution">
+            IV. Prosecution
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="pill" href="#tab-defense">
+            V. Defense
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="pill" href="#tab-decision">
+            VI. Decision
+          </a>
+        </li>
+
+      </ul>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="card-body">
+      <div class="tab-content">
+
+        <!-- ACCUSED -->
+        <div class="tab-pane fade show active" id="tab-accused">
+
+          <div class="form-group">
+            <label>First Name</label>
+            <p class="view-mode">{{ person.FNAME }}</p>
+            <input type="text" class="form-control edit-mode d-none" name="FNAME" value="{{ person.FNAME }}">
+          </div>
+
+          <div class="form-group">
+            <label>Middle Name</label>
+            <p class="view-mode">{{ person.MNAME }}</p>
+            <input type="text" class="form-control edit-mode d-none" name="MNAME" value="{{ person.MNAME }}">
+          </div>
+
+          <div class="form-group">
+            <label>Last Name</label>
+            <p class="view-mode">{{ person.LNAME }}</p>
+            <input type="text" class="form-control edit-mode d-none" name="LNAME" value="{{ person.LNAME }}">
+          </div>
+
+          <div class="form-group">
+            <label>Gender</label>
+            <p class="view-mode">{{ person.GENDER }}</p>
+            <input type="text" class="form-control edit-mode d-none" name="GENDER" value="{{ person.GENDER }}">
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <p class="view-mode">{{ person.ADDRESS1 }}</p>
+            <input type="text" class="form-control edit-mode d-none" name="ADDRESS1" value="{{ person.ADDRESS1 }}">
+          </div>
+
+        </div>
+
+        <!-- ARRAIGNMENT -->
+        <div class="tab-pane fade" id="tab-arraignment">
+
+          <p class="view-mode">Arraignment: {{ party.DTARRAIGN }}</p>
+          <input class="form-control edit-mode d-none" name="DTARRAIGN" value="{{ party.DTARRAIGN }}">
+
+          <p class="view-mode">Pre-Trial: {{ party.DTPRETRIAL }}</p>
+          <input class="form-control edit-mode d-none" name="DTPRETRIAL" value="{{ party.DTPRETRIAL }}">
+
+          <p class="view-mode">Initial: {{ party.DTINITIAL }}</p>
+          <input class="form-control edit-mode d-none" name="DTINITIAL" value="{{ party.DTINITIAL }}">
+
+          <p class="view-mode">Last: {{ party.DTLAST }}</p>
+          <input class="form-control edit-mode d-none" name="DTLAST" value="{{ party.DTLAST }}">
+
+        </div>
+
+        <!-- MEDIATION -->
+        <div class="tab-pane fade" id="tab-mediation">
+          <p class="view-mode">{{ party.MEDIATION }}</p>
+          <input class="form-control edit-mode d-none" name="MEDIATION" value="{{ party.MEDIATION }}">
+        </div>
+
+        <!-- PROSECUTION -->
+        <div class="tab-pane fade" id="tab-prosecution">
+
+          <p class="view-mode">Offer: {{ party.DTOFFERPRO }}</p>
+          <input class="form-control edit-mode d-none" name="DTOFFERPRO" value="{{ party.DTOFFERPRO }}">
+
+          <p class="view-mode">Trial: {{ party.DTACTUAL }}</p>
+          <input class="form-control edit-mode d-none" name="DTACTUAL" value="{{ party.DTACTUAL }}">
+
+        </div>
+
+        <!-- DEFENSE -->
+        <div class="tab-pane fade" id="tab-defense">
+
+          <p class="view-mode">Offer: {{ party.DTOFFERDEF }}</p>
+          <input class="form-control edit-mode d-none" name="DTOFFERDEF" value="{{ party.DTOFFERDEF }}">
+
+          <p class="view-mode">Defense: {{ party.DTDEFENSE }}</p>
+          <input class="form-control edit-mode d-none" name="DTDEFENSE" value="{{ party.DTDEFENSE }}">
+
+        </div>
+
+        <!-- DECISION -->
+        <div class="tab-pane fade" id="tab-decision">
+
+          <p class="view-mode">Promulgation: {{ party.DTPROMUL }}</p>
+          <input class="form-control edit-mode d-none" name="DTPROMUL" value="{{ party.DTPROMUL }}">
+
+          <p class="view-mode">Penalty: {{ party.PENALTY }}</p>
+          <input class="form-control edit-mode d-none" name="PENALTY" value="{{ party.PENALTY }}">
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</form>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+
+$("#btn-edit").click(function () {
+  $(".view-mode").hide();
+  $(".edit-mode").removeClass("d-none");
+
+  $("#btn-edit").addClass("d-none");
+  $("#btn-save, #btn-cancel").removeClass("d-none");
+});
+
+$("#btn-cancel").click(function () {
+  $(".view-mode").show();
+  $(".edit-mode").addClass("d-none");
+
+  $("#btn-edit").removeClass("d-none");
+  $("#btn-save, #btn-cancel").addClass("d-none");
+});
+
+</script>
+{% endblock %}

@@ -249,7 +249,42 @@ class CTMS1000(db.Model):
     MODIFYBY = db.Column(db.Text)
     MODIFYDT = db.Column(db.Text)
 
+    # =====================
+    # 🔗 RELATIONSHIPS
+    # =====================
 
+    # Parties (1 case → many parties)
+    parties = db.relationship(
+        "CTMS4100",
+        backref="case",
+        lazy=True
+    )
+
+    # Court (many cases → one court)
+    court = db.relationship(
+        "CTMS2100",
+        primaryjoin="CTMS1000.COURTID==CTMS2100.COURTID",
+        foreign_keys=[COURTID],
+        viewonly=True
+    )
+
+    # Nature (code lookup)
+    nature = db.relationship(
+        "CTMS2310",
+        primaryjoin="CTMS1000.NATURECODE==CTMS2310.NATURECODE",
+        foreign_keys=[NATURECODE],
+        viewonly=True
+    )
+
+    # Disposition (optional if used)
+    disposition = db.relationship(
+        "CTMS2320",
+        primaryjoin="CTMS1000.CLOSESTAT==CTMS2320.DISPOSCODE",
+        foreign_keys=[CLOSESTAT],
+        viewonly=True
+    )
+
+    
 class CTMS2100(db.Model):
     __tablename__ = 'ctms2100'
 
@@ -280,8 +315,8 @@ class CTMS4100(db.Model):
     __tablename__ = 'ctms4100'
 
     PARTYID = db.Column(db.Integer, primary_key=True)
-    CASEID = db.Column(db.Integer)
-    PERSONID = db.Column(db.Integer)
+    CASEID = db.Column(db.Integer, db.ForeignKey('ctms1000.CASEID'))
+    PERSONID = db.Column(db.Integer, db.ForeignKey('ctms4000.PERSONID'))
     PSTATUS = db.Column(db.Text)
     PARTYNAME = db.Column(db.Text)
     DETAINED = db.Column(db.Integer)
@@ -330,6 +365,12 @@ class CTMS4100(db.Model):
     MODIFYBY = db.Column(db.Text)
     MODIFYDT = db.Column(db.Text)
 
+    # 🔗 link to person
+    person = db.relationship(
+        "CTMS4000",
+        backref="parties",
+        lazy=True
+    )
 
 # =========================
 # SETTINGSB
