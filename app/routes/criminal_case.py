@@ -91,50 +91,93 @@ def view_person(person_id):
         .filter_by(PERSONID=person_id)
         .first_or_404()
     )
+    pStatus = [
+        "AT-LARGE",
+        "BONDED",
+        "ESCAPED FROM PRISON",
+        "DETAINED",
+        "JUMPED BAIL",
+        "OUT ON BAIL",
+        "REHABILITATION",
+        "RELEASED ON RECOGNIZANCE",
+        "UNDER PROBATION"
+    ]
 
     return render_template(
         'civil_cases/person_view.html',
         party=party,
         person=party.person,
-        case=party.case
+        case=party.case,
+        pStatus=pStatus
     )
 
 
 
 
 
+# @criminals_bp.route('/update-person/<int:person_id>', methods=['POST'])
+# @login_required
+# def update_person(person_id):
+
+#     person = CTMS4000.query.get_or_404(person_id)
+
+#     form = request.form
+
+#     # only update if changed
+#     if person.FNAME != form.get('FNAME'):
+#         person.FNAME = form.get('FNAME', '').upper()
+
+#     if person.MNAME != form.get('MNAME'):
+#         person.MNAME = form.get('MNAME', '').upper()
+
+#     if person.LNAME != form.get('LNAME'):
+#         person.LNAME = form.get('LNAME', '').upper()
+
+#     if person.ANAME != form.get('ANAME'):
+#         person.ANAME = form.get('ANAME', '').upper()
+
+#     if person.GENDER != form.get('GENDER'):
+#         person.GENDER = form.get('GENDER')
+
+#     if person.DBIRTH != form.get('DBIRTH'):
+#         person.DBIRTH = form.get('DBIRTH')
+
+#     if person.TELNO != form.get('TELNO'):
+#         person.TELNO = form.get('TELNO')
+
+#     if person.PSTATUS != form.get('PSTATUS'):
+#         person.PSTATUS = form.get('PSTATUS')
+
+#     if person.ADDRESS1 != form.get('ADDRESS1'):
+#         person.ADDRESS1 = form.get('ADDRESS1')
+
+#     db.session.commit()
+
+#     return {"status": "success"}
+
 @criminals_bp.route('/update-person/<int:person_id>', methods=['POST'])
 @login_required
 def update_person(person_id):
 
     person = CTMS4000.query.get_or_404(person_id)
+    form = request.form
 
-    # PERSON FIELDS
-    person.FNAME = request.form.get('FNAME')
-    person.MNAME = request.form.get('MNAME')
-    person.LNAME = request.form.get('LNAME')
-    person.GENDER = request.form.get('GENDER')
-    person.ADDRESS1 = request.form.get('ADDRESS1')
-
-    # PARTY FIELDS (if needed)
-    party = CTMS4100.query.filter_by(PERSONID=person_id).first()
-    if party:
-        party.DTARRAIGN = request.form.get('DTARRAIGN')
-        party.DTPRETRIAL = request.form.get('DTPRETRIAL')
-        party.DTINITIAL = request.form.get('DTINITIAL')
-        party.DTLAST = request.form.get('DTLAST')
-
-        party.MEDIATION = request.form.get('MEDIATION')
-        party.DTOFFERPRO = request.form.get('DTOFFERPRO')
-        party.DTACTUAL = request.form.get('DTACTUAL')
-        party.DTOFFERDEF = request.form.get('DTOFFERDEF')
-        party.DTDEFENSE = request.form.get('DTDEFENSE')
-        party.DTPROMUL = request.form.get('DTPROMUL')
-        party.PENALTY = request.form.get('PENALTY')
+    person.FNAME = form.get('FNAME', '').upper()
+    person.MNAME = form.get('MNAME', '').upper()
+    person.LNAME = form.get('LNAME', '').upper()
+    person.ANAME = form.get('ANAME', '').upper()
+    person.GENDER = form.get('GENDER')
+    person.DBIRTH = form.get('DBIRTH')
+    person.TELNO = form.get('TELNO')
+    person.PSTATUS = form.get('PSTATUS')
+    person.ADDRESS1 = form.get('ADDRESS1')
 
     db.session.commit()
 
-    return redirect(request.referrer)
+    return {
+        "status": "success",
+        "data": person.to_dict()
+    }
 
 
 
@@ -247,10 +290,24 @@ def add_case():
 @criminals_bp.route('/add_person/<int:case_id>')
 @login_required
 def add_person_form(case_id):
+    pStatus = [
+        "AT-LARGE",
+        "BONDED",
+        "ESCAPED FROM PRISON",
+        "DETAINED",
+        "JUMPED BAIL",
+        "OUT ON BAIL",
+        "REHABILITATION",
+        "RELEASED ON RECOGNIZANCE",
+        "UNDER PROBATION"
+    ]
+
     return render_template(
         'civil_cases/add_person.html',
-        case_id=case_id
+        case_id=case_id,
+        pStatus=pStatus
     )
+
 
 
 
@@ -276,6 +333,13 @@ def save_person():
         FNAME=request.form.get('FNAME').upper(),
         MNAME=request.form.get('MNAME').upper() if request.form.get('MNAME') else None,
         LNAME=request.form.get('LNAME').upper(),
+        ANAME=request.form.get('ANAME').upper(),
+        DBIRTH= request.form.get('DBIRTH'),
+        GENDER=request.form.get('GENDER'),
+        ADDRESS1=request.form.get('ADDRESS1'),
+        TELNO=request.form.get('TELNO'),
+        PSTATUS=request.form.get('PSTATUS'),
+        STATCASEID=0,
         CREATEBY="BCC1",
         CREATEDT=now
     )
@@ -304,7 +368,7 @@ def save_person():
         PPOSTPONED=0,
         DPOSTPONED=0,
         DISPOSCODE=0,
-        AGECOMIT=0,
+        AGECOMIT=request.form.get('AGECOMIT'),
 
         CREATEBY="BCC1",
         CREATEDT=now,

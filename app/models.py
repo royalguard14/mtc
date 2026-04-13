@@ -219,6 +219,24 @@ class CTMS4000(db.Model):
     STATCASEID = db.Column(db.Integer)
     CREATEBY = db.Column(db.Text)
     CREATEDT = db.Column(db.Text)
+    def to_dict(self):
+            return {
+                "PERSONID": self.PERSONID,
+                "FNAME": self.FNAME,
+                "MNAME": self.MNAME,
+                "LNAME": self.LNAME,
+                "ANAME": self.ANAME,
+                "DBIRTH": self.DBIRTH,
+                "GENDER": self.GENDER,
+                "ADDRESS1": self.ADDRESS1,
+                "ADDRESS2": self.ADDRESS2,
+                "ADDRESS3": self.ADDRESS3,
+                "TELNO": self.TELNO,
+                "PSTATUS": self.PSTATUS,
+                "STATCASEID": self.STATCASEID,
+                "CREATEBY": self.CREATEBY,
+                "CREATEDT": self.CREATEDT
+            }
 
 
 class CTMS1000(db.Model):
