@@ -413,3 +413,12 @@ class SettingsCTMS(db.Model):
     ISSINGLE = db.Column(db.Integer)
     MODIDT = db.Column(db.Text)
     MODIBY = db.Column(db.Text)
+
+
+class CTMS2300(db.Model):
+    __tablename__ = 'ctms2300'
+
+    CODEID = db.Column(db.Text, primary_key=True)
+    CATEGORY = db.Column(db.Text)
+    DESCRP = db.Column(db.Text)
+    CRTTYPE = db.Column(db.Text)

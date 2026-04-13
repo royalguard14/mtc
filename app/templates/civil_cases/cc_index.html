@@ -6,30 +6,23 @@
     width: 1%;
   }
 </style>
-
-
-
 <section class="col-lg-12 connectedSortable">
   <div class="card">
     <div class="card-header">
       <h3 class="card-title">Criminal Case Record</h3>
-
+      <div class="card-tools">
+        <a href="/cc/add" class="btn btn-outline-primary btn-block"><i class="fas fa-plus"></i> Add Case</a>
+      </div>
     </div>
-
     <div class="card-body">
       <table id="example2" class="table table-bordered table-striped">
         <thead>
           <tr>
             <th class="case-col">Case Number</th>
-
             <th>Date Filed</th>
-
             <th>Title</th>
-
           </tr>
-
         </thead>
-
         <tbody>
           {% for record in criminal_records %}
           <tr>
@@ -41,26 +34,16 @@
               data-caseid="{{ record.CASEID }}">
               {{ record.CASENUM }}
             </a>
-
           </td>
-          
           <td class="case-col">{{ record.DTFILED }}</td>
-          
           <td>{{ record.CASETITLE }}</td>
-
         </tr>
-
         {% endfor %}
       </tbody>
-
     </table>
-
   </div>
-
 </div>
-
 </section>
-
 <!-- =========================
      MODAL
 ========================= -->
@@ -69,39 +52,25 @@
     <div class="modal-content">
       <div class="modal-header">
         <h4 class="modal-title font-weight-bold">Case Number: <span>xx</span></h4>
-        
       </div>
-
       <div class="modal-body">
         <div class="row">
           <section class="col-lg-7">
-           asdasd
-         </section>
-         
-         <section class="col-lg-5">
-          <h5 class="mt-4 font-weight-bold">Accused</h5>
-
-          <ul id="parties-body" class="list-group"></ul>
-
-        </section>
-
+            <div id="case-info-body"></div>
+          </section>
+          <section class="col-lg-5">
+            <ul id="parties-body" class="list-group"></ul>
+          </section>
+        </div>
       </div>
-
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
     </div>
-
-    <div class="modal-footer">
-      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-
-    </div>
-
+    <!-- /.modal-content -->
   </div>
-
-  <!-- /.modal-content -->
-</div>
-
 <!-- /.modal-dialog -->
 </div>
-
 <!-- /.modal -->
 {% endblock %}
 {% block scripts %}
@@ -116,78 +85,61 @@
       day: 'numeric'
     });
   }
-
-
   function renderCaseInfo(data) {
+    let c = data.case;
+  // Update modal title (Case Number)
+    $(".modal-title span").text(c.CASENUM ?? '');
     let html = `
-    <table class="table table-borderless">
+    <table class="table table-bordered table-sm">
+      <tr>
+        <th>Case Title</th>
+        <td>${c.CASETITLE ?? ''}</td>
+      </tr>
+      <tr>
+        <th>Date Filed</th>
+        <td>${formatDate(c.DTFILED)}</td>
+      </tr>
+      <tr>
+        <th>Date Received</th>
+        <td>${formatDate(c.DTRECEIVED)}</td>
+      </tr>
+      <tr>
+        <th>Nature</th>
+        <td>${c.NATUREREM ?? ''}</td>
+      </tr>
+    </table>
     `;
-  // ROW 1
-    html += `
-    <tr>
-      <th>CASE NUMBER:</th>
-
-      <td>${data.case.CASENUM ?? ''}</td>
-
-      <th>CASE TITLE:</th>
-
-      <td>${data.case.CASETITLE ?? ''}</td>
-
-
-
-    </tr>
-    
-    `;
-  // ROW 2
-    html += `
-    <tr>
-      <th>DATE FILED:</th>
-
-      <td>${formatDate(data.case.DTFILED) ?? ''}</td>
-
-      <th>DATE RECEIVED:</th>
-
-      <td>${formatDate(data.case.DTRECEIVED) ?? ''}</td>
-
-    </tr>
-
-    `;
-    html += `</table>`;
-
+  // Insert into modal
     $("#case-info-body").html(html);
   }
-
-
-function renderParties(data) {
-  let html = '';
-
-  data.parties.forEach(p => {
-
-    let name = p.FULLNAME || p.PARTYNAME || '';
-
-    html += `
-      <li>
+  function renderParties(data) {
+    let listHtml = '';
+    data.parties.forEach(p => {
+      let name = p.FULLNAME || p.PARTYNAME || '';
+      listHtml += `
+      <div>
         <a href="/cc/person/${p.PERSONID}" class="text-primary">
           ${name}
         </a>
-      </li>
+      </div>
+      `;
+    });
+    let html = `
+    <table class="table table-bordered table-sm">
+      <tr>
+        <th class="text-center">Accused</th>
+        <a href="/cc/add_person/${data.case.CASEID}"  class="btn btn-block btn-outline-secondary btn-xs">Register New</a>
+      
+      </tr>
+      <tr>
+        <td>
+          ${listHtml || '<span class="text-muted">No accused found</span>'}
+        </td>
+      </tr>
+    </table>
     `;
-  });
-
-  $("#parties-body").html(html);
-}
-
-
-
-
-
-
-
-
-
-
-
-
+    $("#parties-body").html(html);
+  }
 // =========================
 // CLICK EVENT
 // =========================
@@ -195,9 +147,7 @@ function renderParties(data) {
     let caseId = $(this).data("caseid");
   // Loading state
     $("#case-info-body").html('<tr><td colspan="2">Loading...</td></tr>');
-
     $("#parties-body").html('<tr><td colspan="4">Loading...</td></tr>');
-
     $.get("/cc/case-details/" + caseId, function (data) {
     // Render everything dynamically
       renderCaseInfo(data);
@@ -219,5 +169,4 @@ function renderParties(data) {
     });
   });
 </script>
-
 {% endblock %}

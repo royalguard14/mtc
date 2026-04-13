@@ -7,7 +7,7 @@ import uuid
 # --- Initialization ---
 def init_firebase():
     if not firebase_admin._apps:
-        cred = credentials.Certificate("app/core/pyzar-6b377-firebase-adminsdk-fbsvc-5fca637c0f.json")
+        cred = credentials.Certificate("app/core/pyzar-6b377-firebase-adminsdk-fbsvc-4bae0de02c.json")
         firebase_admin.initialize_app(cred)
 
 init_firebase()
