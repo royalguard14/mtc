@@ -1,6 +1,10 @@
 import os
 from dbfread import DBF
 from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime
+from app import db
+from app.models import CTMS1000
+
 
 from app import db
 
@@ -113,3 +117,22 @@ def import_all_dbf(folder_path):
         print(f"➡️ Importing {table_name}")
 
         import_dbf_to_model(dbf_path, model)
+
+
+
+
+CURRENT_USER = "BCC1"
+
+
+def get_now():
+    return datetime.now().isoformat(timespec='microseconds')
+
+
+def touch_case(case_id):
+    """
+    Automatically mark case as modified
+    """
+    case = CTMS1000.query.get(case_id)
+    if case:
+        case.MODIFYDT = get_now()
+        case.MODIFYBY = CURRENT_USER

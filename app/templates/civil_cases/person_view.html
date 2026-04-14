@@ -1,109 +1,80 @@
 {% extends "layouts/layout1.html" %}
-
 {% block content %}
-
 <div class="col-12">
   <div class="card card-primary card-outline card-outline-tabs">
-
     <!-- HEADER -->
     <div class="card-header">
       <h3 class="card-title">Person Details</h3>
-
-
       <div class="card-tools">
         <button type="button" id="btn-edit" class="btn btn-primary btn-sm">Edit</button>
         <button type="button" id="btn-save" class="btn btn-success btn-sm d-none">Save</button>
         <button type="button" id="btn-cancel" class="btn btn-secondary btn-sm d-none">Cancel</button>
       </div>
     </div>
-
     <!-- TABS HEADER -->
     <div class="card-header p-0 border-bottom-0">
       <ul class="nav nav-tabs" role="tablist">
-
         <li class="nav-item">
           <a class="nav-link active" data-toggle="tab" href="#tab-accused">I. Accused Information</a>
         </li>
-
         <li class="nav-item">
           <a class="nav-link" data-toggle="tab" href="#tab-arraignment">II. Arraignment</a>
         </li>
-
         <li class="nav-item">
           <a class="nav-link" data-toggle="tab" href="#tab-mediation">III. Mediation</a>
         </li>
-
         <li class="nav-item">
           <a class="nav-link" data-toggle="tab" href="#tab-prosecution">IV. Prosecution</a>
         </li>
-
         <li class="nav-item">
           <a class="nav-link" data-toggle="tab" href="#tab-defense">V. Defense</a>
         </li>
-
         <li class="nav-item">
           <a class="nav-link" data-toggle="tab" href="#tab-decision">VI. Decision</a>
         </li>
-
       </ul>
     </div>
-
     <!-- CONTENT -->
     <div class="card-body">
-
       <form id="person-form">
-
         <input type="hidden" name="PERSONID" value="{{ person.PERSONID }}">
-
         <div class="tab-content">
-
           <!-- ================= ACCUSED ================= -->
           <div class="tab-pane fade show active" id="tab-accused">
-
             <div class="row">
-
               <div class="form-group col-md-4">
                 <label>First Name</label>
                 <p class="view-mode" id="view-FNAME">{{ person.FNAME }}</p>
                 <input type="text" class="form-control edit-mode d-none" name="FNAME" value="{{ person.FNAME }}">
               </div>
-
               <div class="form-group col-md-4">
                 <label>Middle Name</label>
                 <p class="view-mode" id="view-MNAME">{{ person.MNAME }}</p>
                 <input type="text" class="form-control edit-mode d-none" name="MNAME" value="{{ person.MNAME }}">
               </div>
-
               <div class="form-group col-md-4">
                 <label>Last Name</label>
                 <p class="view-mode" id="view-LNAME">{{ person.LNAME }}</p>
                 <input type="text" class="form-control edit-mode d-none" name="LNAME" value="{{ person.LNAME }}">
               </div>
-
             </div>
-
             <div class="row">
-
               <div class="form-group col-md-4">
                 <label>Alias</label>
                 <p class="view-mode" id="view-ANAME">{{ person.ANAME }}</p>
                 <input type="text" class="form-control edit-mode d-none" name="ANAME" value="{{ person.ANAME }}">
               </div>
-
               <div class="form-group col-md-4">
                 <label>Gender</label>
                 <p class="view-mode">{{ person.GENDER }}</p>
-
                 <select name="GENDER" class="form-control edit-mode d-none">
                   <option value="M" {% if person.GENDER == 'M' %}selected{% endif %}>Male</option>
                   <option value="F" {% if person.GENDER == 'F' %}selected{% endif %}>Female</option>
                 </select>
               </div>
-
               <div class="form-group col-md-4">
                 <label>Status</label>
                 <p class="view-mode">{{ person.PSTATUS }}</p>
-
                 <select name="PSTATUS" class="form-control edit-mode d-none">
                   {% for n in pStatus %}
                   <option value="{{ n }}" {% if n == person.PSTATUS %}selected{% endif %}>
@@ -112,166 +83,417 @@
                   {% endfor %}
                 </select>
               </div>
-
             </div>
-
             <div class="row">
-
               <div class="form-group col-md-4">
                 <label>Contact</label>
                 <p class="view-mode">{{ person.TELNO }}</p>
                 <input type="text" class="form-control edit-mode d-none" name="TELNO" value="{{ person.TELNO }}">
               </div>
-
               <div class="form-group col-md-4">
                 <label>Date of Birth</label>
                 <p class="view-mode">{{ person.DBIRTH }}</p>
                 <input type="date" class="form-control edit-mode d-none" name="DBIRTH" value="{{ person.DBIRTH }}">
               </div>
-
+              <div class="form-group col-md-4">
+                <label>Age in the time of Commision of Crime</label>
+                <p class="view-mode">{{ party.AGECOMIT }}</p>
+                <input type="Number" name="AGECOMIT" class="form-control edit-mode d-none" min="0" max="80" value="{{ party.AGECOMIT }}">
+              </div>
             </div>
-
             <div class="form-group">
               <label>Address</label>
               <p class="view-mode">{{ person.ADDRESS1 }}</p>
-
               <textarea name="ADDRESS1"
-                class="form-control edit-mode d-none"
-                rows="4"
-                style="resize:none;">{{ person.ADDRESS1 }}</textarea>
+              class="form-control edit-mode d-none"
+              rows="4"
+              style="resize:none;">{{ person.ADDRESS1 }}</textarea>
             </div>
-
           </div>
-
           <!-- ================= ARRAIGNMENT ================= -->
           <div class="tab-pane fade" id="tab-arraignment">
-            <input class="form-control edit-mode d-none" name="DTARRAIGN" value="{{ party.DTARRAIGN }}">
+            <div class="row">
+             <div class="form-group col-md-4">
+              <label>Status for this Case</label>
+              <p class="view-mode">
+                {% if party.DETAINED == 1 %}Detainee{% else %}Non Detainee{% endif %}
+              </p>
+              <select name="DETAINED" class="form-control edit-mode d-none">
+                <option value="1" {% if party.DETAINED == 1 %}selected{% endif %}>Detainee</option>
+                <option value="2" {% if party.DETAINED == 2 %}selected{% endif %}>Non Detainee</option>
+              </select>
+            </div>
           </div>
-
-          <!-- ================= MEDIATION ================= -->
-          <div class="tab-pane fade" id="tab-mediation">
-            <input class="form-control edit-mode d-none" name="MEDIATION" value="{{ party.MEDIATION }}">
+          <div class="row">
+           <div class="form-group col-md-6">
+            <label>Date of Detention</label>
+            <p class="view-mode">{{ party.DTDETAINED }}</p>
+            <input type="date" class="form-control edit-mode d-none" name="DTDETAINED" value="{{ party.DTDETAINED }}">
           </div>
-
-          <!-- ================= PROSECUTION ================= -->
-          <div class="tab-pane fade" id="tab-prosecution">
-            <input class="form-control edit-mode d-none" name="DTOFFERPRO" value="{{ party.DTOFFERPRO }}">
+          <div class="form-group col-md-6">
+            <label>Date of Arrest</label>
+            <p class="view-mode">{{ party.DTARREST }}</p>
+            <input type="date" class="form-control edit-mode d-none" name="DTARREST" value="{{ party.DTARREST }}">
           </div>
-
-          <!-- ================= DEFENSE ================= -->
-          <div class="tab-pane fade" id="tab-defense">
-            <input class="form-control edit-mode d-none" name="DTOFFERDEF" value="{{ party.DTOFFERDEF }}">
-          </div>
-
-          <!-- ================= DECISION ================= -->
-          <div class="tab-pane fade" id="tab-decision">
-            <input class="form-control edit-mode d-none" name="PENALTY" value="{{ party.PENALTY }}">
-          </div>
-
         </div>
-      </form>
-
-      <div id="msg-success" class="alert alert-success d-none mt-3">
-        ✔ Saved successfully!
+        <div class="row">
+         <div class="form-group col-md-6">
+          <label>Date of Bail</label>
+          <p class="view-mode">{{ party.DTBAIL }}</p>
+          <input type="date" class="form-control edit-mode d-none" name="DTBAIL" value="{{ party.DTBAIL }}">
+        </div>
+        <div class="form-group col-md-6">
+          <label>Date of Voluntary Surrender</label>
+          <p class="view-mode">{{ party.DTSURRENDR }}</p>
+          <input type="date" class="form-control edit-mode d-none" name="DTSURRENDR" value="{{ party.DTSURRENDR }}">
+        </div>
       </div>
-
+      <div class="row">
+       <div class="form-group col-md-6">
+        <label>Place of Detention</label>
+        <p class="view-mode">{{ party.BAILREM }}</p>
+        <input type="text" class="form-control edit-mode d-none" name="BAILREM" value="{{ party.BAILREM }}">
+      </div>
     </div>
+    <div class="row">
+     <div class="form-group col-md-6">
+      <label>Date of Released</label>
+      <p class="view-mode">{{ party.DTRELEASED }}</p>
+      <input type="date" class="form-control edit-mode d-none" name="DTRELEASED" value="{{ party.DTRELEASED }}">
+    </div>
+    <div class="form-group col-md-4">
+      <label>Status for this Case   </label>
+      <p class="view-mode">
+        {% for n in rfrs %}
+        {% if n.CODEID|string == party.RELEASED|string %}
+        {{ n.DESCRP }}
+        {% endif %}
+        {% endfor %}
+      </p>
+      <select name="RELEASED" class="form-control edit-mode d-none">
+        {% for n in rfrs %}
+        <option value="{{ n.CODEID }}"
+        {% if n.CODEID|string == party.RELEASED|string %}selected{% endif %}>
+        {{ n.DESCRP }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+</div>
+<!-- ================= MEDIATION ================= -->
+<div class="tab-pane fade" id="tab-mediation">
+
+<div class="row">
+          <div class="form-group col-md-6">
+          <label>Date of Referral to the PMC Unit</label>
+          <p class="view-mode">{{ party.DTREFERRED }}</p>
+          <input type="date" class="form-control edit-mode d-none" name="DTREFERRED" value="{{ party.DTREFERRED }}">
+        </div>
+
+                <div class="form-group col-md-6">
+          <label>Date Returned to Court</label>
+          <p class="view-mode">{{ party.DTRETURNED }}</p>
+          <input type="date" class="form-control edit-mode d-none" name="DTRETURNED" value="{{ party.DTRETURNED }}">
+        </div>
+</div>
+
+
+<div class="row">
+  <div class="form-group col-md-4">
+    <label>Mediation Status</label>
+
+    <p class="view-mode">
+      {% if party.MEDIATION == 'F' %}
+        FAILED
+      {% elif party.MEDIATION == 'S' %}
+        SUCCESS
+      {% else %}
+        
+      {% endif %}
+    </p>
+
+    <select name="MEDIATION" class="form-control edit-mode d-none">
+      <option value="" {% if party.MEDIATION == none %}selected{% endif %}>
+        
+      </option>
+
+      <option value="S" {% if party.MEDIATION == 'S' %}selected{% endif %}>
+        SUCCESS
+      </option>
+
+      <option value="F" {% if party.MEDIATION == 'F' %}selected{% endif %}>
+        FAILED
+      </option>
+    </select>
   </div>
 </div>
 
 
-{% endblock %}
 
+</div>
+<!-- ================= PROSECUTION ================= -->
+<div class="tab-pane fade" id="tab-prosecution">
+
+  <div class="row">
+
+    <!-- DTSETTING -->
+    <div class="form-group col-md-4">
+      <label>Date of Settings for Prosecution</label>
+      <p class="view-mode">{{ party.DTSETTING }}</p>
+      <input type="text" class="form-control edit-mode d-none"
+             name="DTSETTING" value="{{ party.DTSETTING }}">
+    </div>
+
+       <!-- DTINITIAL -->
+    <div class="form-group col-md-4">
+      <label>Date of Actual Initial Trial</label>
+      <p class="view-mode">{{ party.DTINITIAL }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTINITIAL" value="{{ party.DTINITIAL }}">
+    </div>
+
+
+
+    <!-- DTLAST -->
+    <div class="form-group col-md-4">
+      <label>Date of Last Trial</label>
+      <p class="view-mode">{{ party.DTLAST }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTLAST" value="{{ party.DTLAST }}">
+    </div>
+
+        <!-- PPOSTPONED -->
+    <div class="form-group col-md-4">
+      <label>Number of Postponements</label>
+      <p class="view-mode">{{ party.PPOSTPONED }}</p>
+      <input type="number" class="form-control edit-mode d-none"
+             name="PPOSTPONED" value="{{ party.PPOSTPONED }}">
+    </div>
+
+        <!-- DTDEMURRER -->
+    <div class="form-group col-md-4">
+      <label>Date of Motion for Leave to File Demurrer to Evidence</label>
+      <p class="view-mode">{{ party.DTDEMURRER }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTDEMURRER" value="{{ party.DTDEMURRER }}">
+    </div>
+
+    <!-- DTOFFERPRO -->
+    <div class="form-group col-md-4">
+      <label>Date of Formal Offer of Evidence or Prosecution</label>
+      <p class="view-mode">{{ party.DTOFFERPRO }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTOFFERPRO" value="{{ party.DTOFFERPRO }}">
+    </div>
+
+  </div>
+
+</div>
+<!-- ================= DEFENSE ================= -->
+<div class="tab-pane fade" id="tab-defense">
+
+  <div class="row">
+
+    <!-- DTDEFENSE -->
+    <div class="form-group col-md-4">
+      <label>Date of Settings for Defense</label>
+      <p class="view-mode">{{ party.DTDEFENSE }}</p>
+      <input type="text" class="form-control edit-mode d-none"
+             name="DTDEFENSE" value="{{ party.DTDEFENSE }}">
+    </div>
+
+    <!-- DTACTUAL -->
+    <div class="form-group col-md-4">
+      <label>Date of Actual Initial Trial</label>
+      <p class="view-mode">{{ party.DTACTUAL }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTACTUAL" value="{{ party.DTACTUAL }}">
+    </div>
+
+    <!-- DTLTTRIAL -->
+    <div class="form-group col-md-4">
+      <label>Date of Last Trial</label>
+      <p class="view-mode">{{ party.DTLTTRIAL }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTLTTRIAL" value="{{ party.DTLTTRIAL }}">
+    </div>
+
+    <!-- DPOSTPONED -->
+    <div class="form-group col-md-4">
+      <label>Number of Postponements</label>
+      <p class="view-mode">{{ party.DPOSTPONED }}</p>
+      <input type="number" class="form-control edit-mode d-none"
+             name="DPOSTPONED" value="{{ party.DPOSTPONED }}">
+    </div>
+
+    <!-- DTOFFERDEF -->
+    <div class="form-group col-md-4">
+      <label>Date of Formal Offer of Evidence of Defense</label>
+      <p class="view-mode">{{ party.DTOFFERDEF }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTOFFERDEF" value="{{ party.DTOFFERDEF }}">
+    </div>
+
+    <!-- DTREBUTTAL -->
+    <div class="form-group col-md-4">
+      <label>Date of Presentation of Last Surrebuttal Evidence</label>
+      <p class="view-mode">{{ party.DTREBUTTAL }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTREBUTTAL" value="{{ party.DTREBUTTAL }}">
+    </div>
+
+    <!-- DTSURREBUT -->
+    <div class="form-group col-md-4">
+      <label>Date of Presentation of Last Surrebuttal Evidence</label>
+      <p class="view-mode">{{ party.DTSURREBUT }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTSURREBUT" value="{{ party.DTSURREBUT }}">
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ================= DECISION ================= -->
+<div class="tab-pane fade" id="tab-decision">
+
+  <div class="row">
+
+    <!-- DTSUBMIT -->
+    <div class="form-group col-md-4">
+      <label>Date Case is Submitted for Decision</label>
+      <p class="view-mode">{{ party.DTSUBMIT }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTSUBMIT" value="{{ party.DTSUBMIT }}">
+    </div>
+
+    <!-- DTPROMUL -->
+    <div class="form-group col-md-4">
+      <label>Actual date of Promulgation</label>
+      <p class="view-mode">{{ party.DTPROMUL }}</p>
+      <input type="date" class="form-control edit-mode d-none"
+             name="DTPROMUL" value="{{ party.DTPROMUL }}">
+    </div>
+
+<!-- DECIDECODE -->
+<div class="form-group col-md-4">
+  <label>Decision Code</label>
+
+  <!-- VIEW MODE -->
+  <p class="view-mode">
+    {% for n in decisions %}
+      {% if n.CODEID|string == party.DECIDECODE|string %}
+        {{ n.DESCRP }}
+      {% endif %}
+    {% endfor %}
+  </p>
+
+  <!-- EDIT MODE -->
+  <select name="DECIDECODE" class="form-control edit-mode d-none">
+    {% for n in decisions %}
+      <option value="{{ n.CODEID }}"
+        {% if n.CODEID|string == party.DECIDECODE|string %}selected{% endif %}>
+        {{ n.DESCRP }}
+      </option>
+    {% endfor %}
+  </select>
+
+</div>
+
+    <!-- PENALTY -->
+    <div class="form-group col-md-6">
+      <label>Penalty</label>
+      <p class="view-mode">{{ party.PENALTY }}</p>
+      <textarea class="form-control edit-mode d-none"
+                name="PENALTY"
+                rows="3"
+                style="resize:none;">{{ party.PENALTY }}</textarea>
+    </div>
+
+    <!-- REMARKS -->
+    <div class="form-group col-md-6">
+      <label>Remarks</label>
+      <p class="view-mode">{{ party.REMARKS }}</p>
+      <textarea class="form-control edit-mode d-none"
+                name="REMARKS"
+                rows="3"
+                style="resize:none;">{{ party.REMARKS }}</textarea>
+    </div>
+
+  </div>
+
+</div>
+</div>
+</form>
+<div id="msg-success" class="alert alert-success d-none mt-3">
+  ✔ Saved successfully!
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
 {% block scripts %}
 <script>
-
-let originalData = $("#person-form").serialize();
-
+  let originalData = $("#person-form").serialize();
 /* EDIT */
-$("#btn-edit").click(function () {
-  $(".view-mode").hide();
-  $(".edit-mode").removeClass("d-none");
-
-  $("#btn-edit").addClass("d-none");
-  $("#btn-save, #btn-cancel").removeClass("d-none");
-});
-
+  $("#btn-edit").click(function () {
+    $(".view-mode").hide();
+    $(".edit-mode").removeClass("d-none");
+    $("#btn-edit").addClass("d-none");
+    $("#btn-save, #btn-cancel").removeClass("d-none");
+  });
 /* CANCEL */
-$("#btn-cancel").click(function () {
-
-  $("#person-form")[0].reset();
-
-  $(".view-mode").show();
-  $(".edit-mode").addClass("d-none");
-
-  $("#btn-edit").removeClass("d-none");
-  $("#btn-save, #btn-cancel").addClass("d-none");
-});
-
+  $("#btn-cancel").click(function () {
+    $("#person-form")[0].reset();
+    $(".view-mode").show();
+    $(".edit-mode").addClass("d-none");
+    $("#btn-edit").removeClass("d-none");
+    $("#btn-save, #btn-cancel").addClass("d-none");
+  });
 /* SAVE */
-$("#btn-save").click(function () {
-
-  let formData = $("#person-form").serialize();
-
-  if (formData === originalData) {
-    alert("No changes detected.");
-    return;
-  }
-
-  $.ajax({
-    url: "/cc/update-person/{{ person.PERSONID }}",
-    method: "POST",
-    data: formData,
-
-   success: function (res) {
-
-  if (res.status !== "success") return;
-
-  let data = res.data;
-
-  // 🔥 update UI based on actual fields (NO ID dependency)
-  $("#person-form .form-group").each(function () {
-
-    let input = $(this).find("input, textarea, select");
-    let view = $(this).find(".view-mode");
-
-    if (!input.length || !view.length) return;
-
-    let name = input.attr("name");
-    let value = data[name];
-
-    if (value === undefined) return;
-
-    // handle select (show text, not value)
-    if (input.is("select")) {
-      let text = input.find(`option[value="${value}"]`).text();
-      view.text(text);
-      input.val(value);
-    } else {
-      view.text(value);
-      input.val(value);
+  $("#btn-save").click(function () {
+    let formData = $("#person-form").serialize();
+    if (formData === originalData) {
+      alert("No changes detected.");
+      return;
     }
-
+    $.ajax({
+      url: "/cc/update-person/{{ person.PERSONID }}",
+      method: "POST",
+      data: formData,
+      success: function (res) {
+        if (res.status !== "success") return;
+        let data = res.data;
+  // 🔥 update UI based on actual fields (NO ID dependency)
+        $("#person-form .form-group").each(function () {
+          let input = $(this).find("input, textarea, select");
+          let view = $(this).find(".view-mode");
+          if (!input.length || !view.length) return;
+          let name = input.attr("name");
+          let value = data[name];
+          if (value === undefined) return;
+    // handle select (show text, not value)
+          if (input.is("select")) {
+            let text = input.find(`option[value="${value}"]`).text();
+            view.text(text);
+            input.val(value);
+          } else {
+            view.text(value);
+            input.val(value);
+          }
     // update default value
-    if (input[0]) input[0].defaultValue = value;
-
+          if (input[0]) input[0].defaultValue = value;
+        });
+        originalData = $("#person-form").serialize();
+        $(".view-mode").show();
+        $(".edit-mode").addClass("d-none");
+        $("#btn-edit").removeClass("d-none");
+        $("#btn-save, #btn-cancel").addClass("d-none");
+        $("#msg-success").removeClass("d-none")
+        .fadeIn().delay(1500).fadeOut();
+      }
+    });
   });
-
-  originalData = $("#person-form").serialize();
-
-  $(".view-mode").show();
-  $(".edit-mode").addClass("d-none");
-
-  $("#btn-edit").removeClass("d-none");
-  $("#btn-save, #btn-cancel").addClass("d-none");
-
-  $("#msg-success").removeClass("d-none")
-    .fadeIn().delay(1500).fadeOut();
-}
-
-  });
-
-});
-
 </script>
 {% endblock %}

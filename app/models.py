@@ -440,3 +440,174 @@ class CTMS2300(db.Model):
     CATEGORY = db.Column(db.Text)
     DESCRP = db.Column(db.Text)
     CRTTYPE = db.Column(db.Text)
+
+class CTMS1100(db.Model):
+    __tablename__ = 'ctms1100'
+    __table_args__ = {'extend_existing': True}
+
+    # 👇 fake primary key using SQLite rowid
+    id = db.Column(db.Integer, primary_key=True)
+
+    CASEID = db.Column(db.Integer)
+    PARTYID = db.Column(db.Integer)
+    CASENUM = db.Column(db.Text)
+    CASENUMOLD = db.Column(db.Text)
+    REASON = db.Column(db.Text)
+    CASETAG = db.Column(db.Text)
+    CREATEBY = db.Column(db.Text)
+    CREATEDT = db.Column(db.Text)
+
+
+class CTMS9000(db.Model):
+    __tablename__ = 'ctms9000'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)  # 👈 FIX
+
+    CASEID = db.Column(db.Integer)
+    COURTID = db.Column(db.Integer)
+    PERSONID = db.Column(db.Integer)
+    PARTYID = db.Column(db.Integer)
+
+    NATURECODE = db.Column(db.Text)
+    NATUREDESC = db.Column(db.Text)
+    CATEGORY = db.Column(db.Text)
+    CATEGDESC = db.Column(db.Text)
+
+    CASENUM = db.Column(db.Text)
+    CASETITLE = db.Column(db.Text)
+
+    DTFILED = db.Column(db.Text)
+    DTRECEIVED = db.Column(db.Text)
+    DTTRANSFER = db.Column(db.Text)
+    TRANSFER = db.Column(db.Integer)
+
+    CASETYPE = db.Column(db.Text)
+    CRTTYPE = db.Column(db.Text)
+
+    CLOSEDATE = db.Column(db.Text)
+    CLOSETAG = db.Column(db.Text)
+    CLOSEDET = db.Column(db.Text)
+    CLOSESTAT = db.Column(db.Text)
+    CLOSEDESC = db.Column(db.Text)
+
+    NATUREREM = db.Column(db.Text)
+
+    IAMOUNT = db.Column(db.Float)
+    IWEIGHT = db.Column(db.Float)
+
+    CSTATUS = db.Column(db.Text)
+    CSTATUSID = db.Column(db.Text)
+    CSTATDESC = db.Column(db.Text)
+
+    ENAME = db.Column(db.Text)
+    FNAME = db.Column(db.Text)
+    LNAME = db.Column(db.Text)
+    MNAME = db.Column(db.Text)
+
+    DBIRTH = db.Column(db.Text)
+    GENDER = db.Column(db.Text)
+
+    ADDRESS1 = db.Column(db.Text)
+    ADDRESS2 = db.Column(db.Text)
+    ADDRESS3 = db.Column(db.Text)
+
+    TELNO = db.Column(db.Text)
+    PSTATUS = db.Column(db.Text)
+
+    AGE = db.Column(db.Integer)
+    DETAINED = db.Column(db.Integer)
+
+    DTIARRAIGN = db.Column(db.Text)
+    DTPRETRIAL = db.Column(db.Text)
+    DTARRAIGN = db.Column(db.Text)
+
+    PLEA = db.Column(db.Integer)
+    PBARGAIN = db.Column(db.Integer)
+    JRENDERED = db.Column(db.Integer)
+
+    DTSETTING = db.Column(db.Text)
+    DTINITIAL = db.Column(db.Text)
+    DTLAST = db.Column(db.Text)
+    DTOFFERPRO = db.Column(db.Text)
+    DTDEMURRER = db.Column(db.Text)
+    DTDEFENSE = db.Column(db.Text)
+
+    DTACTUAL = db.Column(db.Text)
+    DTLTTRIAL = db.Column(db.Text)
+
+    PPOSTPONED = db.Column(db.Integer)
+    DPOSTPONED = db.Column(db.Integer)
+
+    DTOFFERDEF = db.Column(db.Text)
+    DTREBUTTAL = db.Column(db.Text)
+    DTSURREBUT = db.Column(db.Text)
+
+    DTSUBMIT = db.Column(db.Text)
+    DTPROMUL = db.Column(db.Text)
+
+    DISPOSCODE = db.Column(db.Integer)
+    DISPOSDESC = db.Column(db.Text)
+
+    PENALTY = db.Column(db.Text)
+    REMARKS = db.Column(db.Text)
+
+    DTPLEA = db.Column(db.Text)
+    DTSENTENCE = db.Column(db.Text)
+
+    DTARCHIVED = db.Column(db.Text)
+    DTREFERRED = db.Column(db.Text)
+    DTRETURNED = db.Column(db.Text)
+
+    AGECOMIT = db.Column(db.Integer)
+    DTDETAINED = db.Column(db.Text)
+    DECIDECODE = db.Column(db.Text)
+
+    ANAME = db.Column(db.Text)
+    DTREVIVED = db.Column(db.Text)
+
+    CASETAG = db.Column(db.Text)
+    REASON = db.Column(db.Text)
+    CASENUMOLD = db.Column(db.Text)
+
+    DTBAIL = db.Column(db.Text)
+    MEDIATION = db.Column(db.Text)
+
+    DISPOSEDES = db.Column(db.Text)
+    BAILREM = db.Column(db.Text)
+
+    DTSURRENDR = db.Column(db.Text)
+    DTARREST = db.Column(db.Text)
+
+    DTRELEASED = db.Column(db.Text)
+    RELEASED = db.Column(db.Text)
+    RELEASEDES = db.Column(db.Text)
+
+    AGEING_Y = db.Column(db.Integer)
+    AGEING_M = db.Column(db.Integer)
+    AGEING_D = db.Column(db.Integer)
+    AGEING_T = db.Column(db.Integer)
+    AGEING_DES = db.Column(db.Text)
+
+    CREATEBY = db.Column(db.Text)
+    CREATEDT = db.Column(db.Text)
+
+    MODIFYDT = db.Column(db.Text)
+    MODIFYBY = db.Column(db.Text)
+
+    EXPORTTAG = db.Column(db.Text)
+
+
+
+class Provincecrms(db.Model):
+    __tablename__ = 'province'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)  # 👈 add this
+
+    REGION = db.Column(db.Text)
+    PROVCODE = db.Column(db.Text)
+    PROVDESC = db.Column(db.Text)
+    CTAG = db.Column(db.Integer)
+    CPROVCODE = db.Column(db.Text)
+    PORDER = db.Column(db.Integer)

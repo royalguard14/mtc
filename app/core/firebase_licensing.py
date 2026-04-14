@@ -7,9 +7,22 @@ import uuid
 # --- Initialization ---
 def init_firebase():
     if not firebase_admin._apps:
-        cred = credentials.Certificate("app/core/pyzar-6b377-firebase-adminsdk-fbsvc-5fca637c0f.json")
+        primary = "app/core/pyzar-6b377-firebase-adminsdk-fbsvc-5fca637c0f.json"
+        fallback = "app/core/pyzar-6b377-firebase-adminsdk-fbsvc-4bae0de02c.json"
+
+        cred_path = None
+
+        if os.path.exists(primary):
+            cred_path = primary
+        elif os.path.exists(fallback):
+            cred_path = fallback
+        else:
+            raise FileNotFoundError("No Firebase credential file found.")
+
+        cred = credentials.Certificate(cred_path)
         firebase_admin.initialize_app(cred)
 
+        
 init_firebase()
 db = firestore.client()
 
