@@ -4,7 +4,7 @@ from app.routes.decorators import require_module
 from app.models import CTMS1000, CTMS4100, CTMS4000, CTMS2310, CTMS2300
 from app import db
 from datetime import datetime
-from app.routes.helpers import touch_case, get_now, CURRENT_USER
+from app.routes.helpers import touch_case, get_now, CURRENT_USER, run_dbf_sync
 from sqlalchemy.orm import joinedload
 
 
@@ -201,6 +201,8 @@ def update_person(person_id):
         party.MODIFYBY = CURRENT_USER
         touch_case(party.CASEID)
     db.session.commit()
+
+    run_dbf_sync()
     return {
         "status": "success",
         "data": person.to_dict()
@@ -360,6 +362,7 @@ def save_person():
     )
     db.session.add(person)
     db.session.flush()  # important to use PERSONID immediately
+
     # =========================
     # 3. GET NEXT PARTYID
     # =========================
@@ -386,4 +389,5 @@ def save_person():
     )
     db.session.add(party)
     db.session.commit()
+    run_dbf_sync()
     return redirect('/cc')

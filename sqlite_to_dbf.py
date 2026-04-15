@@ -6,12 +6,7 @@ from datetime import datetime
 SQLITE_DB = r"D:\PyZar\app1.db"
 DBF_FOLDER = r"C:\CTMS\dbf"
 
-TARGET_TABLES = [
-    "ctms1000",
-    "ctms4000",
-    "ctms4100",
-    "ctms9000"
-]
+TARGET_TABLES = ["ctms1000", "ctms4000", "ctms4100", "ctms9000"]
 
 PRIMARY_KEYS = {
     "ctms1000": "CASEID",
@@ -20,23 +15,42 @@ PRIMARY_KEYS = {
     "ctms9000": "CASEID"
 }
 
-
-def get_columns_sqlite(conn, table):
+# =========================
+# SQLITE MAP
+# =========================
+def get_sqlite_map(conn, table):
     cur = conn.cursor()
     cur.execute(f'PRAGMA table_info("{table}")')
-    return [row[1] for row in cur.fetchall()]
+    rows = cur.fetchall()
+    return {r[1].upper(): r[1] for r in rows}
 
-
+# =========================
+# DBF FIELD TYPES
+# =========================
 def get_field_types(dbf_table):
-    field_types = {}
-    for field_def in dbf_table.structure():
-        parts = field_def.split()
-        name = parts[0]
-        type_char = parts[1][0]
-        field_types[name] = type_char
-    return field_types
+    types = {}
+    for f in dbf_table.structure():
+        parts = f.split()
+        name = parts[0].upper()
+        types[name] = parts[1][0]
+    return types
 
+# =========================
+# SAFE DATETIME
+# =========================
+def parse_dt(val):
+    if not val:
+        return datetime.min
+    if isinstance(val, datetime):
+        return val
+    try:
+        return datetime.fromisoformat(str(val).replace("T", " "))
+    except:
+        return datetime.min
 
+# =========================
+# CONVERT VALUE
+# =========================
 def convert_value(value, field_type):
     if value is None or value == "":
         return None
@@ -45,129 +59,143 @@ def convert_value(value, field_type):
         if isinstance(value, str):
             value = value.strip()
 
-        # INTEGER
-        if field_type == 'N' and str(value).isdigit():
-            return int(value)
-
-        # FLOAT
-        if field_type == 'N' and '.' in str(value):
-            return float(value)
-
-        # DATE
-        if field_type == 'D':
-            return datetime.strptime(value[:10], "%Y-%m-%d").date()
-
-        # DATETIME
-        if field_type == 'T':
+        if field_type == 'N':
             try:
-                return datetime.fromisoformat(value)
+                return int(value) if str(value).isdigit() else float(value)
             except:
-                return datetime.strptime(value[:19], "%Y-%m-%d %H:%M:%S")
+                return None
+
+        if field_type == 'D':
+            return datetime.strptime(str(value)[:10], "%Y-%m-%d").date()
+
+        if field_type == 'T':
+            return parse_dt(value)
 
         return value
 
     except:
         return value
 
+# =========================
+# DBF INDEX
+# =========================
+def build_index(dbf_table, key):
+    index = {}
+    for r in dbf_table:
+        try:
+            index[str(getattr(r, key))] = r
+        except:
+            pass
+    return index
 
+# =========================
+# SAFE GET (IMPORTANT FIX)
+# =========================
+def safe_get(rec, field):
+    try:
+        return getattr(rec, field)
+    except:
+        return None
+
+# =========================
+# SYNC ENGINE
+# =========================
 def sync_table(conn, table_name):
     dbf_path = os.path.join(DBF_FOLDER, f"{table_name.upper()}.DBF")
 
     if not os.path.exists(dbf_path):
-        print(f"⏭ DBF not found: {table_name}")
+        print(f"⏭ Missing DBF: {table_name}")
         return
 
     print(f"\n📦 Syncing {table_name}")
 
-    key = PRIMARY_KEYS.get(table_name)
-    if not key:
-        print(f"⚠️ No PK for {table_name}")
-        return
+    key = PRIMARY_KEYS[table_name]
 
-    try:
-        dbf_table = dbf.Table(dbf_path)
-        dbf_table.open(dbf.READ_WRITE)
+    dbf_table = dbf.Table(dbf_path)
+    dbf_table.open(dbf.READ_WRITE)
 
-        sql_cols = get_columns_sqlite(conn, table_name)
-        dbf_cols = dbf_table.field_names
-        field_types = get_field_types(dbf_table)
+    sqlite_map = get_sqlite_map(conn, table_name)
+    dbf_cols = [c.upper() for c in dbf_table.field_names]
+    dbf_types = get_field_types(dbf_table)
 
-        common_cols = [c for c in sql_cols if c.upper() in dbf_cols]
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM {table_name}")
+    rows = cur.fetchall()
 
-        if key not in common_cols:
-            print(f"❌ Key mismatch")
-            dbf_table.close()
-            return
+    index = build_index(dbf_table, key)
 
-        cur = conn.cursor()
-        cur.execute(f'SELECT {",".join(common_cols)} FROM {table_name}')
-        rows = cur.fetchall()
+    inserted = updated = unchanged = skipped = 0
 
-        inserted = 0
-        updated = 0
-        unchanged = 0
-        skipped = 0
+    for row in rows:
+        sqlite_row = dict(zip(sqlite_map.keys(), row))
+        pk = str(sqlite_row.get(key.upper()))
 
-        for row in rows:
-            data = dict(zip(common_cols, row))
+        try:
+            found = index.get(pk)
 
-            try:
-                found = None
+            # =========================
+            # BUILD FULL DBF ROW
+            # =========================
+            full_row = {}
 
-                for rec in dbf_table:
-                    if str(getattr(rec, key)) == str(data[key]):
-                        found = rec
-                        break
+            for col in dbf_cols:
+                sql_col = sqlite_map.get(col)
+                value = sqlite_row.get(sql_col) if sql_col else None
+                full_row[col] = convert_value(value, dbf_types.get(col, 'C'))
 
-                if found:
-                    dbf_modify = str(getattr(found, "MODIFYDT", "") or "")
-                    sql_modify = str(data.get("MODIFYDT", "") or "")
+            # =========================
+            # UPDATE LOGIC (FIXED MODIFYDT)
+            # =========================
+            if found:
+                sql_dt = sqlite_row.get("MODIFYDT")
+                dbf_dt = safe_get(found, "MODIFYDT")
 
-                    if sql_modify > dbf_modify:
-                        with found:  # 🔥 THIS IS THE FIX
-                            for col in common_cols:
-                                try:
-                                    val = convert_value(data[col], field_types.get(col.upper(), 'C'))
-                                    setattr(found, col, val)
-                                except:
-                                    pass
-                        updated += 1
-                    else:
-                        unchanged += 1
+                dbf_has_modifydt = "MODIFYDT" in dbf_cols
 
+                if dbf_has_modifydt:
+                    should_update = parse_dt(sql_dt) > parse_dt(dbf_dt)
                 else:
-                    new_data = {}
-                    for col in common_cols:
-                        val = convert_value(data[col], field_types.get(col.upper(), 'C'))
-                        new_data[col] = val
+                    should_update = True  # IMPORTANT FIX
 
-                    dbf_table.append(new_data)
-                    inserted += 1
+                if should_update:
+                    print(f"🔄 Updating ID: {pk}")
+                    with found:
+                        for k, v in full_row.items():
+                            setattr(found, k, v)
+                    updated += 1
+                else:
+                    unchanged += 1
 
-            except Exception as e:
-                skipped += 1
-                continue
+            # =========================
+            # INSERT
+            # =========================
+            else:
+                print(f"➕ Inserting ID: {pk}")
+                dbf_table.append(full_row)
+                inserted += 1
 
-        dbf_table.close()
+        except Exception as e:
+            print(f"❌ ROW ERROR {pk}: {e}")
+            skipped += 1
 
-        print(f"✅ {table_name} → inserted {inserted}, updated {updated}, unchanged {unchanged}, skipped {skipped}")
+    dbf_table.close()
 
-    except Exception as e:
-        print(f"❌ ERROR {table_name}: {e}")
+    print(f"\n✅ {table_name} → inserted {inserted}, updated {updated}, unchanged {unchanged}, skipped {skipped}")
 
-
+# =========================
+# MAIN
+# =========================
 def main():
     conn = sqlite3.connect(SQLITE_DB)
 
-    print("\n🚀 CORE SYNC (FIXED ENGINE)\n")
+    print("\n🚀 CORE SYNC (FINAL STABLE VERSION)\n")
 
-    for table in TARGET_TABLES:
-        sync_table(conn, table)
+    for t in TARGET_TABLES:
+        sync_table(conn, t)
 
     conn.close()
 
     print("\n🎉 SYNC COMPLETE")
-
 
 if __name__ == "__main__":
     main()
