@@ -218,6 +218,7 @@ def build_index(dbf_table, key):
 # =========================
 # CORE SYNC ENGINE
 # =========================
+
 def sync_table(conn, table_name):
     dbf_path = os.path.join(DBF_FOLDER, f"{table_name.upper()}.DBF")
 
@@ -227,37 +228,54 @@ def sync_table(conn, table_name):
 
     print(f"\n📦 Syncing {table_name}")
 
-    key = PRIMARY_KEYS[table_name]
+    key = PRIMARY_KEYS[table_name].upper()
 
     dbf_table = dbf.Table(dbf_path)
     dbf_table.open(dbf.READ_WRITE)
 
-    sqlite_map = get_sqlite_map(conn, table_name)
     dbf_cols = [c.upper() for c in dbf_table.field_names]
     dbf_types = get_field_types(dbf_table)
 
+    # =========================
+    # SQLITE → DBF COLUMN MAP
+    # =========================
+    sqlite_map = get_sqlite_map(conn, table_name)
+    # sqlite_map example:
+    # { "CASENO": "case_no", "MODIFYDT": "modifydt" }
+
+    if key not in dbf_cols:
+        print(f"❌ KEY '{key}' not found in DBF table {table_name}")
+        dbf_table.close()
+        return
+
+    # =========================
+    # BUILD DBF INDEX
+    # =========================
+    index = {}
+    for record in dbf_table:
+        try:
+            val = getattr(record, key, None)
+            if val is not None:
+                index[str(val).strip()] = record
+        except Exception:
+            continue
+
+    # =========================
+    # FETCH SQLITE DATA
+    # =========================
     cur = conn.cursor()
     cur.execute(f"SELECT * FROM {table_name}")
+    sqlite_columns = [col[0] for col in cur.description]
     rows = cur.fetchall()
 
     inserted = updated = unchanged = skipped = 0
 
-    # =========================
-    # BUILD DBF INDEX (SAFE VERSION)
-    # =========================
-    index = {}
-    for r in dbf_table:
-        try:
-            val = getattr(r, key, None)
-            if val is not None:
-                index[str(val).strip()] = r
-        except:
-            pass
-
     for row in rows:
-        sqlite_row = dict(zip(sqlite_map.keys(), row))
+        sqlite_row = dict(zip(sqlite_columns, row))
 
-        pk = sqlite_row.get(key.upper())
+        # get PK from sqlite using mapping
+        sql_key = sqlite_map.get(key)
+        pk = sqlite_row.get(sql_key) if sql_key else None
 
         if pk is None:
             skipped += 1
@@ -282,28 +300,39 @@ def sync_table(conn, table_name):
             # UPDATE
             # =========================
             if found:
-                sql_dt = sqlite_row.get("MODIFYDT")
-                dbf_dt = safe_get(found, "MODIFYDT")
+                sql_dt = sqlite_row.get(sqlite_map.get("MODIFYDT"))
+                dbf_dt = getattr(found, "MODIFYDT", None) if "MODIFYDT" in dbf_cols else None
 
                 should_update = True
-                if "MODIFYDT" in dbf_cols:
-                    should_update = parse_dt(sql_dt) > parse_dt(dbf_dt)
+
+                if sql_dt and dbf_dt:
+                    try:
+                        should_update = parse_dt(sql_dt) > parse_dt(dbf_dt)
+                    except:
+                        pass
 
                 if should_update:
                     with found:
                         for k, v in full_row.items():
-                            setattr(found, k, v)
+                            try:
+                                setattr(found, k, v)
+                            except:
+                                pass
                     updated += 1
                 else:
                     unchanged += 1
 
             # =========================
-            # INSERT (FIXED - NOW ALWAYS WORKS)
+            # INSERT
             # =========================
             else:
-                print(f"➕ Inserting ID: {pk}")
-                dbf_table.append(full_row)
-                inserted += 1
+                print(f"➕ Inserting {key}: {pk}")
+                try:
+                    dbf_table.append(full_row)
+                    inserted += 1
+                except Exception as e:
+                    print(f"❌ INSERT ERROR {pk}: {e}")
+                    skipped += 1
 
         except Exception as e:
             print(f"❌ ROW ERROR {pk}: {e}")
@@ -312,8 +341,6 @@ def sync_table(conn, table_name):
     dbf_table.close()
 
     print(f"\n✅ {table_name} → inserted {inserted}, updated {updated}, unchanged {unchanged}, skipped {skipped}")
-
-
 
 # =========================
 # MAIN SYNC CALL

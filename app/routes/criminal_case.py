@@ -220,10 +220,14 @@ def add_case_form():
     # =========================
     natures_raw = (
         CTMS2310.query
-        .filter_by(CATEGORY='5')
+        .filter_by(CATEGORY='00005')
         .all()
     )
-    nature_order = [32, 30, 36, 35, 29, 28, 31, 27, 34, 33]
+
+
+
+
+    nature_order = ["00032", "00030", "00036", "00035", "00029", "00028", "00031", "00027", "00034", "00033"]
     natures = sorted(
         natures_raw,
         key=lambda x: nature_order.index(int(x.NATURECODE)) if int(x.NATURECODE) in nature_order else 999
@@ -302,6 +306,9 @@ def add_case():
     )
     db.session.add(new_case)
     db.session.commit()
+
+    run_dbf_sync()
+
     return redirect('/cc')
 
 
