@@ -302,6 +302,12 @@ class CTMS1000(db.Model):
         viewonly=True
     )
 
+    def to_dict(self):
+        return {
+            c.name: getattr(self, c.name)
+            for c in self.__table__.columns
+        }
+
     
 class CTMS2100(db.Model):
     __tablename__ = 'ctms2100'
@@ -382,6 +388,78 @@ class CTMS4100(db.Model):
     CREATEDT = db.Column(db.Text)
     MODIFYBY = db.Column(db.Text)
     MODIFYDT = db.Column(db.Text)
+    def to_dict(self):
+        return {
+            "PARTYID": self.PARTYID,
+            "CASEID": self.CASEID,
+            "PERSONID": self.PERSONID,
+
+            "PSTATUS": self.PSTATUS,
+            "PARTYNAME": self.PARTYNAME,
+            "DETAINED": self.DETAINED,
+
+            "DTIARRAIGN": self.DTIARRAIGN,
+            "DTPRETRIAL": self.DTPRETRIAL,
+            "DTARRAIGN": self.DTARRAIGN,
+
+            "PLEA": self.PLEA,
+            "PBARGAIN": self.PBARGAIN,
+            "JRENDERED": self.JRENDERED,
+
+            "DTSETTING": self.DTSETTING,
+            "DTINITIAL": self.DTINITIAL,
+            "DTLAST": self.DTLAST,
+
+            "DTOFFERPRO": self.DTOFFERPRO,
+            "DTDEMURRER": self.DTDEMURRER,
+            "DTDEFENSE": self.DTDEFENSE,
+
+            "DTACTUAL": self.DTACTUAL,
+            "DTLTTRIAL": self.DTLTTRIAL,
+
+            "PPOSTPONED": self.PPOSTPONED,
+            "DPOSTPONED": self.DPOSTPONED,
+
+            "DTOFFERDEF": self.DTOFFERDEF,
+            "DTREBUTTAL": self.DTREBUTTAL,
+            "DTSURREBUT": self.DTSURREBUT,
+
+            "DTSUBMIT": self.DTSUBMIT,
+            "DTPROMUL": self.DTPROMUL,
+
+            "DISPOSCODE": self.DISPOSCODE,
+            "PENALTY": self.PENALTY,
+            "REMARKS": self.REMARKS,
+
+            "DTPLEA": self.DTPLEA,
+            "DTSENTENCE": self.DTSENTENCE,
+            "DTARCHIVED": self.DTARCHIVED,
+
+            "DTREFERRED": self.DTREFERRED,
+            "DTRETURNED": self.DTRETURNED,
+
+            "AGECOMIT": self.AGECOMIT,
+            "DTDETAINED": self.DTDETAINED,
+            "DECIDECODE": self.DECIDECODE,
+
+            "DTREVIVED": self.DTREVIVED,
+            "MEDIATION": self.MEDIATION,
+
+            "DTARREST": self.DTARREST,
+            "DTSURRENDR": self.DTSURRENDR,
+
+            "DTBAIL": self.DTBAIL,
+            "BAILREM": self.BAILREM,
+
+            "DTRELEASED": self.DTRELEASED,
+            "RELEASED": self.RELEASED,
+
+            "CREATEBY": self.CREATEBY,
+            "CREATEDT": self.CREATEDT,
+            "MODIFYBY": self.MODIFYBY,
+            "MODIFYDT": self.MODIFYDT
+        }
+
 
     # 🔗 link to person
     person = db.relationship(
@@ -389,6 +467,8 @@ class CTMS4100(db.Model):
         backref="parties",
         lazy=True
     )
+
+
 
 # =========================
 # SETTINGSB
@@ -596,6 +676,15 @@ class CTMS9000(db.Model):
     MODIFYBY = db.Column(db.Text)
 
     EXPORTTAG = db.Column(db.Text)
+
+    def to_dict(self):
+        return {
+            c.name: getattr(self, c.name)
+            for c in self.__table__.columns
+            if c.name != "id"
+        }
+
+
 
 
 

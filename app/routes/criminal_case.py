@@ -1,11 +1,19 @@
-from flask import Blueprint, render_template, jsonify, request, redirect
+from flask import Blueprint, render_template, jsonify, request, redirect, Response
 from flask_login import login_required
 from app.routes.decorators import require_module
-from app.models import CTMS1000, CTMS4100, CTMS4000, CTMS2310, CTMS2300
+from app.models import CTMS1000, CTMS4100, CTMS4000, CTMS2310, CTMS2300, CTMS9000
 from app import db
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.routes.helpers import touch_case, get_now, CURRENT_USER, run_dbf_sync
 from sqlalchemy.orm import joinedload
+import csv
+from io import StringIO
+from sqlalchemy import or_, and_
+import tempfile
+import dbf
+
+
+
 
 
 
@@ -33,8 +41,6 @@ def criminal():
 # =========================
 # FULL CASE DETAILS (PRO)
 # =========================
-
-
 
 
 
@@ -398,3 +404,303 @@ def save_person():
     db.session.commit()
     run_dbf_sync()
     return redirect('/cc')
+
+
+
+@criminals_bp.route('/report-email')
+@login_required
+def generate_report():
+
+    from_month = request.args.get('from')
+    to_month = request.args.get('to')
+
+    if not from_month or not to_month:
+        return {"error": "Missing date range"}, 400
+
+    from_date = datetime.strptime(from_month, "%Y-%m")
+    to_date = datetime.strptime(to_month, "%Y-%m")
+
+    # next month fix
+    if to_date.month == 12:
+        to_date = to_date.replace(year=to_date.year + 1, month=1)
+    else:
+        to_date = to_date.replace(month=to_date.month + 1)
+
+    from_str = from_date.strftime("%Y-%m-%d")
+    to_str = to_date.strftime("%Y-%m-%d")
+
+    # =====================================================
+    # QUERY
+    # =====================================================
+
+    case_rows = CTMS1000.query.filter(
+        or_(
+            and_(CTMS1000.CREATEDT >= from_str, CTMS1000.CREATEDT < to_str),
+            and_(CTMS1000.MODIFYDT >= from_str, CTMS1000.MODIFYDT < to_str)
+        )
+    ).order_by(CTMS1000.CASEID).options(joinedload(CTMS1000.parties)).all()
+
+    party_rows = CTMS4100.query.filter(
+        or_(
+            and_(CTMS4100.CREATEDT >= from_str, CTMS4100.CREATEDT < to_str),
+            and_(CTMS4100.MODIFYDT >= from_str, CTMS4100.MODIFYDT < to_str)
+        )
+    ).order_by(CTMS4100.CASEID).all()
+
+    person_rows = CTMS4000.query.filter(
+        CTMS4000.CREATEDT >= from_str,
+        CTMS4000.CREATEDT < to_str
+    ).order_by(CTMS4000.PERSONID).all()
+
+
+    # # =====================================================
+    # # CLEAR TABLE
+    # # =====================================================
+    CTMS9000.query.delete()
+    db.session.commit()
+
+    
+
+    # # =====================================================
+    # # INSERT CASES
+    # # =====================================================
+    case_records = []
+
+    for c in case_rows:
+        rec = CTMS9000(
+            # CASE ONLY
+            CASEID=c.CASEID,
+            COURTID=c.COURTID,
+            NATURECODE=c.NATURECODE,
+            CATEGORY=c.CATEGORY,
+            CASENUM=c.CASENUM,
+            CASETITLE=c.CASETITLE,
+
+            DTFILED=c.DTFILED,
+            DTRECEIVED=c.DTRECEIVED,
+            DTTRANSFER=c.DTTRANSFER,
+            TRANSFER=c.TRANSFER,
+
+            CASETYPE=c.CASETYPE,
+            CLOSEDATE=c.CLOSEDATE,
+            CLOSETAG=c.CLOSETAG,
+            CLOSEDET=c.CLOSEDET,
+            CLOSESTAT=c.CLOSESTAT,
+
+            NATUREREM=c.NATUREREM,
+            IAMOUNT=c.IAMOUNT,
+            IWEIGHT=c.IWEIGHT,
+
+            CSTATUS=c.CSTATUS,
+            CSTATUSID=c.CSTATUSID,
+
+            CREATEBY=c.CREATEBY,
+            CREATEDT=c.CREATEDT.split("T")[0] if c.CREATEDT else None,
+            MODIFYBY=c.MODIFYBY,
+            MODIFYDT=c.MODIFYDT.split("T")[0] if c.MODIFYDT else None,
+
+            PERSONID=int(0),
+            PARTYID=int(0),
+            DISPOSCODE=int(0),
+
+            EXPORTTAG="CASEMAST"
+        )
+        db.session.add(rec)
+        
+
+
+
+
+    # =====================================================
+    # INSERT PARTY (ONLY ONCE)
+    # =====================================================
+    for p in party_rows:
+
+        rec = CTMS9000(
+            AGECOMIT = p.AGECOMIT,
+            BAILREM = p.BAILREM,
+            CASEID = p.CASEID,
+            COURTID =0,
+            CREATEBY = p.CREATEBY,
+            CREATEDT=c.CREATEDT.split("T")[0] if c.CREATEDT else None,
+            DECIDECODE = p.DECIDECODE,
+            DETAINED = p.DETAINED,
+            DISPOSCODE = p.DISPOSCODE,
+            DPOSTPONED = p.DPOSTPONED,
+            DTACTUAL = p.DTACTUAL,
+            DTARCHIVED = p.DTARCHIVED,
+            DTARRAIGN = p.DTARRAIGN,
+            DTARREST = p.DTARREST,
+            DTBAIL = p.DTBAIL,
+            DTDEFENSE = p.DTDEFENSE,
+            DTDEMURRER = p.DTDEMURRER,
+            DTDETAINED = p.DTDETAINED,
+            DTIARRAIGN = p.DTIARRAIGN,
+            DTINITIAL = p.DTINITIAL,
+            DTLAST = p.DTLAST,
+            DTLTTRIAL = p.DTLTTRIAL,
+            DTOFFERDEF = p.DTOFFERDEF,
+            DTOFFERPRO = p.DTOFFERPRO,
+            DTPLEA = p.DTPLEA,
+            DTPRETRIAL = p.DTPRETRIAL,
+            DTPROMUL = p.DTPROMUL,
+            DTREBUTTAL = p.DTREBUTTAL,
+            DTREFERRED = p.DTREFERRED,
+            DTRELEASED = p.DTRELEASED,
+            DTRETURNED = p.DTRETURNED,
+            DTREVIVED = p.DTREVIVED,
+            DTSENTENCE = p.DTSENTENCE,
+            DTSETTING = p.DTSETTING,
+            DTSUBMIT = p.DTSUBMIT,
+            DTSURREBUT = p.DTSURREBUT,
+            DTSURRENDR = p.DTSURRENDR,
+            JRENDERED = p.JRENDERED,
+            MEDIATION = p.MEDIATION,
+            MODIFYBY = p.MODIFYBY,
+            MODIFYDT=p.MODIFYDT.split("T")[0] if p.MODIFYDT else None,
+            PARTYID = p.PARTYID,
+            PBARGAIN = p.PBARGAIN,
+            PENALTY = p.PENALTY,
+            PERSONID = p.PERSONID,
+            PLEA = p.PLEA,
+            PPOSTPONED = p.PPOSTPONED,
+            PSTATUS = p.PSTATUS,
+            RELEASED = p.RELEASED,
+            REMARKS = p.REMARKS,
+
+            EXPORTTAG="CPARTY"
+        )
+
+        db.session.add(rec)
+
+    # =====================================================
+    # INSERT PERSON (ONLY ONCE)
+    # =====================================================
+    for per in person_rows:
+
+        rec = CTMS9000(
+            ADDRESS1 = per.ADDRESS1,
+            ADDRESS2 = per.ADDRESS2,
+            ADDRESS3 = per.ADDRESS3,
+            ANAME = per.ANAME,
+            CASEID =0,
+            COURTID =0,
+            CREATEBY = per.CREATEBY,
+            CREATEDT = per.CREATEDT,
+            DBIRTH = per.DBIRTH,
+            FNAME = per.FNAME,
+            GENDER = per.GENDER,
+            LNAME = per.LNAME,
+            MNAME = per.MNAME,
+            PARTYID =0,
+            PERSONID = per.PERSONID,
+            PSTATUS = per.PSTATUS,
+            TELNO = per.TELNO,
+
+
+
+
+            DISPOSCODE = 0,
+
+            EXPORTTAG="PERSON"
+        )
+
+        db.session.add(rec)
+
+    # =====================================================
+    # COMMIT ONCE
+    # =====================================================
+    db.session.commit()
+    # =========================
+    # HEADER (UNCHANGED)
+    # =========================
+    CSV_FIELDS = [
+        "CASEID","COURTID","PERSONID","PARTYID",
+        "NATURECODE,C,5","NATUREDESC,C,150","CATEGORY,C,5","CATEGDESC,C,100",
+        "CASENUM,C,80","CASETITLE,C,250",
+        "DTFILED,D","DTRECEIVED,D","DTTRANSFER,D",
+        "TRANSFER,N,1,0","CASETYPE,C,2","CRTTYPE,C,4",
+        "CLOSEDATE,D","CLOSETAG,C,1","CLOSEDET,C,200",
+        "CLOSESTAT,C,5","CLOSEDESC,C,50","NATUREREM,C,200",
+        "IAMOUNT,N,20,2","IWEIGHT,N,20,5",
+        "CSTATUS,C,100","CSTATUSID,C,5","CSTATDESC,C,100",
+        "ENAME,C,5","FNAME,C,80","LNAME,C,80","MNAME,C,40",
+        "DBIRTH,D","GENDER,C,1",
+        "ADDRESS1,C,200","ADDRESS2,C,200","ADDRESS3,C,200",
+        "TELNO,C,200","PSTATUS,C,30",
+        "AGE,N,3,0","DETAINED,N,1,0",
+        "DTIARRAIGN,D","DTPRETRIAL,D","DTARRAIGN,D",
+        "PLEA,N,1,0","PBARGAIN,N,1,0","JRENDERED,N,1,0",
+        "DTSETTING,C,100","DTINITIAL,D","DTLAST,D",
+        "DTOFFERPRO,D","DTDEMURRER,D","DTDEFENSE,C,100",
+        "DTACTUAL,D","DTLTTRIAL,D",
+        "PPOSTPONED,N,5,0","DPOSTPONED,N,5,0",
+        "DTOFFERDEF,D","DTREBUTTAL,D","DTSURREBUT,D",
+        "DTSUBMIT,D","DTPROMUL,D",
+        "DISPOSCODE","DISPOSDESC,C,100",
+        "PENALTY,C,250","REMARKS,C,250",
+        "DTPLEA,D","DTSENTENCE,D","DTARCHIVED,D",
+        "DTREFERRED,D","DTRETURNED,D",
+        "AGECOMIT,N,3,0","DTDETAINED,D","DECIDECODE,C,5",
+        "ANAME,C,100","DTREVIVED,D",
+        "CASETAG,C,20","REASON,C,100","CASENUMOLD,C,80",
+        "DTBAIL,D","MEDIATION,C,1",
+        "DISPOSEDES,C,100","BAILREM,C,100",
+        "DTSURRENDR,D","DTARREST,D","DTRELEASED,D",
+        "RELEASED,C,5","RELEASEDES,C,100",
+        "AGEING_Y,N,5,0","AGEING_M,N,5,0","AGEING_D,N,5,0","AGEING_T,N,12,0",
+        "AGEING_DES,C,100",
+        "CREATEBY,C,4","CREATEDT,D","MODIFYDT","MODIFYBY,C,4",
+        "EXPORTTAG,C,10"
+    ]
+
+    # =========================
+    # FIELD MAP
+    # =========================
+    FIELD_MAP = {f: f.split(",")[0] for f in CSV_FIELDS}
+
+    # =========================
+    # EXPORT
+    # =========================
+    output = StringIO()
+    writer = csv.writer(output)
+
+    # header
+    writer.writerow(CSV_FIELDS)
+
+    records = CTMS9000.query.order_by(CTMS9000.id).all()
+
+    for r in records:
+        row = []
+
+        for col in CSV_FIELDS:
+            field = FIELD_MAP.get(col)
+            value = getattr(r, field, "") if field else ""
+
+            if value is None:
+                value = ""
+
+            row.append(str(value))  # NO truncation
+
+        writer.writerow(row)
+
+    output.seek(0)
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=ctms9000.csv"}
+    )
+
+
+
+
+    # return {
+    #     "status": "success",
+    #     "data": [r.to_dict() for r in records]
+        
+    # }
+
+
+
+

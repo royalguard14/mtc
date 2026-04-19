@@ -10,9 +10,20 @@
   <div class="card">
     <div class="card-header">
       <h3 class="card-title">Criminal Case Record</h3>
-      <div class="card-tools">
-        <a href="/cc/add" class="btn btn-outline-primary btn-block"><i class="fas fa-plus"></i> Add Case</a>
-      </div>
+   <div class="card-tools d-flex" style="gap: 5px;">
+  <a href="/cc/add" class="btn btn-outline-primary">
+    <i class="fas fa-plus"></i> Add Case
+  </a>
+
+<a href="#"
+   class="btn btn-outline-success"
+   data-toggle="modal"
+   data-target="#reportModal">
+  <i class="fas fa-file-alt"></i> Generate Report
+</a>
+
+</div>
+
     </div>
     <div class="card-body">
       <table id="example2" class="table table-bordered table-striped">
@@ -72,8 +83,68 @@
 <!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
+
+
+
+
+<!-- =========================
+     REPORT MODAL
+========================= -->
+<div class="modal fade" id="reportModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h4 class="modal-title font-weight-bold">Generate Report</h4>
+      </div>
+
+      <div class="modal-body">
+        <form id="reportForm">
+
+          <div class="form-group">
+            <label>From (Month-Year)</label>
+            <input type="month" name="from" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label>To (Month-Year)</label>
+            <input type="month" name="to" class="form-control" required>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="generateReportBtn">
+          Generate
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 {% block scripts %}
+
+<script>
+  $("#generateReportBtn").on("click", function () {
+  let from = $("input[name='from']").val();
+  let to = $("input[name='to']").val();
+
+  if (!from || !to) {
+    alert("Please select both dates.");
+    return;
+  }
+
+  // Example: redirect with query params
+  window.location.href = `/cc/report-email?from=${from}&to=${to}`;
+});
+
+</script>
 <script>
   function formatDate(dateStr) {
     if (!dateStr) return '';
