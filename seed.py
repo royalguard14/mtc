@@ -9,7 +9,7 @@ app = create_app()
 def seed_roles():
     dev = Role.query.filter_by(role_name='Developer').first()
     if not dev:
-        dev = Role(id=1, role_name='Developer', modules=[1, 2, 3, 4])
+        dev = Role(id=1, role_name='Developer', modules=[1, 2, 3, 4, 5,6,7,8,9,10,11,12,13,14,15,16])
         db.session.add(dev)
         db.session.commit()
         print("✅ Role: Developer created.")
@@ -36,11 +36,25 @@ def seed_user(dev_role):
 
 def seed_modules():
     modules = [
-        {'id': 1,'name': 'Roles', 'icon': 'fa-users', 'description': 'Manage roles within the system and assign permissions to users.', 'url': 'roles'},
-        {'id': 2,'name': 'Users', 'icon': 'fa-users', 'description': 'Manage individual users, their details, and roles within the system.', 'url': 'users'},
-        {'id': 3,'name': 'Modules', 'icon': 'fa-cogs', 'description': 'Configure and manage system modules and their settings.', 'url': 'modules'},
-        {'id': 4,'name': 'Settings', 'icon': 'fa-cogs', 'description': 'Manage global system settings, including configurations and preferences.', 'url': 'settings'},
+        {'id': 1, 'name': 'Roles', 'icon': 'fa-users', 'description': 'Manage roles within the system and assign permissions to users.', 'url': 'roles'},
+        {'id': 2, 'name': 'Users', 'icon': 'fa-users', 'description': 'Manage individual users, their details, and roles within the system.', 'url': 'users'},
+        {'id': 3, 'name': 'Modules', 'icon': 'fa-cogs', 'description': 'Configure and manage system modules and their settings.', 'url': 'modules'},
+        {'id': 4, 'name': 'Settings', 'icon': 'fa-cogs', 'description': 'Manage global system settings, including configurations and preferences.', 'url': 'settings'},
+        {'id': 5, 'name': 'Clearance', 'icon': 'fa-certificate', 'description': 'Generate Certificate clearance', 'url': 'clearance'},
+        {'id': 6, 'name': 'OCA', 'icon': 'fa-circle', 'description': 'Ordinary Civil Action', 'url': 'oca'},
+        {'id': 7, 'name': 'SCC', 'icon': 'fa-circle', 'description': 'Small Claims Cases', 'url': 'scc'},
+        {'id': 8, 'name': 'SCA', 'icon': 'fa-circle', 'description': 'Special Civil Action', 'url': 'sca'},
+        {'id': 9, 'name': 'Criminal Cases', 'icon': 'fa-user-tag', 'description': '', 'url': 'cc'},
+        {'id': 10, 'name': 'Election Cases', 'icon': 'fa-user-tie', 'description': 'Election Cases', 'url': 'ec'},
+        {'id': 11, 'name': 'Wedding Schedule', 'icon': 'fa-ring', 'description': 'For Wedding', 'url': 'wedding'},
+        {'id': 12, 'name': 'Court Schedule', 'icon': 'fa-balance-scale', 'description': 'For Court Schedule', 'url': 'court'},
+        {'id': 13, 'name': 'Received', 'icon': 'fa-500px', 'description': '', 'url': 'received'},
+        {'id': 14, 'name': 'Release', 'icon': 'fa-500px', 'description': '', 'url': 'release'},
+        {'id': 15, 'name': 'Verify', 'icon': 'fa-500px', 'description': '', 'url': 'verify'},
+        {'id': 16, 'name': 'Small Cases', 'icon': 'fa-balance-scale-right', 'description': '', 'url': 'sc'},
     ]
+
+
     for m in modules:
         exists = Module.query.filter_by(name=m['name']).first()
         if not exists:

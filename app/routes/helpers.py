@@ -359,3 +359,17 @@ def run_dbf_sync():
 
     finally:
         conn.close()
+
+
+
+
+def safe_str(value, max_len):
+    if value is None:
+        return ""
+
+    value = str(value)
+
+    # normalize to cp1252
+    value = value.encode("cp1252", "ignore").decode("cp1252")
+
+    return value[:max_len]

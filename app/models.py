@@ -544,10 +544,10 @@ class CTMS9000(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)  # 👈 FIX
 
-    CASEID = db.Column(db.Integer)
-    COURTID = db.Column(db.Integer)
-    PERSONID = db.Column(db.Integer)
-    PARTYID = db.Column(db.Integer)
+    CASEID = db.Column(db.Text)
+    COURTID = db.Column(db.Text)
+    PERSONID = db.Column(db.Text)
+    PARTYID = db.Column(db.Text)
 
     NATURECODE = db.Column(db.Text)
     NATUREDESC = db.Column(db.Text)
@@ -560,7 +560,7 @@ class CTMS9000(db.Model):
     DTFILED = db.Column(db.Text)
     DTRECEIVED = db.Column(db.Text)
     DTTRANSFER = db.Column(db.Text)
-    TRANSFER = db.Column(db.Integer)
+    TRANSFER = db.Column(db.Text)
 
     CASETYPE = db.Column(db.Text)
     CRTTYPE = db.Column(db.Text)
@@ -595,16 +595,16 @@ class CTMS9000(db.Model):
     TELNO = db.Column(db.Text)
     PSTATUS = db.Column(db.Text)
 
-    AGE = db.Column(db.Integer)
-    DETAINED = db.Column(db.Integer)
+    AGE = db.Column(db.Text)
+    DETAINED = db.Column(db.Text)
 
     DTIARRAIGN = db.Column(db.Text)
     DTPRETRIAL = db.Column(db.Text)
     DTARRAIGN = db.Column(db.Text)
 
-    PLEA = db.Column(db.Integer)
-    PBARGAIN = db.Column(db.Integer)
-    JRENDERED = db.Column(db.Integer)
+    PLEA = db.Column(db.Text)
+    PBARGAIN = db.Column(db.Text)
+    JRENDERED = db.Column(db.Text)
 
     DTSETTING = db.Column(db.Text)
     DTINITIAL = db.Column(db.Text)
@@ -616,8 +616,8 @@ class CTMS9000(db.Model):
     DTACTUAL = db.Column(db.Text)
     DTLTTRIAL = db.Column(db.Text)
 
-    PPOSTPONED = db.Column(db.Integer)
-    DPOSTPONED = db.Column(db.Integer)
+    PPOSTPONED = db.Column(db.Text)
+    DPOSTPONED = db.Column(db.Text)
 
     DTOFFERDEF = db.Column(db.Text)
     DTREBUTTAL = db.Column(db.Text)
@@ -626,7 +626,7 @@ class CTMS9000(db.Model):
     DTSUBMIT = db.Column(db.Text)
     DTPROMUL = db.Column(db.Text)
 
-    DISPOSCODE = db.Column(db.Integer)
+    DISPOSCODE = db.Column(db.Text)
     DISPOSDESC = db.Column(db.Text)
 
     PENALTY = db.Column(db.Text)
@@ -639,7 +639,7 @@ class CTMS9000(db.Model):
     DTREFERRED = db.Column(db.Text)
     DTRETURNED = db.Column(db.Text)
 
-    AGECOMIT = db.Column(db.Integer)
+    AGECOMIT = db.Column(db.Text)
     DTDETAINED = db.Column(db.Text)
     DECIDECODE = db.Column(db.Text)
 
@@ -663,10 +663,10 @@ class CTMS9000(db.Model):
     RELEASED = db.Column(db.Text)
     RELEASEDES = db.Column(db.Text)
 
-    AGEING_Y = db.Column(db.Integer)
-    AGEING_M = db.Column(db.Integer)
-    AGEING_D = db.Column(db.Integer)
-    AGEING_T = db.Column(db.Integer)
+    AGEING_Y = db.Column(db.Text)
+    AGEING_M = db.Column(db.Text)
+    AGEING_D = db.Column(db.Text)
+    AGEING_T = db.Column(db.Text)
     AGEING_DES = db.Column(db.Text)
 
     CREATEBY = db.Column(db.Text)

@@ -1,16 +1,16 @@
 from flask import Blueprint, render_template, jsonify, request, redirect, Response
 from flask_login import login_required
 from app.routes.decorators import require_module
-from app.models import CTMS1000, CTMS4100, CTMS4000, CTMS2310, CTMS2300, CTMS9000
+from app.models import CTMS1000, CTMS4100, CTMS4000, CTMS2310, CTMS2300, CTMS9000, SettingsCTMS, CTMS2100
 from app import db
 from datetime import datetime, timedelta
-from app.routes.helpers import touch_case, get_now, CURRENT_USER, run_dbf_sync
+from app.routes.helpers import touch_case, get_now, CURRENT_USER, run_dbf_sync, safe_str
 from sqlalchemy.orm import joinedload
 import csv
 from io import StringIO
 from sqlalchemy import or_, and_
 import tempfile
-import dbf
+import dbf, os
 
 
 
@@ -453,6 +453,8 @@ def generate_report():
     ).order_by(CTMS4000.PERSONID).all()
 
 
+
+
     # # =====================================================
     # # CLEAR TABLE
     # # =====================================================
@@ -479,7 +481,8 @@ def generate_report():
             DTFILED=c.DTFILED,
             DTRECEIVED=c.DTRECEIVED,
             DTTRANSFER=c.DTTRANSFER,
-            TRANSFER=c.TRANSFER,
+            TRANSFER = None if (c.TRANSFER is None or c.TRANSFER == 0) else c.TRANSFER,
+
 
             CASETYPE=c.CASETYPE,
             CLOSEDATE=c.CLOSEDATE,
@@ -494,10 +497,16 @@ def generate_report():
             CSTATUS=c.CSTATUS,
             CSTATUSID=c.CSTATUSID,
 
+   
+
+
+
+
+
             CREATEBY=c.CREATEBY,
             CREATEDT=c.CREATEDT.split("T")[0] if c.CREATEDT else None,
             MODIFYBY=c.MODIFYBY,
-            MODIFYDT=c.MODIFYDT.split("T")[0] if c.MODIFYDT else None,
+            MODIFYDT = (datetime.fromisoformat(c.MODIFYDT).strftime("%m/%d/%Y %H:%M:%S") if c.MODIFYDT else None),
 
             PERSONID=int(0),
             PARTYID=int(0),
@@ -506,6 +515,7 @@ def generate_report():
             EXPORTTAG="CASEMAST"
         )
         db.session.add(rec)
+        db.session.commit()  
         
 
 
@@ -557,7 +567,7 @@ def generate_report():
             JRENDERED = p.JRENDERED,
             MEDIATION = p.MEDIATION,
             MODIFYBY = p.MODIFYBY,
-            MODIFYDT=p.MODIFYDT.split("T")[0] if p.MODIFYDT else None,
+            MODIFYDT = (datetime.fromisoformat(c.MODIFYDT).strftime("%m/%d/%Y %H:%M:%S") if c.MODIFYDT else None),
             PARTYID = p.PARTYID,
             PBARGAIN = p.PBARGAIN,
             PENALTY = p.PENALTY,
@@ -572,6 +582,7 @@ def generate_report():
         )
 
         db.session.add(rec)
+        db.session.commit()  
 
     # =====================================================
     # INSERT PERSON (ONLY ONCE)
@@ -606,11 +617,58 @@ def generate_report():
         )
 
         db.session.add(rec)
+        db.session.commit()  
+
 
     # =====================================================
-    # COMMIT ONCE
+    # settings
     # =====================================================
-    db.session.commit()
+    sets = SettingsCTMS.query.first()
+
+    if sets:
+        rec = CTMS9000(
+            CASEID = sets.COURTID,
+            COURTID = 0,
+            PERSONID = 0,
+            PARTYID = 0,
+            CRTTYPE = sets.CRTTYPE,
+
+            MODIFYDT = datetime.strptime(sets.MODIDT, "%Y-%m-%d").strftime("%m/%d/%y %I:%M %p"),
+            DETAINED = sets.ISSINGLE,
+            DISPOSCODE = 0,
+            EXPORTTAG = "SETTINGS"
+        )
+
+        db.session.add(rec)
+        db.session.commit()
+
+
+    court = CTMS2100.query.filter_by(COURTID=1700).first()
+    if court:
+        rec = CTMS9000(
+            CASEID = sets.COURTID,
+            COURTID = 0,
+            PERSONID = 0,
+            PARTYID = 0,
+            CRTTYPE = sets.CRTTYPE,
+
+            CSTATUSID = court.REGION,
+            ENAME = "001",
+
+            ADDRESS1 =  court.PLACEASS,
+            ADDRESS2 = court.PLACEASS2,
+
+            DISPOSCODE = 0,
+            DECIDECODE = court.TOWN ,
+            
+            EXPORTTAG = "COURTCD"
+        )
+
+        db.session.add(rec)
+        db.session.commit()
+
+
+
     # =========================
     # HEADER (UNCHANGED)
     # =========================
@@ -655,52 +713,136 @@ def generate_report():
     ]
 
     # =========================
-    # FIELD MAP
+    # BUILD DBF STRUCTURE
     # =========================
-    FIELD_MAP = {f: f.split(",")[0] for f in CSV_FIELDS}
+    field_defs = []
+    field_names = []
+    field_types = {}   # store type info for conversion
+
+    for f in CSV_FIELDS:
+        parts = f.split(",")
+
+        name = parts[0][:10]  # DBF limit
+        field_names.append(name)
+
+        if len(parts) == 1:
+            field_defs.append(f"{name} C(255)")
+            field_types[name] = ("C", 255)
+
+        else:
+            ftype = parts[1]
+
+            if ftype == "C":
+                size = int(parts[2])
+                field_defs.append(f"{name} C({size})")
+                field_types[name] = ("C", size)
+
+            elif ftype == "N":
+                size = int(parts[2])
+                dec = int(parts[3])
+                field_defs.append(f"{name} N({size},{dec})")
+                field_types[name] = ("N", size, dec)
+
+            elif ftype == "D":
+                field_defs.append(f"{name} D")
+                field_types[name] = ("D",)
+
+            else:
+                field_defs.append(f"{name} C(255)")
+                field_types[name] = ("C", 255)
+
+    structure = "; ".join(field_defs)
 
     # =========================
-    # EXPORT
+    # CREATE TEMP DBF
     # =========================
-    output = StringIO()
-    writer = csv.writer(output)
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".dbf")
+    tmp.close()
 
-    # header
-    writer.writerow(CSV_FIELDS)
+    table = dbf.Table(tmp.name, structure, codepage='cp1252')
+    table.open(mode=dbf.READ_WRITE)
 
+    # =========================
+    # EXPORT DATA
+    # =========================
     records = CTMS9000.query.order_by(CTMS9000.id).all()
 
     for r in records:
-        row = []
+        row_data = {}
 
-        for col in CSV_FIELDS:
-            field = FIELD_MAP.get(col)
-            value = getattr(r, field, "") if field else ""
+        for original, name in zip(CSV_FIELDS, field_names):
+            field = original.split(",")[0]
+            value = getattr(r, field, None)
 
+            ftype = field_types[name][0]
+
+            # =========================
+            # TYPE HANDLING
+            # =========================
             if value is None:
-                value = ""
+                if ftype == "N":
+                    value = None
+                elif ftype == "D":
+                    value = None
+                else:
+                    value = ""
 
-            row.append(str(value))  # NO truncation
+            # # CHARACTER
+            # if ftype == "C":
+            #         max_len = field_types[name][1]
+            #         value = safe_str(value, max_len)
 
-        writer.writerow(row)
+            if ftype == "C":
+                value = "" if value is None else str(value)
+                max_len = field_types[name][1]
+                value = value[:max_len]
 
-    output.seek(0)
+            # NUMERIC
+            elif ftype == "N":
+                if value is None or value == "":
+                    value = None   # IMPORTANT: keep NULL
+                else:
+                    try:
+                        value = float(value)
+                    except:
+                        value = None
+
+            # DATE
+            elif ftype == "D":
+                if isinstance(value, datetime):
+                    value = value.date()
+                elif isinstance(value, str):
+                    try:
+                        value = datetime.strptime(value[:10], "%Y-%m-%d").date()
+                    except:
+                        value = None
+
+            row_data[name] = value
+
+        table.append(row_data)
+
+    table.close()
+
+    # =========================
+    # RESPONSE
+    # =========================
+    with open(tmp.name, "rb") as f:
+        dbf_data = f.read()
+
+    os.unlink(tmp.name)
+
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    filename = f"CTMS{timestamp}.dbf"
 
     return Response(
-        output,
-        mimetype="text/csv",
-        headers={"Content-Disposition": "attachment; filename=ctms9000.csv"}
+        dbf_data,
+        mimetype="application/octet-stream",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+
     )
-
-
-
 
     # return {
     #     "status": "success",
     #     "data": [r.to_dict() for r in records]
         
     # }
-
-
-
-
