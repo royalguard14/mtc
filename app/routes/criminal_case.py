@@ -4,7 +4,7 @@ from app.routes.decorators import require_module
 from app.models import CTMS1000, CTMS4100, CTMS4000, CTMS2310, CTMS2300, CTMS9000, SettingsCTMS, CTMS2100
 from app import db
 from datetime import datetime, timedelta
-from app.routes.helpers import touch_case, get_now, CURRENT_USER, run_dbf_sync, safe_str
+
 from sqlalchemy.orm import joinedload
 import csv
 from io import StringIO
@@ -32,6 +32,7 @@ def criminal():
             joinedload(CTMS1000.parties)
             .joinedload(CTMS4100.person)
         )
+        .order_by(CTMS1000.CASENUM)
         .all()
     )
     return render_template(
@@ -208,7 +209,7 @@ def update_person(person_id):
         touch_case(party.CASEID)
     db.session.commit()
 
-    run_dbf_sync()
+    
     return {
         "status": "success",
         "data": person.to_dict()
@@ -295,7 +296,7 @@ def add_case():
         NATURECODE=request.form.get('NATURECODE').zfill(5),
         CATEGORY='00005',
         CASENUM=request.form.get('CASENUM'),
-        CASETITLE=request.form.get('CASETITLE'),
+        CASETITLE = (request.form.get('CASETITLE') or '').upper(),
         DTFILED=request.form.get('DTFILED'),
         DTRECEIVED=request.form.get('DTRECEIVED'),
         CASETYPE="CR",
@@ -313,7 +314,7 @@ def add_case():
     db.session.add(new_case)
     db.session.commit()
 
-    run_dbf_sync()
+    
 
     return redirect('/cc')
 
@@ -402,7 +403,7 @@ def save_person():
     )
     db.session.add(party)
     db.session.commit()
-    run_dbf_sync()
+    
     return redirect('/cc')
 
 

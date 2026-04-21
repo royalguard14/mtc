@@ -31,7 +31,7 @@ def ensure_db_folder():
     appdata_dir = get_appdata_path()
     #db_path = os.path.join(appdata_dir, "app.db")
 
-    db_path = os.path.join(os.path.dirname(__file__), "app1.db")
+    db_path = os.path.join(os.path.dirname(__file__), "db", "zear.db")
 
 
     if not os.path.exists(appdata_dir):

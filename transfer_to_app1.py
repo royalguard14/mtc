@@ -1,6 +1,6 @@
 import sqlite3
 
-source_db = r"C:\Users\Supreme Court\Desktop\New folder\combined2.db"
+source_db = r"D:\PyZar\forCompare\combined.db"
 target_db = r"D:\PyZar\app1.db"
 
 
