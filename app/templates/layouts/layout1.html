@@ -38,7 +38,7 @@
 <!-- Include in your layout if not already -->
 <link href="{{ url_for('static', filename='plugins/select2/css/select2.min.css') }}" rel="stylesheet" />
 
-
+{% block styles %}{% endblock %}
 
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -302,7 +302,16 @@
 <!-- Toastr -->
 <script src="{{ url_for('static', filename='plugins/toastr/toastr.min.js') }}"></script>
 
-
+<!-- ADD THIS RIGHT HERE -->
+<script>
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: false
+  });
+</script>
 
 {% block scripts %}{% endblock %}
 

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, request, redirect, Response
+from flask import Blueprint, render_template, jsonify, request, redirect, Response, flash
 from flask_login import login_required
 from app.routes.decorators import require_module
 from app.models import CTMS1000, CTMS4100, CTMS4000, CTMS2310, CTMS2300, CTMS9000, SettingsCTMS, CTMS2100
@@ -11,6 +11,7 @@ from io import StringIO
 from sqlalchemy import or_, and_
 import tempfile
 import dbf, os
+from app.routes.helpers import touch_case
 
 
 
@@ -145,13 +146,24 @@ def view_person(person_id):
 
 
 
+
+
 @criminals_bp.route('/update-person/<int:person_id>', methods=['POST'])
 @login_required
 def update_person(person_id):
+    CURRENT_USER = "BCC1"
+
     person = CTMS4000.query.get_or_404(person_id)
     form = request.form
-    now = get_now()
-# I-Personal Infp
+
+    # print("========== FORM DATA RECEIVED ==========")
+    # for k, v in form.items():
+    #     print(k, "=", v)
+
+    
+    now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+    # ===================== ACCUSED (PERSON) =====================
     person.FNAME = form.get('FNAME', '').upper()
     person.MNAME = form.get('MNAME', '').upper()
     person.LNAME = form.get('LNAME', '').upper()
@@ -163,34 +175,57 @@ def update_person(person_id):
     person.ADDRESS1 = form.get('ADDRESS1')
     person.MODIFYDT = now
     person.MODIFYBY = CURRENT_USER
-    # 🔥 UPDATE ALL RELATED CASES
+
+    # ===================== PARTY TABLE =====================
     parties = CTMS4100.query.filter_by(PERSONID=person.PERSONID).all()
     for p in parties:
         touch_case(p.CASEID)
+
     party = CTMS4100.query.filter_by(PERSONID=person.PERSONID).first()
+
     if party:
+
+        # ===================== ACCUSED (FROM PERSON TAB) =====================
         party.AGECOMIT = form.get('AGECOMIT')
-# II-arrainment and pre trrial
+
+        # ===================== ARRAIGNMENT AND PRE-TRIAL =====================
         party.DETAINED = form.get('DETAINED')
         party.DTDETAINED = form.get('DTDETAINED')
         party.DTARREST = form.get('DTARREST')
-        party.DTBAIL = form.get('DTBAIL')
         party.DTSURRENDR = form.get('DTSURRENDR')
+
+        party.DTBAIL = form.get('DTBAIL')
         party.BAILREM = form.get('BAILREM')
+
         party.DTRELEASED = form.get('DTRELEASED')
         party.RELEASED = form.get('RELEASED')
-# III-mediation
+
+        party.DTIARRAIGN = form.get('DTIARRAIGN')
+        party.DTARRAIGN = form.get('DTARRAIGN')
+        party.DTPRETRIAL = form.get('DTPRETRIAL')
+
+        party.PLEA = form.get('PLEA')
+        party.DTPLEA = form.get('DTPLEA')
+
+        party.DTSENTENCE = form.get('DTSENTENCE')
+
+        party.DTARCHIVED = form.get('DTARCHIVED')
+        party.DTREVIVED = form.get('DTREVIVED')
+
+        # ===================== MEDIATION =====================
         party.DTREFERRED = form.get('DTREFERRED')
         party.DTRETURNED = form.get('DTRETURNED')
         party.MEDIATION = form.get('MEDIATION')
-# IV-PE
+
+        # ===================== PROSECUTION =====================
         party.DTSETTING = form.get('DTSETTING')
         party.DTINITIAL = form.get('DTINITIAL')
         party.DTLAST = form.get('DTLAST')
         party.PPOSTPONED = form.get('PPOSTPONED')
-        party.DTOFFERPRO = form.get('DTOFFERPRO')
         party.DTDEMURRER = form.get('DTDEMURRER')
-# V-DE
+        party.DTOFFERPRO = form.get('DTOFFERPRO')
+
+        # ===================== DEFENSE =====================
         party.DTDEFENSE = form.get('DTDEFENSE')
         party.DTACTUAL = form.get('DTACTUAL')
         party.DTLTTRIAL = form.get('DTLTTRIAL')
@@ -198,26 +233,29 @@ def update_person(person_id):
         party.DTOFFERDEF = form.get('DTOFFERDEF')
         party.DTREBUTTAL = form.get('DTREBUTTAL')
         party.DTSURREBUT = form.get('DTSURREBUT')
-# VI-DEsison
+
+        # ===================== DECISION AND PROMULGATION =====================
         party.DTSUBMIT = form.get('DTSUBMIT')
         party.DTPROMUL = form.get('DTPROMUL')
         party.DECIDECODE = form.get('DECIDECODE')
         party.PENALTY = form.get('PENALTY')
         party.REMARKS = form.get('REMARKS')
+
+        # ===================== SYSTEM FIELDS =====================
         party.MODIFYDT = now
         party.MODIFYBY = CURRENT_USER
-        touch_case(party.CASEID)
-    db.session.commit()
 
+        touch_case(party.CASEID)
+
+    db.session.commit()
     
     return {
         "status": "success",
-        "data": person.to_dict()
+        "data": {
+            **person.to_dict(),
+            **(party.to_dict() if party else {})
+        }
     }
-
-
-
-
 
 @criminals_bp.route('/add')
 @login_required
@@ -315,7 +353,7 @@ def add_case():
     db.session.commit()
 
     
-
+    flash('Criminal Case created successfully.', 'success')
     return redirect('/cc')
 
 
@@ -336,6 +374,7 @@ def add_person_form(case_id):
         "RELEASED ON RECOGNIZANCE",
         "UNDER PROBATION"
     ]
+    flash('Accused created successfully.', 'success')
     return render_template(
         'civil_cases/add_person.html',
         case_id=case_id,

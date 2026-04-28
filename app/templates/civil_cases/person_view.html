@@ -1,374 +1,770 @@
 {% extends "layouts/layout1.html" %}
+
+
+
+{% block styles %}
+
+<style>
+  
+.case-section {
+  margin-bottom: 20px;
+}
+
+.case-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6c757d;
+  margin-bottom: 10px;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+}
+
+.case-item {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.case-item b {
+  display: block;
+  font-size: 12px;
+  color: #6c757d;
+  margin-bottom: 2px;
+}
+
+.case-item div {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212529;
+}
+
+.case-empty {
+  color: #adb5bd;
+}
+
+
+
+.info-box {
+  background: #fff;
+  border: 1px solid #eef0f2;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.info-box b {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.info-box div {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+
+</style>
+
+
+{% endblock %}
+
+
+
+
+
 {% block content %}
- <!-- Content Wrapper. Contains page content -->
 
-    <!-- Main content -->
+{% macro fmt(v) %}
+  {% if v is none or v == '' %}
+    —
+  {% else %}
+    {{ v }}
+  {% endif %}
+{% endmacro %}
 
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-3">
+<div id="msg-success" class="alert alert-success d-none mt-3">
+  ✔ Saved successfully!
+</div>
 
-            <!-- Profile Image -->
-            <div class="card card-primary card-outline">
-              <div class="card-body box-profile">
-                <div class="text-center">
-                  <img class="profile-user-img img-fluid img-circle"
-                       src="{{ url_for('static', filename='dist/img/avatar4.png')}}"
-                       alt="User profile picture">
-                </div>
+<div class="container-fluid">
+  <div class="row">
 
-                <h3 class="profile-username text-center">{{ person.FNAME }} {{ person.MNAME }} {{ person.LNAME }}</h3>
-
-                <p class="text-muted text-center">Alias: {{ person.ANAME }}</p>
-
-                <ul class="list-group list-group-unbordered mb-3">
-                  <li class="list-group-item">
-                    <b>Case Number</b> <a class="float-right">{{ case.CASENUM }}</a>
-                  </li>
-                  <li class="list-group-item">
-                    <b>Present Status</b> <a class="float-right">{{ person.PSTATUS }}</a>
-                  </li>
-                  <li class="list-group-item">
-                    <b>Manners of Disposition</b> <a class="float-right">
-                      
-                  
-    {% for n in decisions %}
-      {% if n.CODEID|string == party.DECIDECODE|string %}
-        {{ n.DESCRP }}
-      {% endif %}
-    {% endfor %}
-
-                    </a>
-                  </li>
-                </ul>
-
-                <a href="#" class="btn btn-primary btn-block"><b>UPDATE</b></a>
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-
-            <!-- About Me Box -->
-            <div class="card card-primary">
-              <div class="card-header">
-                <h3 class="card-title">About Me</h3>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body">
-                <strong><i class="fas fa-book mr-1"></i> Education</strong>
-
-                <p class="text-muted">
-                  B.S. in Computer Science from the University of Tennessee at Knoxville
-                </p>
-
-                <hr>
-
-                <strong><i class="fas fa-map-marker-alt mr-1"></i> Location</strong>
-
-                <p class="text-muted">Malibu, California</p>
-
-                <hr>
-
-                <strong><i class="fas fa-pencil-alt mr-1"></i> Skills</strong>
-
-                <p class="text-muted">
-                  <span class="tag tag-danger">UI Design</span>
-                  <span class="tag tag-success">Coding</span>
-                  <span class="tag tag-info">Javascript</span>
-                  <span class="tag tag-warning">PHP</span>
-                  <span class="tag tag-primary">Node.js</span>
-                </p>
-
-                <hr>
-
-                <strong><i class="far fa-file-alt mr-1"></i> Notes</strong>
-
-                <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam fermentum enim neque.</p>
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
+    <div class="col-md-3">
+      <div class="card card-primary card-outline">
+        <div class="card-body box-profile">
+          <div class="text-center">
+            <img class="profile-user-img img-fluid img-circle"
+            src="{{ url_for('static', filename='dist/img/avatar4.png')}}">
           </div>
-          <!-- /.col -->
-          <div class="col-md-9">
-            <div class="card">
-              <div class="card-header p-2">
-                <ul class="nav nav-pills">
-                  <li class="nav-item"><a class="nav-link active" href="#activity" data-toggle="tab">Activity</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">Timeline</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">Settings</a></li>
-                </ul>
-              </div><!-- /.card-header -->
-              <div class="card-body">
-                <div class="tab-content">
-                  <div class="active tab-pane" id="activity">
-                    <!-- Post -->
-                    <div class="post">
-                      <div class="user-block">
-                        <img class="img-circle img-bordered-sm" src="../../dist/img/user1-128x128.jpg" alt="user image">
-                        <span class="username">
-                          <a href="#">Jonathan Burke Jr.</a>
-                          <a href="#" class="float-right btn-tool"><i class="fas fa-times"></i></a>
-                        </span>
-                        <span class="description">Shared publicly - 7:30 PM today</span>
-                      </div>
-                      <!-- /.user-block -->
-                      <p>
-                        Lorem ipsum represents a long-held tradition for designers,
-                        typographers and the like. Some people hate it and argue for
-                        its demise, but others ignore the hate as they create awesome
-                        tools to help create filler text for everyone from bacon lovers
-                        to Charlie Sheen fans.
-                      </p>
-
-                      <p>
-                        <a href="#" class="link-black text-sm mr-2"><i class="fas fa-share mr-1"></i> Share</a>
-                        <a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i> Like</a>
-                        <span class="float-right">
-                          <a href="#" class="link-black text-sm">
-                            <i class="far fa-comments mr-1"></i> Comments (5)
-                          </a>
-                        </span>
-                      </p>
-
-                      <input class="form-control form-control-sm" type="text" placeholder="Type a comment">
-                    </div>
-                    <!-- /.post -->
-
-                    <!-- Post -->
-                    <div class="post clearfix">
-                      <div class="user-block">
-                        <img class="img-circle img-bordered-sm" src="../../dist/img/user7-128x128.jpg" alt="User Image">
-                        <span class="username">
-                          <a href="#">Sarah Ross</a>
-                          <a href="#" class="float-right btn-tool"><i class="fas fa-times"></i></a>
-                        </span>
-                        <span class="description">Sent you a message - 3 days ago</span>
-                      </div>
-                      <!-- /.user-block -->
-                      <p>
-                        Lorem ipsum represents a long-held tradition for designers,
-                        typographers and the like. Some people hate it and argue for
-                        its demise, but others ignore the hate as they create awesome
-                        tools to help create filler text for everyone from bacon lovers
-                        to Charlie Sheen fans.
-                      </p>
-
-                      <form class="form-horizontal">
-                        <div class="input-group input-group-sm mb-0">
-                          <input class="form-control form-control-sm" placeholder="Response">
-                          <div class="input-group-append">
-                            <button type="submit" class="btn btn-danger">Send</button>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                    <!-- /.post -->
-
-                    <!-- Post -->
-                    <div class="post">
-                      <div class="user-block">
-                        <img class="img-circle img-bordered-sm" src="../../dist/img/user6-128x128.jpg" alt="User Image">
-                        <span class="username">
-                          <a href="#">Adam Jones</a>
-                          <a href="#" class="float-right btn-tool"><i class="fas fa-times"></i></a>
-                        </span>
-                        <span class="description">Posted 5 photos - 5 days ago</span>
-                      </div>
-                      <!-- /.user-block -->
-                      <div class="row mb-3">
-                        <div class="col-sm-6">
-                          <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-sm-6">
-                          <div class="row">
-                            <div class="col-sm-6">
-                              <img class="img-fluid mb-3" src="../../dist/img/photo2.png" alt="Photo">
-                              <img class="img-fluid" src="../../dist/img/photo3.jpg" alt="Photo">
-                            </div>
-                            <!-- /.col -->
-                            <div class="col-sm-6">
-                              <img class="img-fluid mb-3" src="../../dist/img/photo4.jpg" alt="Photo">
-                              <img class="img-fluid" src="../../dist/img/photo1.png" alt="Photo">
-                            </div>
-                            <!-- /.col -->
-                          </div>
-                          <!-- /.row -->
-                        </div>
-                        <!-- /.col -->
-                      </div>
-                      <!-- /.row -->
-
-                      <p>
-                        <a href="#" class="link-black text-sm mr-2"><i class="fas fa-share mr-1"></i> Share</a>
-                        <a href="#" class="link-black text-sm"><i class="far fa-thumbs-up mr-1"></i> Like</a>
-                        <span class="float-right">
-                          <a href="#" class="link-black text-sm">
-                            <i class="far fa-comments mr-1"></i> Comments (5)
-                          </a>
-                        </span>
-                      </p>
-
-                      <input class="form-control form-control-sm" type="text" placeholder="Type a comment">
-                    </div>
-                    <!-- /.post -->
-                  </div>
-                  <!-- /.tab-pane -->
-                  <div class="tab-pane" id="timeline">
-                    <!-- The timeline -->
-                    <div class="timeline timeline-inverse">
-                      <!-- timeline time label -->
-                      <div class="time-label">
-                        <span class="bg-danger">
-                          10 Feb. 2014
-                        </span>
-                      </div>
-                      <!-- /.timeline-label -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-envelope bg-primary"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 12:05</span>
-
-                          <h3 class="timeline-header"><a href="#">Support Team</a> sent you an email</h3>
-
-                          <div class="timeline-body">
-                            Etsy doostang zoodles disqus groupon greplin oooj voxy zoodles,
-                            weebly ning heekya handango imeem plugg dopplr jibjab, movity
-                            jajah plickers sifteo edmodo ifttt zimbra. Babblely odeo kaboodle
-                            quora plaxo ideeli hulu weebly balihoo...
-                          </div>
-                          <div class="timeline-footer">
-                            <a href="#" class="btn btn-primary btn-sm">Read more</a>
-                            <a href="#" class="btn btn-danger btn-sm">Delete</a>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-user bg-info"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 5 mins ago</span>
-
-                          <h3 class="timeline-header border-0"><a href="#">Sarah Young</a> accepted your friend request
-                          </h3>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-comments bg-warning"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 27 mins ago</span>
-
-                          <h3 class="timeline-header"><a href="#">Jay White</a> commented on your post</h3>
-
-                          <div class="timeline-body">
-                            Take me to your leader!
-                            Switzerland is small and neutral!
-                            We are more like Germany, ambitious and misunderstood!
-                          </div>
-                          <div class="timeline-footer">
-                            <a href="#" class="btn btn-warning btn-flat btn-sm">View comment</a>
-                          </div>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <!-- timeline time label -->
-                      <div class="time-label">
-                        <span class="bg-success">
-                          3 Jan. 2014
-                        </span>
-                      </div>
-                      <!-- /.timeline-label -->
-                      <!-- timeline item -->
-                      <div>
-                        <i class="fas fa-camera bg-purple"></i>
-
-                        <div class="timeline-item">
-                          <span class="time"><i class="far fa-clock"></i> 2 days ago</span>
-
-                          <h3 class="timeline-header"><a href="#">Mina Lee</a> uploaded new photos</h3>
-
-                          <div class="timeline-body">
-                            <img src="https://placehold.it/150x100" alt="...">
-                            <img src="https://placehold.it/150x100" alt="...">
-                            <img src="https://placehold.it/150x100" alt="...">
-                            <img src="https://placehold.it/150x100" alt="...">
-                          </div>
-                        </div>
-                      </div>
-                      <!-- END timeline item -->
-                      <div>
-                        <i class="far fa-clock bg-gray"></i>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- /.tab-pane -->
-
-                  <div class="tab-pane" id="settings">
-                    <form class="form-horizontal">
-                      <div class="form-group row">
-                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                          <input type="email" class="form-control" id="inputName" placeholder="Name">
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-                        <div class="col-sm-10">
-                          <input type="email" class="form-control" id="inputEmail" placeholder="Email">
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="inputName2" class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                          <input type="text" class="form-control" id="inputName2" placeholder="Name">
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="inputExperience" class="col-sm-2 col-form-label">Experience</label>
-                        <div class="col-sm-10">
-                          <textarea class="form-control" id="inputExperience" placeholder="Experience"></textarea>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <label for="inputSkills" class="col-sm-2 col-form-label">Skills</label>
-                        <div class="col-sm-10">
-                          <input type="text" class="form-control" id="inputSkills" placeholder="Skills">
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <div class="offset-sm-2 col-sm-10">
-                          <div class="checkbox">
-                            <label>
-                              <input type="checkbox"> I agree to the <a href="#">terms and conditions</a>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="form-group row">
-                        <div class="offset-sm-2 col-sm-10">
-                          <button type="submit" class="btn btn-danger">Submit</button>
-                        </div>
-                      </div>
-                    </form>
-                  </div>
-                  <!-- /.tab-pane -->
-                </div>
-                <!-- /.tab-content -->
-              </div><!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-          </div>
-          <!-- /.col -->
+          <h3 class="profile-username text-center" id="view-fullname">
+            {{ person.FNAME }} {{ person.MNAME }} {{ person.LNAME }}
+          </h3>
+          <p class="text-muted text-center">Alias: <span id="view-ANAME">{{ person.ANAME }}</span></p>
+          <ul class="list-group list-group-unbordered mb-3">
+            <li class="list-group-item">
+              <b>Case Number</b>
+              <a class="float-right">{{ case.CASENUM }}</a>
+            </li>
+            <li class="list-group-item">
+              <b>Status</b>
+              <a class="float-right" id="view-PSTATUS">{{ person.PSTATUS }}</a>
+            </li>
+          </ul>
+          <button id="btn-edit" class="btn btn-primary btn-block">
+            <b>UPDATE</b>
+          </button>
         </div>
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
+      </div>
+      
+      <div class="card card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Summary</h3>
+        </div>
+        <div class="card-body">
+          <strong>Address</strong>
+          <p id="view-ADDRESS1">{{ person.ADDRESS1 }}</p>
+          <hr>
+          <strong>Case Title</strong>
+          <p>{{ case.CASETITLE }}</p>
+          <hr>
+          <strong>Nature</strong>
+          <p>{{ case.NATUREREM }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-9">
+ 
 
+
+<div class="card">
+
+  <!-- ================= HEADER ================= -->
+  <div class="card-header p-2">
+    <ul class="nav nav-pills">
+
+      <li class="nav-item">
+        <a class="nav-link active" href="#timeline" data-toggle="tab">
+          II - ARRAIGNMENT AND PRE-TRIAL
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="#mediation" data-toggle="tab">
+         III - MEDIATION
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="#prosecution" data-toggle="tab">
+          IV - PROSECUTION EVIDENCE
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="#defense" data-toggle="tab">
+         V - DEFENSE EVIDENCE
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="#decision" data-toggle="tab">
+          VI - DECISION
+        </a>
+      </li>
+
+    </ul>
+  </div>
+
+  <!-- ================= BODY ================= -->
+  <div class="card-body">
+ 
+
+<div class="tab-content">
+
+  <!-- ================= ARRAIGNMENT ================= -->
+  <div class="tab-pane fade show active" id="timeline">
+
+    <div class="case-section">
+      <div class="case-title"></div>
+      <div class="row">
+
+        <!-- Detention -->
+        <div class="col-md-4"><div class="case-item"><b>Date of Detention</b><div name="DTDETAINED">{{ fmt(party.DTDETAINED) }}</div></div></div>
+        <div class="col-md-4"><div class="case-item"><b>Date of Arrest</b><div name="DTARREST">{{ fmt(party.DTARREST) }}</div></div></div>
+        <div class="col-md-4"><div class="case-item"><b>Date of Voluntary Surrender</b><div name="DTSURRENDR">{{ fmt(party.DTSURRENDR) }}</div></div></div>
+
+        <!-- Bail -->
+        <div class="col-md-4"><div class="case-item"><b>Date of Bail or Order of Bail</b><div name="DTBAIL">{{ fmt(party.DTBAIL) }}</div></div></div>
+        <div class="col-md-8"><div class="case-item"><b>Place of Detention</b><div name="BAILREM">{{ fmt(party.BAILREM) }}</div></div></div>
+
+        <!-- Release -->
+        <div class="col-md-4"><div class="case-item"><b>Date of Order of Released</b><div name="DTRELEASED">{{ fmt(party.DTRELEASED) }}</div></div></div>
+        <div class="col-md-8"><div class="case-item"><b>Reason for Release</b><div name="RELEASED">{{ fmt(party.RELEASED) }}</div></div></div>
+
+        <!-- Arraignment Proper -->
+        <div class="col-md-6"><div class="case-item"><b>Date Initial Setting</b><div name="DTIARRAIGN">{{ fmt(party.DTIARRAIGN) }}</div></div></div>
+        <div class="col-md-6"></div>
+
+        <div class="col-md-6"><div class="case-item"><b>Date of Arraignment</b><div name="DTARRAIGN">{{ fmt(party.DTARRAIGN) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Date of Pre-Trial</b><div name="DTPRETRIAL">{{ fmt(party.DTPRETRIAL) }}</div></div></div>
+
+        <!-- Plea -->
+        <div class="col-md-6"><div class="case-item"><b>Plea</b><div name="PLEA">{{ fmt(party.PLEA) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Date of Plea Bargaining</b><div name="DTPLEA">{{ fmt(party.DTPLEA) }}</div></div></div>
+
+        <!-- Sentence -->
+        <div class="col-md-6"><div class="case-item"><b>Date of Promulgation Sentence</b><div name="DTSENTENCE">{{ fmt(party.DTSENTENCE) }}</div></div></div>
+
+        <!-- Archive -->
+        <div class="col-md-6"><div class="case-item"><b>Date Archived</b><div name="DTARCHIVED">{{ fmt(party.DTARCHIVED) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Date Revived</b><div name="DTREVIVED">{{ fmt(party.DTREVIVED) }}</div></div></div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= MEDIATION ================= -->
+  <div class="tab-pane fade" id="mediation">
+
+    <div class="case-section">
+      <div class="case-title"></div>
+      <div class="row">
+
+        <div class="col-md-4"><div class="case-item"><b>Date of Referred to the PMC UNIT</b><div name="DTREFERRED">{{ fmt(party.DTREFERRED) }}</div></div></div>
+        <div class="col-md-4"><div class="case-item"><b>Date Returned to Court</b><div name="DTRETURNED">{{ fmt(party.DTRETURNED) }}</div></div></div>
+
+        <div class="col-md-4">
+          <div class="case-item">
+            <b>Mediation Status</b>
+            <div name="MEDIATION">
+              {% if party.MEDIATION == 'S' %}
+                SUCCESS
+              {% elif party.MEDIATION == 'F' %}
+                FAILED
+              {% else %}
+                —
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= PROSECUTION ================= -->
+  <div class="tab-pane fade" id="prosecution">
+
+    <div class="case-section">
+      <div class="case-title"></div>
+      <div class="row">
+
+        <div class="col-md-6"><div class="case-item"><b>Date of Settings for Prosecution</b><div name="DTSETTING">{{ fmt(party.DTSETTING) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Date of Actual Initial Trial</b><div name="DTINITIAL">{{ fmt(party.DTINITIAL) }}</div></div></div>
+
+        <div class="col-md-6"><div class="case-item"><b>Date of Last Trial</b><div name="DTLAST">{{ fmt(party.DTLAST) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Number of Postponements</b><div name="PPOSTPONED">{{ fmt(party.PPOSTPONED) }}</div></div></div>
+
+        <div class="col-md-6"><div class="case-item"><b>Date of Motion for Leave to File Demurrer to Evidence</b><div name="DTDEMURRER">{{ fmt(party.DTDEMURRER) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Date of Formal Offer of Evidence or Prosecution</b><div name="DTOFFERPRO">{{ fmt(party.DTOFFERPRO) }}</div></div></div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= DEFENSE ================= -->
+  <div class="tab-pane fade" id="defense">
+
+    <div class="case-section">
+      <div class="case-title"></div>
+      <div class="row">
+
+        <div class="col-md-6"><div class="case-item"><b>Date of Settings for Defense</b><div name="DTDEFENSE">{{ fmt(party.DTDEFENSE) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Date of Actual Initial Trial</b><div name="DTACTUAL">{{ fmt(party.DTACTUAL) }}</div></div></div>
+
+        <div class="col-md-6"><div class="case-item"><b>Date of Last Trial</b><div name="DTLTTRIAL">{{ fmt(party.DTLTTRIAL) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Number of Postponements</b><div name="DPOSTPONED">{{ fmt(party.DPOSTPONED) }}</div></div></div>
+
+        <div class="col-md-6"><div class="case-item"><b>Date of Formal Offer of Evidence of Defense</b><div name="DTOFFERDEF">{{ fmt(party.DTOFFERDEF) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Date of Presentation of Last Rebuttal Evidence</b><div name="DTREBUTTAL">{{ fmt(party.DTREBUTTAL) }}</div></div></div>
+
+        <div class="col-md-6"><div class="case-item"><b>Date of Presentation of Last Surrebuttal Evidence</b><div name="DTSURREBUT">{{ fmt(party.DTSURREBUT) }}</div></div></div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= DECISION ================= -->
+  <div class="tab-pane fade" id="decision">
+
+    <div class="case-section">
+      <div class="case-title"></div>
+      <div class="row">
+
+        <div class="col-md-4"><div class="case-item"><b>Date Case is Submitted for Decision</b><div name="DTSUBMIT">{{ fmt(party.DTSUBMIT) }}</div></div></div>
+        <div class="col-md-4"><div class="case-item"><b>Actual date of Promulgation</b><div name="DTPROMUL">{{ fmt(party.DTPROMUL) }}</div></div></div>
+        <div class="col-md-4"><div class="case-item"><b>Decision Code</b><div name="DECIDECODE">{{ fmt(party.DECIDECODE) }}</div></div></div>
+
+        <div class="col-md-6"><div class="case-item"><b>Penalty</b><div name="PENALTY">{{ fmt(party.PENALTY) }}</div></div></div>
+        <div class="col-md-6"><div class="case-item"><b>Remarks</b><div name="REMARKS">{{ fmt(party.REMARKS) }}</div></div></div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="editModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Update Person Details</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="modal-form">
+          <input type="hidden" name="PERSONID" value="{{ person.PERSONID }}">
+          
+          <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#m-accused">I. Accused Information</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#m-arraignment">II. ARRAIGNMENT AND PRE-TRIAL</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#m-mediation">III. MEDIATION</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#m-prosecution">IV. PRESENTATION OF PROSECUTION EVIDENCE</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#m-defense">V. PRESENTATION OF DEFENSE EVIDENCE</a></li>
+            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#m-decision">VI. DECISION AND PROMULGATION</a></li>
+          </ul>
+          <div class="tab-content pt-3">
+
+            <div class="tab-pane fade show active" id="m-accused">
+              <div class="row">
+                <div class="form-group col-md-4">
+                  <label>First Name</label>
+                  <input name="FNAME" class="form-control" value="{{ person.FNAME }}">
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Middle Name</label>
+                  <input name="MNAME" class="form-control" value="{{ person.MNAME }}">
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Last Name</label>
+                  <input name="LNAME" class="form-control" value="{{ person.LNAME }}">
+                </div>
+              </div>
+              <div class="row">
+                <div class="form-group col-md-4">
+                  <label>Alias</label>
+                  <input name="ANAME" class="form-control" value="{{ person.ANAME }}">
+                </div>
+                <div class=" form-group col-md-4">
+                  <label>Gender</label>
+                  <select name="GENDER" class="form-control">
+                    <option value="M" {% if person.GENDER=='M' %}selected{% endif %}>Male</option>
+                    <option value="F" {% if person.GENDER=='F' %}selected{% endif %}>Female</option>
+                  </select>
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Contact Number</label>
+                  <input name="TELNO" class="form-control" value="{{ person.TELNO }}">
+                </div>
+              </div>
+              <div class="row">
+                <div class="form-group col-md-4">
+                  <label>Date of Birth</label>
+                  <input type="date" name="DBIRTH" class="form-control" value="{{ person.DBIRTH }}">
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Age in Commission of Crime</label>
+                  <input type="number" name="AGECOMIT" class="form-control" value="{{ party.AGECOMIT }}">
+                </div>
+                <div class=" form-group col-md-4">
+                  <label>Status</label>
+                  <select name="PSTATUS" class="form-control">
+                    {% for n in pStatus %}
+                    <option value="{{ n }}" {% if n == person.PSTATUS %}selected{% endif %}>
+                      {{ n }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Address</label>
+                <textarea name="ADDRESS1" class="form-control"   rows="4" style="resize:none;"> {{ person.ADDRESS1 }}</textarea>
+              </div>
+            </div>
+            
+            <div class="tab-pane fade" id="m-arraignment">
+              <div class="row">
+                <div class="form-group col-md-4">
+                  <label>Date of Detention</label>
+                  <input name="DTDETAINED" type="date" class="form-control" value="{{ party.DTDETAINED }}">
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Date of Arrest</label>
+                  <input name="DTARREST" type="date" class="form-control" value="{{ party.DTARREST }}">
+                </div>
+                <div class="form-group col-md-4">
+                  <label>Date of Voluntary Surrender</label>
+                  <input name="DTSURRENDR" type="date" class="form-control" value="{{ party.DTSURRENDR }}">
+                </div>
+              </div>
+              <div class="row">
+                <div class="form-group col-md-4">
+                  <label>Date of Bail or Order of Bail</label>
+                  <input name="DTBAIL" type="date" class="form-control" value="{{ party.DTBAIL }}">
+                </div>
+                <div class="form-group col-md-8">
+                  <label>Place of Detention</label>
+                  <input type="text" class="form-control" name="BAILREM" value="{{ party.BAILREM }}">
+                </div>
+              </div>
+              <div class="row">
+                <div class="form-group col-md-4">
+                  <label>Date of Order of Released</label>
+                  <input name="DTRELEASED" type="date" class="form-control" value="{{ party.DTRELEASED }}">
+                </div>
+                <div class="form-group col-md-8">
+                  <label>Reason for Release</label>
+                  <select name="RELEASED" class="form-control">
+                    {% for n in rfrs %}
+                    <option value="{{ n.CODEID }}"
+                    {% if n.CODEID|string == party.RELEASED|string %}selected{% endif %}>
+                    {{ n.DESCRP }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>   
+            </div>
+            <hr>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Date Initial Setting</label>
+                <input name="DTIARRAIGN" type="date" class="form-control" value="{{ party.DTIARRAIGN }}">
+              </div>
+              <div class="form-group col-md-6"></div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Date of Arraignment</label>
+                <input name="DTARRAIGN" type="date" class="form-control" value="{{ party.DTARRAIGN }}">
+              </div>
+              <div class="form-group col-md-6">
+                <label>Date of Pre-Trial</label>
+                <input name="DTPRETRIAL" type="date" class="form-control" value="{{ party.DTPRETRIAL }}">
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>PLEA</label>
+                <input name="PLEA" type="text" class="form-control" value="{{ party.PLEA }}">
+              </div>
+              <div class="form-group col-md-6">
+                <label>Date of Plea Bargaining, if Any</label>
+                <input name="DTPLEA" type="date" class="form-control" value="{{ party.DTPLEA }}">
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Date of Promulgation Sentence</label>
+                <input name="DTSENTENCE" type="date" class="form-control" value="{{ party.DTSENTENCE }}">
+              </div>
+              <div class="form-group col-md-6"></div>
+            </div>
+            <div class="row">
+              <div class="form-group col-md-6">
+                <label>Date Achived</label>
+                <input name="DTARCHIVED" type="date" class="form-control" value="{{ party.DTARCHIVED }}">
+              </div>
+              <div class="form-group col-md-6">
+                <label>Date Revived</label>
+                <input name="DTREVIVED" type="date" class="form-control" value="{{ party.DTREVIVED }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="m-mediation">
+            <div class="form-group col-md-4">
+              <label>Date of Referred to the PMC UNIT</label>
+              <input type="date" name="DTREFERRED" class="form-control" value="{{ party.DTREFERRED }}">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Date Returned to Court</label>
+              <input type="date" name="DTRETURNED" class="form-control" value="{{ party.DTRETURNED }}">
+            </div>
+            <div class="form-group col-md-4">
+              <label>Mediation Status</label>
+              <select name="MEDIATION" class="form-control">
+                <option value=""></option>
+                <option value="S" {% if party.MEDIATION=='S' %}selected{% endif %}>SUCCESS</option>
+                <option value="F" {% if party.MEDIATION=='F' %}selected{% endif %}>FAILED</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="m-prosecution">
+            <div class="row">
+
+              <div class="form-group col-md-6">
+                <label>Date of Settings for Prosecution</label>
+                <input type="text" class="form-control"
+                name="DTSETTING" value="{{ party.DTSETTING }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Date of Actual Initial Trial</label>
+                <input type="date" class="form-control"
+                name="DTINITIAL" value="{{ party.DTINITIAL }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Date of Last Trial</label>
+                <input type="date" class="form-control"
+                name="DTLAST" value="{{ party.DTLAST }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Number of Postponements</label>
+                <input type="number" class="form-control"
+                name="PPOSTPONED" value="{{ party.PPOSTPONED }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Date of Motion for Leave to File Demurrer to Evidence</label>
+                <input type="date" class="form-control"
+                name="DTDEMURRER" value="{{ party.DTDEMURRER }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Date of Formal Offer of Evidence or Prosecution</label>
+                <input type="date" class="form-control"
+                name="DTOFFERPRO" value="{{ party.DTOFFERPRO }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="m-defense">
+            <div class="row">
+
+              <div class="form-group col-md-6">
+                <label>Date of Settings for Defense</label>
+                <input type="text" class="form-control"
+                name="DTDEFENSE" value="{{ party.DTDEFENSE }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Date of Actual Initial Trial</label>
+                <input type="date" class="form-control"
+                name="DTACTUAL" value="{{ party.DTACTUAL }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Date of Last Trial</label>
+                <input type="date" class="form-control"
+                name="DTLTTRIAL" value="{{ party.DTLTTRIAL }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Number of Postponements</label>
+                <input type="number" class="form-control"
+                name="DPOSTPONED" value="{{ party.DPOSTPONED }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Date of Formal Offer of Evidence of Defense</label>
+                <input type="date" class="form-control"
+                name="DTOFFERDEF" value="{{ party.DTOFFERDEF }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Date of Presentation of Last Surrebuttal Evidence</label>
+                <input type="date" class="form-control"
+                name="DTREBUTTAL" value="{{ party.DTREBUTTAL }}">
+              </div>
+
+              <div class="form-group col-md-6">
+                <label>Date of Presentation of Last Surrebuttal Evidence</label>
+                <input type="date" class="form-control"
+                name="DTSURREBUT" value="{{ party.DTSURREBUT }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="m-decision">
+            <div class="row">
+
+              <div class="form-group col-md-4">
+                <label>Date Case is Submitted for Decision</label>
+                <input type="date" class="form-control"
+                name="DTSUBMIT" value="{{ party.DTSUBMIT }}">
+              </div>
+
+              <div class="form-group col-md-4">
+                <label>Actual date of Promulgation</label>
+                <input type="date" class="form-control"
+                name="DTPROMUL" value="{{ party.DTPROMUL }}">
+              </div>
+
+              <div class="form-group col-md-4">
+                <label>Decision Code</label>
+
+                <select name="DECIDECODE" class="form-control">
+                  {% for n in decisions %}
+                  <option value="{{ n.CODEID }}"
+                  {% if n.CODEID|string == party.DECIDECODE|string %}selected{% endif %}>
+                  {{ n.DESCRP }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group col-md-6">
+              <label>Penalty</label>
+              <textarea class="form-control"
+              name="PENALTY"
+              rows="3"
+              style="resize:none;">{{ party.PENALTY }}</textarea>
+            </div>
+
+            <div class="form-group col-md-6">
+              <label>Remarks</label>
+              <textarea class="form-control"
+              name="REMARKS"
+              rows="3"
+              style="resize:none;">{{ party.REMARKS }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <button id="modal-save" class="btn btn-success">Save</button>
+    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+  </div>
+</div>
+</div>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+<script>
+$(function () {
+
+  // OPEN MODAL
+  $("#btn-edit").click(function () {
+    $("#editModal").modal("show");
+  });
+
+  // SAVE
+  $("#modal-save").click(function (e) {
+    e.preventDefault();
+
+    let formData = $("#modal-form").serialize();
+
+    $.ajax({
+      url: "/cc/update-person/" + $("input[name='PERSONID']").val(),
+      type: "POST",
+      data: formData,
+
+      success: function (res) {
+
+        // ✅ SUCCESS CASE
+        if (res.status === "success") {
+
+          $("#editModal").modal("hide");
+
+          let data = res.data;
+
+          // BASIC INFO
+          $("#view-fullname").text(
+            data.FNAME + " " + data.MNAME + " " + data.LNAME
+          );
+          $("#view-ANAME").text(data.ANAME);
+          $("#view-PSTATUS").text(data.PSTATUS);
+          $("#view-ADDRESS1").text(data.ADDRESS1);
+
+          // ALL FIELDS
+          let fields = [
+            "DTDETAINED","DTARREST","DTSURRENDR","DTBAIL","BAILREM",
+            "DTRELEASED","RELEASED",
+            "DTIARRAIGN","DTARRAIGN","DTPRETRIAL",
+            "PLEA","DTPLEA","DTSENTENCE",
+            "DTARCHIVED","DTREVIVED",
+            "DTREFERRED","DTRETURNED","MEDIATION",
+            "DTSETTING","DTINITIAL","DTLAST","PPOSTPONED","DTDEMURRER","DTOFFERPRO",
+            "DTDEFENSE","DTACTUAL","DTLTTRIAL","DPOSTPONED","DTOFFERDEF","DTREBUTTAL","DTSURREBUT",
+            "DTSUBMIT","DTPROMUL","DECIDECODE","PENALTY","REMARKS"
+          ];
+
+          fields.forEach(f => {
+            let val = data[f];
+
+            if (f === "MEDIATION") {
+              val = val === "S" ? "SUCCESS" : val === "F" ? "FAILED" : "—";
+            } else {
+              val = (val === null || val === "" || val === undefined) ? "—" : val;
+            }
+
+            $('[name="' + f + '"]').text(val);
+          });
+
+          // ✅ SUCCESS TOAST
+          Toast.fire({
+            icon: 'success',
+            title: 'Record updated successfully'
+          });
+
+        } 
+        // ❌ FAIL CASE (backend returned success=false or error status)
+        else {
+
+          Toast.fire({
+            icon: 'error',
+            title: res.message || 'Update failed'
+          });
+
+        }
+      },
+
+      // ❌ NETWORK / SERVER ERROR
+      error: function () {
+
+        Toast.fire({
+          icon: 'error',
+          title: 'Server error occurred'
+        });
+
+      }
+    });
+
+  });
+
+});
+</script>
 {% endblock %}
