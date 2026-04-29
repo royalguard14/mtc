@@ -1,0 +1,27 @@
+{% extends "layouts/layout1.html" %}
+
+{% block content %}
+<section class="col-lg-5 connectedSortable">
+  
+</section>
+
+<section class="col-lg-7 connectedSortable">
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(function () {
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": false,
+      "ordering": false,
+      "info": false,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
+</script>
+{% endblock %}

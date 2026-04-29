@@ -14,10 +14,6 @@ import dbf, os
 from app.routes.helpers import touch_case
 
 
-
-
-
-
 criminals_bp = Blueprint('criminals', __name__, url_prefix='/cc')
 # =========================
 # MAIN PAGE
@@ -37,7 +33,7 @@ def criminal():
         .all()
     )
     return render_template(
-        'civil_cases/cc_index.html',
+        'civil_cases/criminal_case/cc_index.html',
         criminal_records=cases
     )
 # =========================
@@ -133,7 +129,7 @@ def view_person(person_id):
         )
     )
     return render_template(
-        'civil_cases/person_view.html',
+        'civil_cases/criminal_case/person_view.html',
         party=party,
         person=party.person,
         case=party.case,
@@ -141,6 +137,102 @@ def view_person(person_id):
         rfrs=rfrs,
         decisions=decisions
     )
+
+
+
+
+@criminals_bp.route('/get-option/<int:person_id>')
+@login_required
+def get_option(person_id):
+
+    pStatus = [
+        "AT-LARGE",
+        "BONDED",
+        "ESCAPED FROM PRISON",
+        "DETAINED",
+        "JUMPED BAIL",
+        "OUT ON BAIL",
+        "REHABILITATION",
+        "RELEASED ON RECOGNIZANCE",
+        "UNDER PROBATION"
+    ]
+
+    rfrs_raw = (
+        CTMS2300.query
+        .filter_by(CATEGORY='RELEASED')
+        .all()
+    )
+
+    rfrs_order = [20001,20002,20003,20004,20005,20006,20007,20008,20009]
+
+    rfrs = sorted(
+        rfrs_raw,
+        key=lambda x: rfrs_order.index(int(x.CODEID)) if int(x.CODEID) in rfrs_order else 999
+    )
+
+    decisions_raw = (
+        CTMS2300.query
+        .filter_by(CATEGORY='DECISION')
+        .all()
+    )
+
+    decisions_order = [90001, 90002, 90003]
+
+    decisions = sorted(
+        decisions_raw,
+        key=lambda x: (
+            decisions_order.index(int(x.CODEID))
+            if int(x.CODEID) in decisions_order
+            else 999
+        )
+    )
+
+    party = (
+        CTMS4100.query
+        .options(
+            joinedload(CTMS4100.person),
+            joinedload(CTMS4100.case)
+        )
+        .filter_by(PERSONID=person_id)
+        .first_or_404()
+    )
+
+
+
+
+    return jsonify({
+            "party": {
+
+        "RELEASED": party.RELEASED,
+        "DECIDECODE": party.DECIDECODE,
+        "PLEA": party.PLEA,
+        
+    },
+        "pStatus": pStatus,
+        "rfrs": [
+            {"CODEID": r.CODEID, "DESCRP": r.DESCRP}
+            for r in rfrs
+        ],
+        "decisions": [
+            {"CODEID": d.CODEID, "DESCRP": d.DESCRP}
+            for d in decisions
+        ],
+
+                    "pleo": [
+    {
+      "CODEID": 0,
+      "DESCRP": ""
+    },
+    {
+      "CODEID": 1,
+      "DESCRP": "Guilty"
+    },
+    {
+      "CODEID": 2,
+      "DESCRP": "Not Guilty"
+    }],
+    })
+
 
 
 
@@ -296,7 +388,7 @@ def add_case_form():
         .all()
     )
     return render_template(
-        'civil_cases/cc_create.html',
+        'civil_cases/criminal_case/cc_create.html',
         natures=natures,
         cstatus=cstatus,
         case_cat=case_cat
@@ -374,9 +466,9 @@ def add_person_form(case_id):
         "RELEASED ON RECOGNIZANCE",
         "UNDER PROBATION"
     ]
-    flash('Accused created successfully.', 'success')
+    
     return render_template(
-        'civil_cases/add_person.html',
+        'civil_cases/criminal_case/add_person.html',
         case_id=case_id,
         pStatus=pStatus
     )
@@ -442,7 +534,7 @@ def save_person():
     )
     db.session.add(party)
     db.session.commit()
-    
+    flash('Accused created successfully.', 'success')
     return redirect('/cc')
 
 
