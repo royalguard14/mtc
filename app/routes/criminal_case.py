@@ -29,7 +29,7 @@ def criminal():
             joinedload(CTMS1000.parties)
             .joinedload(CTMS4100.person)
         )
-        .order_by(CTMS1000.CASENUM)
+        .order_by(CTMS1000.CASENUM.desc())
         .all()
     )
     return render_template(

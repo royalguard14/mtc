@@ -47,7 +47,7 @@
             </a>
           </td>
           <td class="case-col">{{ record.DTFILED }}</td>
-          <td>{{ record.CASETITLE }}</td>
+          <td>{{ record.CASETITLE.replace(" Y ", " y ") }}</td>
         </tr>
         {% endfor %}
       </tbody>
