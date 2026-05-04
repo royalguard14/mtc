@@ -685,9 +685,6 @@ class CTMS9000(db.Model):
         }
 
 
-
-
-
 class Provincecrms(db.Model):
     __tablename__ = 'province'
     __table_args__ = {'extend_existing': True}
@@ -700,3 +697,27 @@ class Provincecrms(db.Model):
     CTAG = db.Column(db.Integer)
     CPROVCODE = db.Column(db.Text)
     PORDER = db.Column(db.Integer)
+
+
+
+class dockers(db.Model):
+    __tablename__ = 'dockers_information'
+
+    id = db.Column(db.Integer, primary_key=True)
+    case_type = db.Column(db.Text, nullable=False)
+    case_no = db.Column(db.Text, nullable=False)
+    court_action = db.Column(db.Text, nullable=True)
+    date_action = db.Column(db.DateTime)
+    date_submitted_decision = db.Column(db.DateTime)
+    report_mapping = db.Column(db.Text, nullable=True)
+    agp = db.Column(db.Text, nullable=True)
+    acd = db.Column(db.Text, nullable=True)
+    complainant_address = db.Column(db.Text, nullable=True)
+    status = db.Column(db.Text, nullable=True)
+    filepath= db.Column(db.Text, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+
