@@ -32,6 +32,7 @@
             <th class="case-col">Case Number</th>
             <th>Date Filed</th>
             <th>Title</th>
+            <th width="120">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -48,6 +49,12 @@
           </td>
           <td class="case-col">{{ record.DTFILED }}</td>
           <td>{{ record.CASETITLE.replace(" Y ", " y ") }}</td>
+          <td>
+  <a href="/cc/edit/{{ record.CASEID }}"
+     class="btn btn-outline-primary btn-sm">
+    <i class="fas fa-edit"></i> Edit
+  </a>
+</td>
         </tr>
         {% endfor %}
       </tbody>

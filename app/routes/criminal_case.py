@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, jsonify, request, redirect, Response, flash
+from flask import Blueprint, render_template, jsonify, request, redirect, Response, flash, url_for
 from flask_login import login_required
 from app.routes.decorators import require_module
 from app.models import CTMS1000, CTMS4100, CTMS4000, CTMS2310, CTMS2300, CTMS9000, SettingsCTMS, CTMS2100
@@ -40,6 +40,32 @@ def criminal():
 # FULL CASE DETAILS (PRO)
 # =========================
 
+
+@criminals_bp.route('/edit/<int:case_id>', methods=['GET', 'POST'])
+@login_required
+@require_module(9)
+def edit_case(case_id):
+
+    case = CTMS1000.query.get_or_404(case_id)
+
+    if request.method == 'POST':
+
+        case.CASENUM = request.form.get('CASENUM')
+        case.CASETITLE = request.form.get('CASETITLE')
+        case.DTFILED = request.form.get('DTFILED')
+        case.DTRECEIVED = request.form.get('DTRECEIVED')
+        case.NATUREREM = request.form.get('NATUREREM')
+
+        db.session.commit()
+
+        flash('Case updated successfully.', 'success')
+
+        return redirect(url_for('criminals.criminal'))
+
+    return render_template(
+        'civil_cases/criminal_case/cc_edit.html',
+        case=case
+    )
 
 
 @criminals_bp.route('/case-details/<int:case_id>')
