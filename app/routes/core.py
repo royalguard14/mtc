@@ -30,3 +30,9 @@ def server_error(error):
 @core_bp.route('/unauthorized')
 def unauthorized():
     return render_template('error.html', error_message="Unauthorized Access"), 403
+
+
+
+@core_bp.route('/scheds')
+def scheds():
+    return render_template("schedule.html")
