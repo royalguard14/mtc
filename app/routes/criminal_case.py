@@ -12,7 +12,10 @@ from sqlalchemy import or_, and_
 import tempfile
 import dbf, os
 from app.routes.helpers import touch_case
+import requests
 
+
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw2My5Z1KySGX-7WwFb9i-JMh7l6e7oDX-xdmbHzrEgOGpEQ1kSALIgal6zmP5kLFBW/exec"
 
 criminals_bp = Blueprint('criminals', __name__, url_prefix='/cc')
 # =========================
@@ -57,6 +60,7 @@ def edit_case(case_id):
         case.NATUREREM = request.form.get('NATUREREM')
 
         db.session.commit()
+        requests.get("http://127.0.0.1:5000/cc/api/google-sheet")
 
         flash('Case updated successfully.', 'success')
 
@@ -469,6 +473,8 @@ def add_case():
     )
     db.session.add(new_case)
     db.session.commit()
+    requests.get("http://127.0.0.1:5000/cc/api/google-sheet")
+
 
     
     flash('Criminal Case created successfully.', 'success')
@@ -1004,3 +1010,68 @@ def generate_report():
     #     "data": [r.to_dict() for r in records]
         
     # }
+
+
+
+
+
+
+@criminals_bp.route('/api/google-sheet')
+def api_google_sheet():
+
+    fields = [
+        "CASEID",
+        "COURTID",
+        "NATURECODE",
+        "CATEGORY",
+        "CASENUM",
+        "CASETITLE",
+        "DTFILED",
+        "DTRECEIVED",
+        "DTTRANSFER",
+        "TRANSFER",
+        "CASETYPE",
+        "CLOSEDATE",
+        "CLOSETAG",
+        "CLOSEDET",
+        "NATUREREM",
+        "IAMOUNT",
+        "IWEIGHT",
+        "CSTATUS",
+        "CSTATUSID",
+        "CLOSESTAT",
+        "CREATEBY",
+        "CREATEDT",
+        "MODIFYBY",
+        "MODIFYDT"
+    ]
+
+    rows = CTMS1000.query.order_by(CTMS1000.CASEID).all()
+
+    data = []
+    for r in rows:
+        data.append([getattr(r, f) for f in fields])  # raw row list
+
+    payload = {
+        "type": "FULL_SYNC",
+        "headers": fields,
+        "data": data
+    }
+
+    try:
+        response = requests.post(
+            GOOGLE_WEBHOOK_URL,
+            json=payload,
+            timeout=60
+        )
+
+        return jsonify({
+            "status": "success",
+            "google_response": response.text
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500

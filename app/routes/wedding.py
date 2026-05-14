@@ -16,4 +16,4 @@ wedding_bp = Blueprint('wedding', __name__, url_prefix='/wedding')
 @require_module(11)
 def index():
 	return render_template(
-        'wedding/index.html')
+        'schedules/other_cases.html')
