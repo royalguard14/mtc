@@ -721,3 +721,31 @@ class dockers(db.Model):
 
 
 
+class ScheduleMaster(db.Model):
+    __tablename__ = 'schedule_master'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Google Sheet Columns
+    Date = db.Column(db.String(20))
+    Time_Start = db.Column('Time Start', db.String(20))
+    Case_Type = db.Column('Case Type', db.String(100))
+    Case_Number = db.Column('Case Number', db.String(100))
+    Title = db.Column(db.Text)
+    Status = db.Column(db.String(50))
+    Notes = db.Column(db.Text)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'Date': self.Date,
+            'Time Start': self.Time_Start,
+            'Case Type': self.Case_Type,
+            'Case Number': self.Case_Number,
+            'Title': self.Title,
+            'Status': self.Status,
+            'Notes': self.Notes
+        }
+
+    def __repr__(self):
+        return f"<ScheduleMaster {self.id} - {self.Case_Number}>"

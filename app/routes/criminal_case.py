@@ -36,7 +36,7 @@ def criminal():
         .all()
     )
     return render_template(
-        'civil_cases/criminal_case/cc_index.html',
+        'cases/criminal_case/cc_index.html',
         criminal_records=cases
     )
 # =========================
@@ -67,7 +67,7 @@ def edit_case(case_id):
         return redirect(url_for('criminals.criminal'))
 
     return render_template(
-        'civil_cases/criminal_case/cc_edit.html',
+        'cases/criminal_case/cc_edit.html',
         case=case
     )
 
@@ -159,7 +159,7 @@ def view_person(person_id):
         )
     )
     return render_template(
-        'civil_cases/criminal_case/person_view.html',
+        'cases/criminal_case/person_view.html',
         party=party,
         person=party.person,
         case=party.case,
@@ -418,7 +418,7 @@ def add_case_form():
         .all()
     )
     return render_template(
-        'civil_cases/criminal_case/cc_create.html',
+        'cases/criminal_case/cc_create.html',
         natures=natures,
         cstatus=cstatus,
         case_cat=case_cat
@@ -500,7 +500,7 @@ def add_person_form(case_id):
     ]
     
     return render_template(
-        'civil_cases/criminal_case/add_person.html',
+        'cases/criminal_case/add_person.html',
         case_id=case_id,
         pStatus=pStatus
     )

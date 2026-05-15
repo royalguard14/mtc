@@ -13,35 +13,44 @@
 
 {% if user_modules %}
 
-  <!-- Civil Cases (6-8) -->
-  {% set civil_modules = modules 
-    | selectattr('id', 'in', user_modules) 
-    | selectattr('id', 'in', [6,7,8]) 
-    | list %}
+<!-- Civil Cases (IDs 6, 7, 8 in exact order) -->
+{% set available_modules = modules
+  | selectattr('id', 'in', user_modules)
+  | list %}
 
-  {% if civil_modules %}
-    <li class="nav-header">Civil Cases</li>
-    <li class="nav-item">
-      <a href="#" class="nav-link">
-        <i class="nav-icon fas fa-folder"></i>
-        <p>
-          Civil
-          <i class="right fas fa-angle-left"></i>
-        </p>
-      </a>
-      <ul class="nav nav-treeview">
-        {% for m in civil_modules %}
-          <li class="nav-item">
-            <a href="/{{ m.url }}" class="nav-link">
-              <i class="nav-icon fa {{ m.icon }}"></i>
-              <p>{{ m.description }}</p>
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </li>
-  {% endif %}
+{% set civil_order = [6, 8, 7] %}
 
+{% set civil_modules = [] %}
+{% for wanted_id in civil_order %}
+  {% for m in available_modules %}
+    {% if m.id == wanted_id %}
+      {% set _ = civil_modules.append(m) %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+{% if civil_modules %}
+  <li class="nav-header">Civil Cases</li>
+  <li class="nav-item">
+    <a href="#" class="nav-link">
+      <i class="nav-icon fas fa-folder"></i>
+      <p>
+        Civil
+        <i class="right fas fa-angle-left"></i>
+      </p>
+    </a>
+    <ul class="nav nav-treeview">
+      {% for m in civil_modules %}
+        <li class="nav-item">
+          <a href="/{{ m.url }}" class="nav-link">
+            <i class="nav-icon fa {{ m.icon }}"></i>
+            <p>{{ m.description }}</p>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </li>
+{% endif %}
   <!-- Standalone Modules (9-10) -->
   {% set standalone_modules = modules 
     | selectattr('id', 'in', user_modules) 
