@@ -1,0 +1,258 @@
+{% extends "layouts/layout1.html" %}
+{% block content %}
+<section class="col-lg-5 connectedSortable">
+<!-- =========================
+     CREATE (RIGHT)
+========================= -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Add Civil Case</h3>
+  </div>
+  <div class="card-body">
+    <form id="createForm">
+      <div class="form-group">
+        <input type="hidden" name="case_type" value="CIVIL CASE">
+        <label>Case Number</label>
+        <input type="text" class="form-control" name="case_number" required>
+      </div>
+      <div class="form-group">
+        <label>Title</label>
+        <textarea class="form-control" name="title" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Nature</label>
+        <input type="text" class="form-control" name="nature">
+      </div>
+      <div class="form-group">
+        <label>Date Filed</label>
+        <input type="date" class="form-control" name="date_filed" required>
+      </div>
+      <button type="submit" class="btn btn-success btn-block">
+        Save Case
+      </button>
+    </form>
+  </div>
+</div>
+</section>
+<section class="col-lg-7 connectedSortable">
+ <div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Civil Cases</h3>
+  </div>
+  <div class="card-body">
+    <table id="example2" class="table table-bordered table-hover ">
+      <thead>
+        <tr>
+          <th>Date Filed</th>
+          <th>Case Number</th>
+          <th>Title</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for civilcase in CourtRecordsCivil %}
+        <tr>
+          <td>{{ civilcase.date_filed.strftime('%b. %d, %Y') if civilcase.date_filed else '' }}</td>
+          <td>{{ civilcase.case_number }}</td>
+          <td>{{ civilcase.title }}</td>
+          <td>
+            <button 
+            class="btn btn-sm btn-primary editBtn"
+            data-id="{{ civilcase.id }}"
+            data-case_number="{{ civilcase.case_number }}"
+            data-title="{{ civilcase.title }}"
+            data-nature="{{ civilcase.nature }}"
+            data-date="{{ civilcase.date_filed }}"
+            >
+            Edit
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+</section>
+<!-- =========================
+     EDIT MODAL
+========================= -->
+      <div class="modal fade" id="editModal">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Edit Civil Case</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+             
+
+        <input type="hidden" id="case_id">
+        <div class="form-group">
+          <label>Case Number</label>
+          <input type="text" id="case_number" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+          <label>Title</label>
+          <textarea id="title" class="form-control"></textarea>
+     
+        </div>
+        <div class="form-group">
+          <label>Nature</label>
+      
+          <textarea id="nature" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Date Filed</label>
+          <input type="date" id="date_filed" class="form-control">
+        </div>
+
+
+
+
+
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="saveBtn">Save changes</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% endblock %}
+{% block scripts %}
+<!-- =========================
+     DATATABLE
+========================= -->
+<script>
+  $(function () {
+    $('#example2').DataTable({
+      paging: true,
+      lengthChange: false,
+      searching: true,
+      ordering: false,
+      info: false,
+      autoWidth: false,
+      responsive: true,
+      pageLength: 5,
+    });
+  });
+</script>
+<!-- =========================
+     EDIT MODAL LOGIC
+========================= -->
+<script>
+  $(document).on("click", ".editBtn", function () {
+    $("#case_id").val($(this).data("id"));
+    $("#case_number").val($(this).data("case_number"));
+    $("#title").val($(this).data("title"));
+    $("#nature").val($(this).data("nature"));
+    let rawDate = $(this).data("date");
+    if (rawDate) {
+      let d = new Date(rawDate);
+      $("#date_filed").val(d.toISOString().split('T')[0]);
+    }
+    $("#editModal").modal("show");
+  });
+</script>
+<!-- =========================
+     UPDATE (LOCK + SYNC)
+========================= -->
+<script>
+  $("#saveBtn").click(function () {
+    let btn = $(this);
+    if (btn.prop("disabled")) return;
+    btn.prop("disabled", true);
+    btn.text("Saving...");
+    showSync();
+    let payload = {
+      id: $("#case_id").val(),
+      case_number: $("#case_number").val(),
+      title: $("#title").val(),
+      nature: $("#nature").val(),
+      date_filed: $("#date_filed").val()
+    };
+    $.ajax({
+      url: "/cases/update",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(payload),
+      success: function (res) {
+        alert(res.message);
+        location.reload();
+      },
+      error: function () {
+        alert("Error updating case");
+      },
+      complete: function () {
+        btn.prop("disabled", false);
+        btn.text("Save");
+        hideSync();
+      }
+    });
+  });
+</script>
+<!-- =========================
+     CREATE (LOCK + SYNC)
+========================= -->
+<script>
+  $("#createForm").submit(function(e){
+    e.preventDefault();
+    let form = $(this);
+    let btn = form.find("button[type='submit']");
+    if (btn.prop("disabled")) return;
+    btn.prop("disabled", true);
+    btn.text("Saving...");
+    showSync();
+    let formData = {
+      case_number: form.find("[name='case_number']").val(),
+      title: form.find("[name='title']").val(),
+      nature: form.find("[name='nature']").val(),
+      date_filed: form.find("[name='date_filed']").val(),
+      case_type: "Civil Case"
+    };
+    $.ajax({
+      url: "/cases/create",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(formData),
+      success: function(res){
+        alert(res.message);
+        location.reload();
+      },
+      error: function(){
+        alert("Error saving case");
+      },
+      complete: function(){
+        btn.prop("disabled", false);
+        btn.text("Save Case");
+        hideSync();
+      }
+    });
+  });
+</script>
+{% endblock %}

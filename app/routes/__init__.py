@@ -6,6 +6,7 @@ from .modules import modules_bp
 from .settings import settings_bp
 from .criminal_case import criminals_bp
 from .schedule import schedule_bp
+from .other_case import cases_bp
 
 
 blueprints = [
@@ -16,6 +17,7 @@ blueprints = [
     modules_bp,
     settings_bp,
     criminals_bp,
-    schedule_bp
+    schedule_bp,
+    cases_bp
 
 ]

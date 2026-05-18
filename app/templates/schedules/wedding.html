@@ -51,7 +51,7 @@
   {% for item in WeddingRecordsSched %}
 
     {% if item.Date and item.Date == today %}
-
+{% if item.Status != "DONE" %}
       <div class="col-md-4">
         <div class="small-box bg-info">
           <div class="inner">
@@ -59,9 +59,10 @@
             <div class="card-title-text">{{ item.Title }}</div>
             <p><b>{{ item.Time_Start }}</b></p>
           </div>
+          <a href="#" class="small-box-footer doneBtn" data-id="{{ item.id }}">Done</a>
         </div>
       </div>
-
+    {% endif %}
     {% endif %}
 
   {% endfor %}
@@ -128,6 +129,43 @@ $(function () {
     order: [[0, 'asc'], [1, 'asc']]
   });
 });
+</script>
+<script>
+  
+
+$(document).on("click", ".doneBtn", function(e){
+    e.preventDefault();
+
+    let id = $(this).data("id");
+    let btn = $(this);
+
+    if (!confirm("Mark this schedule as DONE?")) return;
+
+    btn.text("Processing...");
+
+    $.ajax({
+        url: "/schedule/mark-done",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ id: id }),
+
+        success: function(res){
+            if (res.status === "success") {
+                location.reload();
+            } else {
+                alert(res.message);
+                btn.text("Done");
+            }
+        },
+
+        error: function(){
+            alert("Server error");
+            btn.text("Done");
+        }
+    });
+
+});
+
 </script>
 
 {% endblock %}

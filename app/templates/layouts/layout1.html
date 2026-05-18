@@ -42,6 +42,33 @@
 
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
+
+
+
+<div id="globalSyncStatus"
+     style="position:fixed; bottom:20px; right:20px;
+            background:#111; color:#fff;
+            padding:10px 15px;
+            border-radius:8px;
+            display:none;
+            font-size:14px;
+            z-index:9999;">
+  ⏳ Syncing to Google Sheets...
+</div>
+
+
+<script>
+  function showSync() {
+    $("#globalSyncStatus").fadeIn(200);
+}
+
+function hideSync() {
+    $("#globalSyncStatus").fadeOut(200);
+}
+</script>
+
+
+
 <!-- Site wrapper -->
 <div class="wrapper">
   <!-- Navbar -->

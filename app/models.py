@@ -749,3 +749,45 @@ class ScheduleMaster(db.Model):
 
     def __repr__(self):
         return f"<ScheduleMaster {self.id} - {self.Case_Number}>"
+
+
+class Cases(db.Model):
+    __tablename__ = "cases"
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Basic Case Information
+    case_number = db.Column(db.String(100), nullable=False, unique=True, index=True)
+    title = db.Column(db.Text, nullable=False)          # e.g. "Juan Dela Cruz vs Pedro Santos"
+    nature = db.Column(db.Text, nullable=True)          # e.g. "Collection of Sum of Money"
+    date_filed = db.Column(db.Date, nullable=True)
+
+    # Classification
+    case_type = db.Column(
+        db.String(50),
+        nullable=False,
+        index=True
+    )
+    # JSON Fields
+    action = db.Column(db.JSON, nullable=True)
+    information = db.Column(db.JSON, nullable=True)
+
+    # Optional File Storage
+    filepath = db.Column(db.Text, nullable=True)
+
+    # Timestamps
+    created_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+
+    def __repr__(self):
+        return f"<Docket {self.case_number}>"

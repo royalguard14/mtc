@@ -5,9 +5,11 @@ from datetime import datetime, timedelta
 from flask_login import login_required
 from sqlalchemy.orm import joinedload
 from app.routes.decorators import require_module
-from app.models import ScheduleMaster
+from app.models import ScheduleMaster, Cases
 from datetime import datetime
 from sqlalchemy import func
+import requests
+
 
 
 schedule_bp = Blueprint('schedule', __name__, url_prefix='/schedule')
@@ -63,121 +65,29 @@ def courtsched():
 
 
 
+@schedule_bp.route('/mark-done', methods=['POST'])
+@login_required
+def mark_done():
 
-@schedule_bp.route('/api/schedule-master-sync')
-def api_schedule_master_sync():
+    data = request.get_json()
+    schedule_id = data.get('id')
 
-    # EXACT Google Sheet headers
-    fields = [
-        "id",
-        "Date",
-        "Time Start",
-        "Case Type",
-        "Case Number",
-        "Title",
-        "Status",
-        "Notes"
-    ]
+    schedule = ScheduleMaster.query.get(schedule_id)
 
-    # Query your SQLAlchemy model
-    rows = ScheduleMaster.query.order_by(ScheduleMaster.id).all()
-
-    # Convert DB rows into raw row lists
-    data = []
-    for r in rows:
-        data.append([
-            r.id,
-            r.Date,
-            r.Time_Start,
-            r.Case_Type,
-            r.Case_Number,
-            r.Title,
-            r.Status,
-            r.Notes
-        ])
-
-    # Payload expected by your Google Apps Script doPost()
-    payload = {
-        "type": "FULL_SYNC",
-        "headers": fields,
-        "data": data
-    }
-
-    try:
-        response = requests.post(
-            GOOGLE_WEBHOOK_URL,   # Your deployed Apps Script URL
-            json=payload,
-            timeout=60
-        )
-
-        return jsonify({
-            "status": "success",
-            "google_response": response.text
-        })
-
-    except Exception as e:
+    if not schedule:
         return jsonify({
             "status": "error",
-            "message": str(e)
-        }), 500
+            "message": "Schedule not found"
+        }), 404
 
-
-
-# IMPORT "Schedule Master" FROM GOOGLE SHEET TO DATABASE
-# Add this route to your Flask application.
-
-import requests
-from flask import jsonify
-
-# Google Apps Script URL that returns JSON from Schedule Master
-SCHEDULE_MASTER_API_URL = (
-    "https://script.google.com/macros/s/AKfycbxfsQOvTi5ZP51bKn_N8RqX3K39Mufrwh9w2AEG69LI0lJBS_0Erpu8Fhfg9V_oubtw/exec?api=schedule"
-)
-
-
-@schedule_bp.route('/api/import-schedule-master')
-def import_schedule_master():
     try:
-        # Fetch data from Google Sheet JSON API
-        response = requests.get(SCHEDULE_MASTER_API_URL, timeout=60)
-        response.raise_for_status()
-        records = response.json()
-
-        # Remove old records
-        ScheduleMaster.query.delete()
-
-        count = 0
-
-        for row in records:
-            # Safe handling for the "id" column
-            raw_id = row.get('id')
-
-            try:
-                record_id = int(raw_id)
-            except (TypeError, ValueError):
-                # If the value is not a valid integer
-                # (e.g. "12/31/1899"), let the database auto-generate the ID
-                record_id = None
-
-            record = ScheduleMaster(
-                id=record_id,
-                Date=row.get('Date'),
-                Time_Start=row.get('Time Start'),
-                Case_Type=row.get('Case Type'),
-                Case_Number=row.get('Case Number'),
-                Title=row.get('Title'),
-                Status=row.get('Status'),
-                Notes=row.get('Notes')
-            )
-
-            db.session.add(record)
-            count += 1
-
+        schedule.Status = "DONE"
         db.session.commit()
+        flash('Hearing Success.', 'success')
 
         return jsonify({
             "status": "success",
-            "imported": count
+            "message": "Marked as DONE"
         })
 
     except Exception as e:
@@ -186,3 +96,102 @@ def import_schedule_master():
             "status": "error",
             "message": str(e)
         }), 500
+
+
+
+@schedule_bp.route('/create', methods=['POST'])
+@login_required
+def create_schedule():
+
+    data = request.get_json()
+
+    # DATE
+    date_str = data.get("Date")
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    formatted_date = date_obj.strftime("%m/%d/%Y")
+
+    # TIME (FIX HERE)
+    time_str = data.get("Time_Start")  # 13:00
+    time_obj = datetime.strptime(time_str, "%H:%M")
+    formatted_time = time_obj.strftime("%I:%M %p")  # 01:00 PM
+
+    try:
+        new_sched = ScheduleMaster(
+            Date=formatted_date,
+            Time_Start=formatted_time,
+            Case_Type=data.get("Case_Type"),
+            Case_Number=data.get("Case_Number"),
+            Title=data.get("Title"),
+            Status="PENDING"
+        )
+
+        db.session.add(new_sched)
+        db.session.commit()
+
+        return jsonify({
+            "status": "success",
+            "message": "Schedule created successfully"
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
+
+@schedule_bp.route('/update', methods=['POST'])
+@login_required
+def update_schedule():
+
+    data = request.get_json()
+
+    sched = ScheduleMaster.query.get(data.get("id"))
+
+    if not sched:
+        return jsonify({
+            "status": "error",
+            "message": "Schedule not found"
+        }), 404
+
+    try:
+        # -------------------
+        # DATE (YYYY-MM-DD → MM/DD/YYYY)
+        # -------------------
+        date_str = data.get("Date")
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        formatted_date = date_obj.strftime("%m/%d/%Y")
+
+        # -------------------
+        # TIME (HH:MM → 12-hour AM/PM)
+        # -------------------
+        time_str = data.get("Time_Start")  # "13:00"
+        time_obj = datetime.strptime(time_str, "%H:%M")
+        formatted_time = time_obj.strftime("%I:%M %p")  # "01:00 PM"
+
+        # -------------------
+        # UPDATE FIELDS
+        # -------------------
+        sched.Date = formatted_date
+        sched.Time_Start = formatted_time
+        sched.Case_Type = data.get("Case_Type")
+        sched.Case_Number = data.get("Case_Number")
+        sched.Title = data.get("Title")
+
+        db.session.commit()
+
+        return jsonify({
+            "status": "success",
+            "message": "Schedule updated successfully"
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+

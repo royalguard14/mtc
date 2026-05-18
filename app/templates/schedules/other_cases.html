@@ -1,85 +1,73 @@
 {% extends "layouts/layout1.html" %}
-
 {% block content %}
-
 <style>
-.small-box {
-  min-height: 120px;
-  position: relative;
-  overflow: hidden;
-}
-
-.small-box .inner {
-  padding: 10px;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-.card-title-text {
-  font-size: 14px;
-  font-weight: 600;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  line-height: 1.3em;
-  max-height: 2.6em;
-
-  word-break: break-word;
-}
+  .small-box {
+    min-height: 120px;
+    position: relative;
+    overflow: hidden;
+  }
+  .small-box .inner {
+    padding: 10px;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+  .card-title-text {
+    font-size: 14px;
+    font-weight: 600;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3em;
+    max-height: 2.6em;
+    word-break: break-word;
+  }
 </style>
-
 <!-- =========================
      TODAY WEDDINGS
 ========================= -->
 <section class="col-lg-7 connectedSortable">
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">Today's Wedding</h3>
+      <h3 class="card-title">Today's Hearing</h3>
     </div>
-
     <div class="card-body">
-<div class="row">
-
-  {% set today = now().strftime('%m/%d/%Y') %}
-
-  {% for item in CourtRecordsSched %}
-
-    {% if item.Date and item.Date == today %}
-
-      <div class="col-md-4">
-        <div class="small-box bg-info">
-          <div class="inner">
-            <h5>{{ item.Case_Type }} # {{ item.Case_Number }}</h5>
-            <div class="card-title-text">{{ item.Title }}</div>
-            <p><b>{{ item.Time_Start }}</b></p>
+      <div class="row">
+        {% set today = now().strftime('%m/%d/%Y') %}
+        {% for item in CourtRecordsSched %}
+        {% if item.Date and item.Date == today %}
+        {% if item.Status != "DONE" %}
+        <div class="col-md-4">
+          <div class="small-box bg-info">
+            <div class="inner">
+              <h5>{{ item.Case_Type }} # {{ item.Case_Number }}</h5>
+              <div class="card-title-text">{{ item.Title }}</div>
+              <p><b>{{ item.Time_Start }}</b></p>
+            </div>
+            <a href="#" class="small-box-footer doneBtn" data-id="{{ item.id }}">Done</a>
           </div>
         </div>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
       </div>
-
-    {% endif %}
-
-  {% endfor %}
-
-</div>
     </div>
   </div>
 </section>
-
 <!-- =========================
-     UPCOMING WEDDINGS
 ========================= -->
 <section class="col-lg-5 connectedSortable">
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">Upcoming Wedding</h3>
+      <h3 class="card-title">Upcoming Hearing</h3>
+      <div class="card-tools">
+        <a class="btn btn-outline-primary" data-toggle="modal" data-target="#addModal">
+          + Add Schedule
+        </a>
+      </div>
     </div>
-
     <div class="card-body">
       <table id="example2" class="table table-bordered table-hover">
         <thead>
@@ -87,49 +75,282 @@
             <th>Date</th>
             <th>Start</th>
             <th>Case Number</th>
+            <th>Action</th>
           </tr>
         </thead>
-
-{% set today = now().strftime('%m/%d/%Y') %}
-
-<tbody>
-  {% for item in CourtRecordsSched %}
-
-    {% if item.Date and item.Date > today %}
-
-      <tr>
-        <td>{{ item.Date }}</td>
-        <td>{{ item.Time_Start }}</td>
-        <td>{{ item.Case_Number }}</td>
-      </tr>
-
-    {% endif %}
-
-  {% endfor %}
-</tbody>
-
-
-      </table>
+        {% set today = now().strftime('%m/%d/%Y') %}
+        <tbody>
+          {% for item in CourtRecordsSched %}
+          {% if item.Date and item.Date > today %}
+          <tr>
+            <td>{{ item.Date }}</td>
+            <td>{{ item.Time_Start }}</td>
+            <td>{{ item.Case_Number }}</td>
+            <td>
+              <a href="#" class="editBtn"
+              data-id="{{ item.id }}"
+              data-date="{{ item.Date }}"
+              data-time="{{ item.Time_Start }}"
+              data-type="{{ item.Case_Type }}"
+              data-number="{{ item.Case_Number }}"
+              data-title="{{ item.Title }}">
+              Edit
+            </a>
+          </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+<div class="modal fade" id="addModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>Add Schedule</h5>
+      </div>
+      <div class="modal-body">
+        <form id="addForm">
+          <!-- DATE -->
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" name="Date" class="form-control" required>
+          </div>
+          <!-- TIME -->
+          <div class="form-group">
+            <label>Time Start</label>
+            <input type="time" name="Time_Start" class="form-control" required>
+          </div>
+          <!-- CASE TYPE -->
+          <div class="form-group">
+            <label>Case Type</label>
+            <select name="Case_Type" class="form-control" required>
+              <option value="" selected>Select Case Type</option>
+              <option value="CRIMINAL CASE">CRIMINAL CASE</option>
+              <option value="CIVIL CASE">CIVIL CASE</option>
+              <option value="SMALL CLAIMS CASE">SMALL CLAIMS CASE</option>
+            </select>
+          </div>
+          <!-- CASE NUMBER -->
+          <div class="form-group">
+            <label>Case Number</label>
+            <input type="text" name="Case_Number" class="form-control" required readonly>
+          </div>
+          <!-- TITLE -->
+          <div class="form-group">
+            <label>Title</label>
+            <textarea name="Title" class="form-control" required readonly></textarea>
+          </div>
+          <button type="submit" class="btn btn-success btn-block">
+            Save
+          </button>
+        </form>
+      </div>
     </div>
   </div>
-</section>
-
+</div>
+<div class="modal fade" id="editModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5>Edit Schedule</h5>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit_id">
+        <!-- DATE -->
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="edit_Date" class="form-control" required>
+        </div>
+        <!-- TIME -->
+        <div class="form-group">
+          <label>Time Start</label>
+          <input type="time" id="edit_Time_Start" class="form-control" required>
+        </div>
+        <!-- CASE TYPE -->
+        <div class="form-group">
+          <label>Case Type</label>
+          <select id="edit_Case_Type" class="form-control" required>
+            <option value="CRIMINAL CASE">CRIMINAL CASE</option>
+            <option value="CIVIL CASE">CIVIL CASE</option>
+            <option value="SMALL CLAIMS CASE">SMALL CLAIMS CASE</option>
+          </select>
+        </div>
+        <!-- CASE NUMBER -->
+        <div class="form-group">
+          <label>Case Number</label>
+          <input type="text" id="edit_Case_Number" class="form-control" required>
+        </div>
+        <!-- TITLE -->
+        <div class="form-group">
+          <label>Title</label>
+          <textarea id="edit_Title" class="form-control" required></textarea>
+        </div>
+        <button class="btn btn-primary btn-block" id="updateBtn">
+          Update
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
-
 {% block scripts %}
-
 <script>
-$(function () {
-  $('#example2').DataTable({
-    responsive: true,
-    paging: true,
-    searching: true,
-    ordering: true,
-    info: true,
-    pageLength: 5,
-    order: [[0, 'asc'], [1, 'asc']]
+  $(function () {
+    $('#example2').DataTable({
+      responsive: true,
+      paging: true,
+      searching: true,
+      ordering: true,
+      info: true,
+      pageLength: 5,
+      order: [[0, 'asc'], [1, 'asc']]
+    });
   });
+</script>
+<script>
+  $(document).on("click", ".doneBtn", function(e){
+    e.preventDefault();
+    let id = $(this).data("id");
+    let btn = $(this);
+    if (!confirm("Mark this schedule as DONE?")) return;
+    btn.text("Processing...");
+    $.ajax({
+      url: "/schedule/mark-done",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({ id: id }),
+      success: function(res){
+        if (res.status === "success") {
+          location.reload();
+        } else {
+          alert(res.message);
+          btn.text("Done");
+        }
+      },
+      error: function(){
+        alert("Server error");
+        btn.text("Done");
+      }
+    });
+  });
+</script>
+<script>
+  $("#addForm").submit(function(e){
+    e.preventDefault();
+    let btn = $(this).find("button");
+    btn.prop("disabled", true).text("Saving...");
+    $.ajax({
+      url: "/schedule/create",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({
+        Date: $(this).find("[name='Date']").val(),
+        Time_Start: $(this).find("[name='Time_Start']").val(),
+        Case_Type: $(this).find("[name='Case_Type']").val(),
+        Case_Number: $(this).find("[name='Case_Number']").val(),
+        Title: $(this).find("[name='Title']").val()
+      }),
+      success: function(res){
+        alert(res.message);
+        location.reload();
+      },
+      complete: function(){
+        btn.prop("disabled", false).text("Save");
+      }
+    });
+  });
+</script>
+<script>
+  $(document).on("click", ".editBtn", function(e){
+    e.preventDefault();
+    $("#edit_id").val($(this).data("id"));
+// Convert MM-DD-YYYY to YYYY-MM-DD for <input type="date">
+let dateValue = $(this).data("date"); // e.g. "05/21/2026"
+// Convert MM/DD/YYYY to YYYY-MM-DD for <input type="date">
+if (dateValue && dateValue.includes("/")) {
+    let parts = dateValue.split("/"); // [MM, DD, YYYY]
+    dateValue = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+  }
+  $("#edit_Date").val(dateValue);
+let timeValue = $(this).data("time"); // e.g. "10:00 AM"
+// Convert "10:00 AM" to "10:00" for <input type="time">
+if (timeValue) {
+  let [time, period] = timeValue.trim().split(' ');
+  let [hours, minutes] = time.split(':');
+  hours = parseInt(hours, 10);
+  if (period.toUpperCase() === 'PM' && hours !== 12) {
+    hours += 12;
+  }
+  if (period.toUpperCase() === 'AM' && hours === 12) {
+    hours = 0;
+  }
+  timeValue = `${String(hours).padStart(2, '0')}:${minutes}`;
+}
+$("#edit_Time_Start").val(timeValue);
+let type = $(this).data("type");
+if (type) {
+  type = type.toUpperCase().trim();
+}
+$("#edit_Case_Type").val(type);
+$("#edit_Case_Number").val($(this).data("number"));
+$("#edit_Title").val($(this).data("title"));
+$("#editModal").modal("show");
 });
 </script>
+<script>
+  $("#updateBtn").click(function(){
+    let btn = $(this);
+    btn.prop("disabled", true).text("Updating...");
+    $.ajax({
+      url: "/schedule/update",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({
+        id: $("#edit_id").val(),
+        Date: $("#edit_Date").val(),
+        Time_Start: $("#edit_Time_Start").val(),
+        Case_Type: $("#edit_Case_Type").val(),
+        Case_Number: $("#edit_Case_Number").val(),
+        Title: $("#edit_Title").val()
+      }),
+      success: function(res){
+        alert(res.message);
+        location.reload();
+      },
+      complete: function(){
+        btn.prop("disabled", false).text("Update");
+      }
+    });
+  });
+</script>
 
+
+<script>
+  $(document).ready(function () {
+
+    // default: lock fields
+    $("[name='Case_Number']").prop("readonly", true);
+    $("[name='Title']").prop("readonly", true);
+
+    // when case type changes
+    $("[name='Case_Type']").on("change", function () {
+
+        let type = $(this).val();
+
+        if (type) {
+            // unlock fields
+            $("[name='Case_Number']").prop("readonly", false);
+            $("[name='Title']").prop("readonly", false);
+        } else {
+            // lock again if nothing selected
+            $("[name='Case_Number']").prop("readonly", true).val("");
+            $("[name='Title']").prop("readonly", true).val("");
+        }
+    });
+
+});
+</script>
 {% endblock %}

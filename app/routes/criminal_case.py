@@ -15,7 +15,6 @@ from app.routes.helpers import touch_case
 import requests
 
 
-GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw2My5Z1KySGX-7WwFb9i-JMh7l6e7oDX-xdmbHzrEgOGpEQ1kSALIgal6zmP5kLFBW/exec"
 
 criminals_bp = Blueprint('criminals', __name__, url_prefix='/cc')
 # =========================
@@ -53,6 +52,9 @@ def edit_case(case_id):
 
     if request.method == 'POST':
 
+        # =========================
+        # UPDATE SQLITE
+        # =========================
         case.CASENUM = request.form.get('CASENUM')
         case.CASETITLE = request.form.get('CASETITLE')
         case.DTFILED = request.form.get('DTFILED')
@@ -60,7 +62,11 @@ def edit_case(case_id):
         case.NATUREREM = request.form.get('NATUREREM')
 
         db.session.commit()
-        requests.get("http://127.0.0.1:5000/cc/api/google-sheet")
+
+        # =========================
+        # SYNC ONLY THIS RECORD
+        # =========================
+        sync_criminal_case_to_gs(case)
 
         flash('Case updated successfully.', 'success')
 
@@ -70,7 +76,6 @@ def edit_case(case_id):
         'cases/criminal_case/cc_edit.html',
         case=case
     )
-
 
 @criminals_bp.route('/case-details/<int:case_id>')
 @login_required
@@ -432,7 +437,7 @@ def add_case_form():
 @login_required
 def add_case():
     # =========================
-    # 1. GET LAST CASEID + 1
+    # 1. GET NEXT CASEID
     # =========================
     last_case = (
         db.session.query(CTMS1000.CASEID)
@@ -440,30 +445,30 @@ def add_case():
         .first()
     )
     next_case_id = (last_case[0] + 1) if last_case and last_case[0] else 1
+
     # =========================
-    # 2. FORCE COURTID = 2088
+    # 2. FIXED VALUES
     # =========================
     COURT_ID_FIXED = 2088
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-    CREATEDT=now,
-    MODIFYDT=now,
+
     # =========================
-    # 3. CREATE NEW CASE
+    # 3. CREATE NEW RECORD
     # =========================
     new_case = CTMS1000(
-        CASEID=next_case_id,   # MANUAL INCREMENT
+        CASEID=next_case_id,
         COURTID=COURT_ID_FIXED,
-        NATURECODE=request.form.get('NATURECODE').zfill(5),
+        NATURECODE=(request.form.get('NATURECODE') or '').zfill(5),
         CATEGORY='00005',
         CASENUM=request.form.get('CASENUM'),
-        CASETITLE = (request.form.get('CASETITLE') or '').upper(),
+        CASETITLE=(request.form.get('CASETITLE') or '').upper(),
         DTFILED=request.form.get('DTFILED'),
         DTRECEIVED=request.form.get('DTRECEIVED'),
         CASETYPE="CR",
-        NATUREREM = request.form.get('NATUREREM').upper(),
-        IAMOUNT = 0.0,
-        IWEIGHT = 0.0,
-        CSTATUSID = request.form.get('CSTATUSID').zfill(5),
+        NATUREREM=(request.form.get('NATUREREM') or '').upper(),
+        IAMOUNT=0.0,
+        IWEIGHT=0.0,
+        CSTATUSID=(request.form.get('CSTATUSID') or '').zfill(5),
         CSTATUS=request.form.get('satusOthers'),
         CLOSESTAT='10006',
         CREATEBY="BCC1",
@@ -471,12 +476,21 @@ def add_case():
         CREATEDT=now,
         MODIFYDT=now,
     )
+
+    # =========================
+    # 4. SAVE TO SQLITE
+    # =========================
     db.session.add(new_case)
     db.session.commit()
-    requests.get("http://127.0.0.1:5000/cc/api/google-sheet")
 
+    # =========================
+    # 5. SYNC ONLY THIS RECORD
+    # =========================
+    sync_criminal_case_to_gs(new_case)
 
-    
+    # =========================
+    # 6. DONE
+    # =========================
     flash('Criminal Case created successfully.', 'success')
     return redirect('/cc')
 
@@ -1015,63 +1029,57 @@ def generate_report():
 
 
 
+GOOGLE_WEBHOOK_URL = (
+    "https://script.google.com/macros/s/AKfycbw2My5Z1KySGX-7WwFb9i-JMh7l6e7oDX-xdmbHzrEgOGpEQ1kSALIgal6zmP5kLFBW/exec"
+)
 
-@criminals_bp.route('/api/google-sheet')
-def api_google_sheet():
 
-    fields = [
-        "CASEID",
-        "COURTID",
-        "NATURECODE",
-        "CATEGORY",
-        "CASENUM",
-        "CASETITLE",
-        "DTFILED",
-        "DTRECEIVED",
-        "DTTRANSFER",
-        "TRANSFER",
-        "CASETYPE",
-        "CLOSEDATE",
-        "CLOSETAG",
-        "CLOSEDET",
-        "NATUREREM",
-        "IAMOUNT",
-        "IWEIGHT",
-        "CSTATUS",
-        "CSTATUSID",
-        "CLOSESTAT",
-        "CREATEBY",
-        "CREATEDT",
-        "MODIFYBY",
-        "MODIFYDT"
-    ]
 
-    rows = CTMS1000.query.order_by(CTMS1000.CASEID).all()
-
-    data = []
-    for r in rows:
-        data.append([getattr(r, f) for f in fields])  # raw row list
+def sync_criminal_case_to_gs(record):
 
     payload = {
-        "type": "FULL_SYNC",
-        "headers": fields,
-        "data": data
+        "type": "UPSERT",
+        "sheet": "Criminal case",
+
+        # MATCHING COLUMN IN GOOGLE SHEET
+        "keyColumn": "CASEID",
+
+        # UNIQUE VALUE
+        "keyValue": record.CASEID,
+
+        # DATA TO UPDATE
+        "data": {
+            "CASEID": record.CASEID,
+            "COURTID": record.COURTID,
+            "NATURECODE": record.NATURECODE,
+            "CATEGORY": record.CATEGORY,
+            "CASENUM": record.CASENUM,
+            "CASETITLE": record.CASETITLE,
+            "DTFILED": record.DTFILED,
+            "DTRECEIVED": record.DTRECEIVED,
+            "DTTRANSFER": record.DTTRANSFER,
+            "TRANSFER": record.TRANSFER,
+            "CASETYPE": record.CASETYPE,
+            "CLOSEDATE": record.CLOSEDATE,
+            "CLOSETAG": record.CLOSETAG,
+            "CLOSEDET": record.CLOSEDET,
+            "NATUREREM": record.NATUREREM,
+            "IAMOUNT": record.IAMOUNT,
+            "IWEIGHT": record.IWEIGHT,
+            "CSTATUS": record.CSTATUS,
+            "CSTATUSID": record.CSTATUSID,
+            "CLOSESTAT": record.CLOSESTAT,
+            "CREATEBY": record.CREATEBY,
+            "CREATEDT": record.CREATEDT,
+            "MODIFYBY": record.MODIFYBY,
+            "MODIFYDT": record.MODIFYDT
+        }
     }
 
-    try:
-        response = requests.post(
-            GOOGLE_WEBHOOK_URL,
-            json=payload,
-            timeout=60
-        )
+    response = requests.post(
+        GOOGLE_WEBHOOK_URL,
+        json=payload,
+        timeout=60
+    )
 
-        return jsonify({
-            "status": "success",
-            "google_response": response.text
-        })
-
-    except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
+    return response.text
