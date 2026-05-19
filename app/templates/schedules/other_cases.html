@@ -93,7 +93,8 @@
               data-time="{{ item.Time_Start }}"
               data-type="{{ item.Case_Type }}"
               data-number="{{ item.Case_Number }}"
-              data-title="{{ item.Title }}">
+              data-title="{{ item.Title }}"
+              data-notes="{{ item.Notes }}">
               Edit
             </a>
           </td>
@@ -106,25 +107,31 @@
 </div>
 </section>
 <div class="modal fade" id="addModal">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5>Add Schedule</h5>
+        <h4 class="modal-title">Add Schedule</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <div class="modal-body">
         <form id="addForm">
-          <!-- DATE -->
-          <div class="form-group">
+          <div class="row">
+           <!-- DATE -->
+           <div class="form-group col-lg-6 " >
             <label>Date</label>
             <input type="date" name="Date" class="form-control" required>
           </div>
           <!-- TIME -->
-          <div class="form-group">
+          <div class="form-group col-lg-6 ">
             <label>Time Start</label>
             <input type="time" name="Time_Start" class="form-control" required>
           </div>
+        </div>
+        <div class="row">
           <!-- CASE TYPE -->
-          <div class="form-group">
+          <div class="form-group col-lg-6 ">
             <label>Case Type</label>
             <select name="Case_Type" class="form-control" required>
               <option value="" selected>Select Case Type</option>
@@ -133,68 +140,213 @@
               <option value="SMALL CLAIMS CASE">SMALL CLAIMS CASE</option>
             </select>
           </div>
-          <!-- CASE NUMBER -->
-          <div class="form-group">
-            <label>Case Number</label>
-            <input type="text" name="Case_Number" class="form-control" required readonly>
-          </div>
-          <!-- TITLE -->
-          <div class="form-group">
-            <label>Title</label>
-            <textarea name="Title" class="form-control" required readonly></textarea>
-          </div>
-          <button type="submit" class="btn btn-success btn-block">
-            Save
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
+<!-- CASE NUMBER -->
+<div class="form-group col-lg-6 ">
+  <label>Case Number</label>
+  <input
+  type="text"
+  name="Case_Number"
+  class="form-control"
+  required
+  readonly
+  list="caseNumberList"
+  autocomplete="off">
+  <datalist id="caseNumberList"></datalist>
 </div>
-<div class="modal fade" id="editModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5>Edit Schedule</h5>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="edit_id">
+</div>
+<!-- TITLE -->
+<!-- TITLE -->
+<div class="form-group">
+  <label>Title</label>
+  <textarea
+  name="Title"
+  class="form-control"
+  required
+  readonly></textarea>
+</div>
+
+
+<div class="form-group">
+  <label>Hearing Type</label>
+  <select name="Hearing_Type" class="form-control" required>
+    <option value="" selected>Select Hearing Type</option>
+    <option value="ARRAIGNMENT">ARRAIGNMENT</option>
+    <option value="ARRAIGNMENT AND PRELIMINARY CONFERENCE">ARRAIGNMENT AND PRELIMINARY CONFERENCE</option>
+    <option value="ARRAIGNMENT AND PRE-TRIAL CONFERENCE">ARRAIGNMENT AND PRE-TRIAL CONFERENCE</option>
+    <option value="PRELIMINARY CONFERENCE">PRELIMINARY CONFERENCE</option>
+    <option value="CONTINUATION OF PRELIMINARY CONFERENCE">CONTINUATION OF PRELIMINARY CONFERENCE</option>
+    <option value="PRE-TRIAL CONFERENCE">PRE-TRIAL CONFERENCE</option>
+    <option value="CONTINUATION OF PRE-TRIAL CONFERENCE">CONTINUATION OF PRE-TRIAL CONFERENCE</option>
+    <option value="INITIAL PRESENTATION OF PROSECUTION'S EVIDENCE">INITIAL PRESENTATION OF PROSECUTION'S EVIDENCE</option>
+    <option value="PRESENTATION OF PROSECUTION'S EVIDENCE">PRESENTATION OF PROSECUTION'S EVIDENCE</option>
+    <option value="CONTINUATION OF PRESENTATION OF PROSECUTION'S EVIDENCE">CONTINUATION OF PRESENTATION OF PROSECUTION'S EVIDENCE</option>
+    <option value="INITIAL PRESENTATION OF DEFENSE EVIDENCE">INITIAL PRESENTATION OF DEFENSE EVIDENCE</option>
+    <option value="PRESENTATION OF DEFENSE EVIDENCE">PRESENTATION OF DEFENSE EVIDENCE</option>
+    <option value="CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE">CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE</option>
+    <option value="CONTINUATION OF RE-DIRECT EXAMINATION">CONTINUATION OF RE-DIRECT EXAMINATION</option>
+    <option value="HEARING ON MOTION TO REVIVE CASE">HEARING ON MOTION TO REVIVE CASE</option>
+    <option value="MOTION TO REVIVE CASE">MOTION TO REVIVE CASE</option>
+    <option value="HEARING ON SMALL CLAIMS">HEARING ON SMALL CLAIMS</option>
+    <option value="HEARING ON MOTION FOR WRIT OF POSSESSION AND EXECUTION">HEARING ON MOTION FOR WRIT OF POSSESSION AND EXECUTION</option>
+    <option value="CONTINUATION OF PROSECUTION'S EVIDENCE">CONTINUATION OF PROSECUTION'S EVIDENCE</option>
+    <option value="CONTINUATION ON PLAINTIFF'S EVIDENCE">CONTINUATION ON PLAINTIFF'S EVIDENCE</option>
+    <option value="CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE (CIVIL CASE)">CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE (CIVIL CASE)</option>
+    
+    <option value="PROMULGATION OF JUDGEMENT">PROMULGATION OF JUDGEMENT</option>
+    <option value="CLARIFICATORY HEARING">CLARIFICATORY HEARING</option>
+  </select>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+<div class="modal-footer justify-content-between">
+  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+  <button type="submit" class="btn btn-primary">Save</button>
+</div>
+</form>
+</div>
+<!-- /.modal-content -->
+</div>
+<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+
+      <div class="modal fade" id="editModal">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Edit Schedule</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit_id">
+       
+
+<div class="row"> 
         <!-- DATE -->
-        <div class="form-group">
+        <div class="form-group col-lg-6">
           <label>Date</label>
           <input type="date" id="edit_Date" class="form-control" required>
         </div>
         <!-- TIME -->
-        <div class="form-group">
+        <div class="form-group col-lg-6">
           <label>Time Start</label>
           <input type="time" id="edit_Time_Start" class="form-control" required>
         </div>
+</div>
+<div class="row">
+
         <!-- CASE TYPE -->
-        <div class="form-group">
+        <div class="form-group col-lg-6">
           <label>Case Type</label>
-          <select id="edit_Case_Type" class="form-control" required>
+          <select id="edit_Case_Type" class="form-control" required readonly>
             <option value="CRIMINAL CASE">CRIMINAL CASE</option>
             <option value="CIVIL CASE">CIVIL CASE</option>
             <option value="SMALL CLAIMS CASE">SMALL CLAIMS CASE</option>
           </select>
         </div>
         <!-- CASE NUMBER -->
-        <div class="form-group">
+        <div class="form-group col-lg-6">
           <label>Case Number</label>
-          <input type="text" id="edit_Case_Number" class="form-control" required>
+          <input type="text" id="edit_Case_Number" class="form-control" required readonly>
         </div>
+</div>
+
+
+
         <!-- TITLE -->
         <div class="form-group">
           <label>Title</label>
-          <textarea id="edit_Title" class="form-control" required></textarea>
+          <textarea id="edit_Title" class="form-control" required readonly></textarea>
         </div>
-        <button class="btn btn-primary btn-block" id="updateBtn">
-          Update
-        </button>
-      </div>
-    </div>
-  </div>
+
+
+
+<!-- IMPORTANT: use id, not name -->
+<div class="form-group">
+  <label>Hearing Type</label>
+  <select id="edit_Hearing_Type"
+          name="edit_Hearing_Type"
+          class="form-control"
+          required>
+    <option value="" selected>Select Hearing Type</option>
+    <option value="ARRAIGNMENT">ARRAIGNMENT</option>
+    <option value="ARRAIGNMENT AND PRELIMINARY CONFERENCE">ARRAIGNMENT AND PRELIMINARY CONFERENCE</option>
+    <option value="ARRAIGNMENT AND PRE-TRIAL CONFERENCE">ARRAIGNMENT AND PRE-TRIAL CONFERENCE</option>
+    <option value="PRELIMINARY CONFERENCE">PRELIMINARY CONFERENCE</option>
+    <option value="CONTINUATION OF PRELIMINARY CONFERENCE">CONTINUATION OF PRELIMINARY CONFERENCE</option>
+    <option value="PRE-TRIAL CONFERENCE">PRE-TRIAL CONFERENCE</option>
+    <option value="CONTINUATION OF PRE-TRIAL CONFERENCE">CONTINUATION OF PRE-TRIAL CONFERENCE</option>
+    <option value="INITIAL PRESENTATION OF PROSECUTION'S EVIDENCE">INITIAL PRESENTATION OF PROSECUTION'S EVIDENCE</option>
+    <option value="PRESENTATION OF PROSECUTION'S EVIDENCE">PRESENTATION OF PROSECUTION'S EVIDENCE</option>
+    <option value="CONTINUATION OF PRESENTATION OF PROSECUTION'S EVIDENCE">CONTINUATION OF PRESENTATION OF PROSECUTION'S EVIDENCE</option>
+    <option value="INITIAL PRESENTATION OF DEFENSE EVIDENCE">INITIAL PRESENTATION OF DEFENSE EVIDENCE</option>
+    <option value="PRESENTATION OF DEFENSE EVIDENCE">PRESENTATION OF DEFENSE EVIDENCE</option>
+    <option value="CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE">CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE</option>
+    <option value="CONTINUATION OF RE-DIRECT EXAMINATION">CONTINUATION OF RE-DIRECT EXAMINATION</option>
+    <option value="HEARING ON MOTION TO REVIVE CASE">HEARING ON MOTION TO REVIVE CASE</option>
+    <option value="MOTION TO REVIVE CASE">MOTION TO REVIVE CASE</option>
+    <option value="HEARING ON SMALL CLAIMS">HEARING ON SMALL CLAIMS</option>
+    <option value="HEARING ON MOTION FOR WRIT OF POSSESSION AND EXECUTION">HEARING ON MOTION FOR WRIT OF POSSESSION AND EXECUTION</option>
+    <option value="CONTINUATION OF PROSECUTION'S EVIDENCE">CONTINUATION OF PROSECUTION'S EVIDENCE</option>
+    <option value="CONTINUATION ON PLAINTIFF'S EVIDENCE">CONTINUATION ON PLAINTIFF'S EVIDENCE</option>
+    <option value="CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE (CIVIL CASE)">CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE (CIVIL CASE)</option>
+    <option value="PROMULGATION OF JUDGEMENT">PROMULGATION OF JUDGEMENT</option>
+    <option value="CLARIFICATORY HEARING">CLARIFICATORY HEARING</option>
+  </select>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+    
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="updateBtn">Update</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {% endblock %}
 {% block scripts %}
 <script>
@@ -242,6 +394,7 @@
     e.preventDefault();
     let btn = $(this).find("button");
     btn.prop("disabled", true).text("Saving...");
+    showSync();
     $.ajax({
       url: "/schedule/create",
       type: "POST",
@@ -251,7 +404,8 @@
         Time_Start: $(this).find("[name='Time_Start']").val(),
         Case_Type: $(this).find("[name='Case_Type']").val(),
         Case_Number: $(this).find("[name='Case_Number']").val(),
-        Title: $(this).find("[name='Title']").val()
+        Title: $(this).find("[name='Title']").val(),
+        Notes: $(this).find("[name='Hearing_Type']").val(),
       }),
       success: function(res){
         alert(res.message);
@@ -259,6 +413,7 @@
       },
       complete: function(){
         btn.prop("disabled", false).text("Save");
+        hideSync();
       }
     });
   });
@@ -297,6 +452,11 @@ if (type) {
 $("#edit_Case_Type").val(type);
 $("#edit_Case_Number").val($(this).data("number"));
 $("#edit_Title").val($(this).data("title"));
+
+// Set the Hearing Type dropdown based on item.Notes
+$("#edit_Hearing_Type").val($(this).data("notes"));
+
+
 $("#editModal").modal("show");
 });
 </script>
@@ -304,6 +464,7 @@ $("#editModal").modal("show");
   $("#updateBtn").click(function(){
     let btn = $(this);
     btn.prop("disabled", true).text("Updating...");
+    showSync();
     $.ajax({
       url: "/schedule/update",
       type: "POST",
@@ -314,7 +475,8 @@ $("#editModal").modal("show");
         Time_Start: $("#edit_Time_Start").val(),
         Case_Type: $("#edit_Case_Type").val(),
         Case_Number: $("#edit_Case_Number").val(),
-        Title: $("#edit_Title").val()
+        Title: $("#edit_Title").val(),
+        Notes: $("#edit_Hearing_Type").val()
       }),
       success: function(res){
         alert(res.message);
@@ -322,35 +484,77 @@ $("#editModal").modal("show");
       },
       complete: function(){
         btn.prop("disabled", false).text("Update");
+        hideSync();
       }
     });
   });
 </script>
-
-
 <script>
   $(document).ready(function () {
-
-    // default: lock fields
+    // Store API records globally
+    let caseRecords = [];
+    // Default state
     $("[name='Case_Number']").prop("readonly", true);
     $("[name='Title']").prop("readonly", true);
-
-    // when case type changes
+    // =====================================
+    // WHEN CASE TYPE CHANGES
+    // =====================================
     $("[name='Case_Type']").on("change", function () {
-
-        let type = $(this).val();
-
-        if (type) {
-            // unlock fields
-            $("[name='Case_Number']").prop("readonly", false);
-            $("[name='Title']").prop("readonly", false);
-        } else {
-            // lock again if nothing selected
-            $("[name='Case_Number']").prop("readonly", true).val("");
-            $("[name='Title']").prop("readonly", true).val("");
+      let type = $(this).val();
+        // Reset fields
+      $("[name='Case_Number']").val("");
+      $("[name='Title']").val("");
+      $("#caseNumberList").empty();
+      caseRecords = [];
+      if (!type) {
+        $("[name='Case_Number']").prop("readonly", true);
+        return;
+      }
+        // Enable Case Number input
+      $("[name='Case_Number']").prop("readonly", false);
+        // Load case records
+      $.ajax({
+        url: "court/api/" + encodeURIComponent(type),
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+          console.log("API Response:", response);
+                // Save records
+          caseRecords = response;
+                // Fill datalist
+          $.each(response, function(index, item) {
+            $("#caseNumberList").append(
+          `<option value="${item.Case_Number}">`
+          );
+          });
+        },
+        error: function(xhr, status, error) {
+          console.error("AJAX Error:", error);
+          console.log(xhr.responseText);
         }
+      });
     });
-
-});
+    // =====================================
+    // WHEN USER TYPES CASE NUMBER
+    // =====================================
+    $("[name='Case_Number']").on("input", function () {
+      let selectedNumber = $(this).val().trim();
+      let found = null;
+        // Find matching record
+      $.each(caseRecords, function(index, item) {
+        if (String(item.Case_Number).trim() === selectedNumber) {
+          found = item;
+                return false; // break loop
+              }
+            });
+      if (found) {
+            // Valid case number → show title
+        $("[name='Title']").val(found.Title);
+      } else {
+            // Invalid case number → clear title
+        $("[name='Title']").val("");
+      }
+    });
+  });
 </script>
 {% endblock %}

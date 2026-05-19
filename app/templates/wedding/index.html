@@ -1,0 +1,295 @@
+{% extends "layouts/layout1.html" %}
+{% block content %}
+<!-- =========================
+     LEFT: ADD COUPLE
+========================= -->
+<section class="col-lg-5 connectedSortable">
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">Add Civil Wedding Couple</h3>
+		</div>
+		<div class="card-body">
+			<form id="addWeddingForm">
+				<!-- Groom -->
+				<div class="form-group">
+					<label>Groom</label>
+					<input type="text" name="groom" class="form-control" required>
+				</div>
+				<!-- Bride -->
+				<div class="form-group">
+					<label>Bride</label>
+					<input type="text" name="bride" class="form-control" required>
+				</div>
+				<!-- Groom Birthday -->
+				<div class="form-group">
+					<label>Groom Birthday</label>
+					<input type="date" name="bday_groom" class="form-control">
+				</div>
+				<!-- Bride Birthday -->
+				<div class="form-group">
+					<label>Bride Birthday</label>
+					<input type="date" name="bday_bride" class="form-control">
+				</div>
+				<!-- Contact -->
+				<div class="form-group">
+					<label>Contact No.</label>
+					<input type="text" name="contact_no" class="form-control">
+				</div>
+				<!-- Register No -->
+				<div class="form-group">
+					<label>JEPS OR.</label>
+					<input type="text" name="jeps_or" class="form-control">
+				</div>
+				<button type="submit" class="btn btn-success btn-block">
+					Save Couple
+				</button>
+			</form>
+		</div>
+	</div>
+</section>
+<!-- =========================
+     RIGHT: LIST OF COUPLES
+========================= -->
+<section class="col-lg-7 connectedSortable">
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">Civil Wedding Couples</h3>
+		</div>
+		<div class="card-body">
+			<table id="weddingTable" class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>Groom</th>
+						<th>Bride</th>
+						<th>JEPS OR</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for w in WeddingRecords %}
+					<tr>
+						<td>{{ w.groom }}</td>
+						<td>{{ w.bride }}</td>
+						<td>{{ w.jeeps_or }}</td>
+						<td>
+							<button class="btn btn-primary btn-sm assignBtn"
+							data-id="{{ w.id }}"
+							data-rno="{{ w.register_no }}"
+							data-groom="{{ w.groom }}"
+							data-groombday="{{ w.bday_groom }}"
+							data-bride="{{ w.bride }}"
+							data-bridebday="{{ w.bday_bride }}"
+							data-contact="{{ w.contact_no }}"
+							data-jeps="{{ w.jeeps_or }}"
+							data-claim="{{ w.claim_by }}">
+							Edit
+						</button>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+</section>
+<div class="modal fade" id="editmodal">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Update Couple</h4>
+				<div class="card-tools">
+					<div class="form-group">
+						<label>Register No</label>
+						<input type="text" id="register_no" class="form-control">
+					</div>
+				</div>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="eid">
+				<div class="row">
+					<div class="form-group col-lg-7">
+						<label>Groom</label>
+						<input type="text" id="egroom" class="form-control">
+					</div>
+					<div class="form-group col-lg-5">
+						<label>Groom Birthday</label>
+						<input type="date" id="ebday_groom" class="form-control">
+					</div>
+				</div>
+				<div class="row">
+					<div class="form-group col-lg-7">
+						<label>Bride</label>
+						<input type="text" id="ebride" class="form-control">
+					</div>
+					<div class="form-group col-lg-5">
+						<label>Bride Birthday</label>
+						<input type="date" id="ebday_bride" class="form-control">
+					</div>
+				</div>
+				<div class="row">
+				<div class="form-group col-lg-6">
+					<label>Contact No</label>
+					<input type="text" id="econtact_no" class="form-control">
+				</div>
+				<div class="form-group col-lg-6">
+					<label>JEPS</label>
+					<input type="text" id="ejeps_no" class="form-control" readonly>
+				</div>
+				</div>
+			</div>
+			<div class="modal-footer justify-content-between">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" id="updateWeddingBtn" >Save changes</button>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+<!-- =========================
+     WEDDING MODAL
+========================= -->
+<div class="modal fade" id="weddingModal">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 id="modalTitle">Add Civil Wedding</h5>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label>Groom</label>
+					<input type="text" id="groom" class="form-control">
+				</div>
+				<div class="form-group">
+					<label>Bride</label>
+					<input type="text" id="bride" class="form-control">
+				</div>
+				<div class="form-group">
+					<label>Groom Birthday</label>
+					<input type="date" id="bday_groom" class="form-control">
+				</div>
+				<div class="form-group">
+					<label>Bride Birthday</label>
+					<input type="date" id="bday_bride" class="form-control">
+				</div>
+				<div class="form-group">
+					<label>Contact No</label>
+					<input type="text" id="contact_no" class="form-control">
+				</div>
+				<div class="form-group">
+					<label>Register No</label>
+					<input type="text" id="register_no" class="form-control">
+				</div>
+				<button class="btn btn-success btn-block" id="saveWeddingBtn">
+					Save
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+	$(function () {
+		$('#weddingTable').DataTable({
+			paging: true,
+			searching: true,
+			ordering: true,
+			info: true
+		});
+	});
+</script>
+<script>
+	$("#addWeddingForm").submit(function(e){
+		e.preventDefault();
+		let btn = $(this).find("button");
+		btn.prop("disabled", true).text("Saving...");
+		showSync();
+		$.ajax({
+			url: "/wedding/create",
+			type: "POST",
+			contentType: "application/json",
+			data: JSON.stringify({
+				groom: $(this).find("[name='groom']").val(),
+				bride: $(this).find("[name='bride']").val(),
+				bday_groom: $(this).find("[name='bday_groom']").val(),
+				bday_bride: $(this).find("[name='bday_bride']").val(),
+				contact_no: $(this).find("[name='contact_no']").val(),
+				jeps_or: $(this).find("[name='jeps_or']").val()
+			}),
+			success: function(res){
+				alert(res.message);
+				location.reload();
+			},
+			error: function(xhr){
+				console.log(xhr.responseText);
+				alert("Error saving wedding");
+			},
+			complete: function(){
+				btn.prop("disabled", false).text("Save Couple");
+				hideSync();
+			}
+		});
+	});
+</script>
+<script>
+	$(document).on("click", ".assignBtn", function () {
+		let id = $(this).data("id");
+
+
+		$("#editmodal").modal("show");
+		$("#register_no").val($(this).data("rno"));
+		$("#eid").val($(this).data("id"));
+		$("#egroom").val($(this).data("groom"));
+		$("#ebday_groom").val($(this).data("groombday"));
+		$("#ebride").val($(this).data("bride"));
+		$("#ebday_bride").val($(this).data("bridebday"));
+		$("#econtact_no").val($(this).data("contact"));
+		$("#ejeps_no").val($(this).data("jeps"));
+		// $("#eclaims").val($(this).data("claim"));
+	});
+</script>
+
+<script>
+$("#updateWeddingBtn").click(function () {
+
+    let btn = $(this);
+    btn.prop("disabled", true).text("Saving...");
+    showSync();
+    $.ajax({
+        url: "/wedding/update",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            id: $("#eid").val(),
+            register_no: $("#register_no").val(),
+            groom: $("#egroom").val(),
+            bride: $("#ebride").val(),
+            bday_groom: $("#ebday_groom").val(),
+            bday_bride: $("#ebday_bride").val(),
+            contact_no: $("#econtact_no").val(),
+            jeps_or: $("#ejeps_no").val()
+        }),
+
+        success: function (res) {
+            alert(res.message);
+            location.reload();
+        },
+
+        error: function (xhr) {
+            console.log(xhr.responseText);
+            alert("Error updating record");
+        },
+
+        complete: function () {
+            btn.prop("disabled", false).text("Save changes");
+            hideSync();
+        }
+    });
+});
+</script>
+
+
+
+{% endblock %}

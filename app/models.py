@@ -791,3 +791,31 @@ class Cases(db.Model):
 
     def __repr__(self):
         return f"<Docket {self.case_number}>"
+
+
+class CivilWedding(db.Model):
+    __tablename__ = 'civil_wedding'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    groom = db.Column(db.String(255), nullable=False)
+    bride = db.Column(db.String(255), nullable=False)
+
+    bday_groom = db.Column(db.Date, nullable=True)
+    bday_bride = db.Column(db.Date, nullable=True)
+
+    # 🔥 LATER LINK (STARTS NULL)
+    schedule_id = db.Column(db.Integer, db.ForeignKey('schedule_master.id'), nullable=True, unique=True)
+
+    jeeps_or = db.Column(db.String(255), nullable=True)
+    contact_no = db.Column(db.String(50), nullable=True)
+
+    register_no = db.Column(db.String(100), nullable=True)
+
+    claim_by = db.Column(db.JSON, nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # optional relationship
+    schedule = db.relationship('ScheduleMaster', backref='wedding', uselist=False)

@@ -7,6 +7,7 @@ from .settings import settings_bp
 from .criminal_case import criminals_bp
 from .schedule import schedule_bp
 from .other_case import cases_bp
+from .wedding import wedding_bp
 
 
 blueprints = [
@@ -18,6 +19,7 @@ blueprints = [
     settings_bp,
     criminals_bp,
     schedule_bp,
-    cases_bp
+    cases_bp,
+    wedding_bp
 
 ]

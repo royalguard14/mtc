@@ -18,7 +18,7 @@
   | selectattr('id', 'in', user_modules)
   | list %}
 
-{% set civil_order = [6, 8, 7] %}
+{% set civil_order = [6, 8, 7, 17] %}
 
 {% set civil_modules = [] %}
 {% for wanted_id in civil_order %}
@@ -31,7 +31,7 @@
 
 {% if civil_modules %}
   <li class="nav-header">Civil Cases</li>
-  <li class="nav-item">
+    <li class="nav-item {% if request.path in ['/cases/oca', '/cases/scc', '/wedding'] %}menu-is-opening menu-open{% endif %}">
     <a href="#" class="nav-link">
       <i class="nav-icon fas fa-folder"></i>
       <p>
@@ -40,14 +40,15 @@
       </p>
     </a>
     <ul class="nav nav-treeview">
-      {% for m in civil_modules %}
-        <li class="nav-item">
-          <a href="/{{ m.url }}" class="nav-link">
-            <i class="nav-icon fa {{ m.icon }}"></i>
-            <p>{{ m.description }}</p>
-          </a>
-        </li>
-      {% endfor %}
+{% for m in civil_modules %}
+  <li class="nav-item">
+    <a href="/{{ m.url }}"
+       class="nav-link {% if request.path == '/' ~ m.url %}active{% endif %}">
+      <i class="nav-icon fa {{ m.icon }}"></i>
+      <p>{{ m.description }}</p>
+    </a>
+  </li>
+{% endfor %}
     </ul>
   </li>
 {% endif %}
@@ -111,18 +112,20 @@
 
 {% if sched_modules %}
   <li class="nav-header">Schedules</li>
-  <li class="nav-item">
-    <a href="#" class="nav-link">
+  <li class="nav-item {% if request.path in ['/schedule/court', '/schedule/wedding'] %}menu-is-opening menu-open{% endif %}">
+    <a href="#" class="nav-link {% if request.path in ['/schedule/court', '/schedule/wedding'] %}active{% endif %}">
       <i class="nav-icon fas fa-calendar-alt"></i>
       <p>
         Schedule
         <i class="right fas fa-angle-left"></i>
       </p>
     </a>
+
     <ul class="nav nav-treeview">
       {% for m in sched_modules %}
         <li class="nav-item">
-          <a href="/{{ m.url }}" class="nav-link">
+          <a href="/{{ m.url }}"
+             class="nav-link {% if request.path == '/' ~ m.url %}active{% endif %}">
             <i class="nav-icon fa {{ m.icon }}"></i>
             <p>{{ m.name }}</p>
           </a>
@@ -182,29 +185,34 @@
         | selectattr('id', 'in', [1,2,3,4]) 
         | list %}
 
-      {% if admin_modules %}
-        <li class="nav-header">Administrator Tools</li>
-        <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-cogs"></i>
-            <p>
-              Setting
-              <i class="right fas fa-angle-left"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
-            {% for m in admin_modules %}
-              <li class="nav-item">
-                <a href="/{{ m.url }}" class="nav-link">
-                  <i class="nav-icon fa {{ m.icon }}"></i>
-                  <p>{{ m.name }}</p>
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        </li>
-      {% endif %}
+ {% set admin_paths = ['/roles', '/users', '/modules', '/settings'] %}
 
+{% if admin_modules %}
+  <li class="nav-header">Administrator Tools</li>
+
+  <li class="nav-item {% if request.path.rstrip('/') in admin_paths %}menu-is-opening menu-open{% endif %}">
+    <a href="#"
+       class="nav-link {% if request.path.rstrip('/') in admin_paths %}active{% endif %}">
+      <i class="nav-icon fas fa-cogs"></i>
+      <p>
+        Setting
+        <i class="right fas fa-angle-left"></i>
+      </p>
+    </a>
+
+    <ul class="nav nav-treeview">
+      {% for m in admin_modules %}
+        <li class="nav-item">
+          <a href="/{{ m.url }}"
+             class="nav-link {% if request.path.rstrip('/') == '/' ~ m.url %}active{% endif %}">
+            <i class="nav-icon fa {{ m.icon }}"></i>
+            <p>{{ m.name }}</p>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </li>
+{% endif %}
  
 
     {% endif %}
