@@ -8,7 +8,8 @@ from .criminal_case import criminals_bp
 from .schedule import schedule_bp
 from .other_case import cases_bp
 from .wedding import wedding_bp
-
+from .generate import generate_bp
+from .clearance import clearance_bp
 
 blueprints = [
     auth_bp,
@@ -20,6 +21,8 @@ blueprints = [
     criminals_bp,
     schedule_bp,
     cases_bp,
-    wedding_bp
+    wedding_bp,
+    generate_bp,
+    clearance_bp
 
 ]

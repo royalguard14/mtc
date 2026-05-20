@@ -819,3 +819,31 @@ class CivilWedding(db.Model):
 
     # optional relationship
     schedule = db.relationship('ScheduleMaster', backref='wedding', uselist=False)
+
+
+class Certificate(db.Model):
+    __tablename__ = "certificates"
+
+    id = db.Column(db.Integer, primary_key=True)
+    cert_type = db.Column(db.String(100), nullable=False)
+    information = db.Column(db.JSON, nullable=False)
+    file_path = db.Column(db.String(255))
+    full_name = db.Column(db.String(255))
+    jeps = db.Column(db.String(100))
+    date_given = db.Column(db.Date)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    # ✅ ADD THIS
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "cert_type": self.cert_type,
+            "information": self.information,
+            "file_path": self.file_path,
+            "full_name": self.full_name,
+    
+            "jeps": self.jeps,
+            "date": self.date_given.strftime("%m/%d/%Y") if self.date_given else ""
+        }

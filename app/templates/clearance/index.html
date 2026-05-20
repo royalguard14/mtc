@@ -1,0 +1,401 @@
+{% extends "layouts/layout1.html" %}
+
+{% block content %}
+<section class="col-lg-5 connectedSortable">
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Create Certificate</h3>
+  </div>
+
+ <form method="POST" action="/clearance/create">
+  <div class="card-body">
+
+    <!-- FULL NAME -->
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" name="full_name" class="form-control" required>
+    </div>
+
+    <!-- CERT TYPE -->
+    <div class="form-group">
+      <label>Certificate Type</label>
+      <select name="cert_type" id="cert_type" class="form-control" required>
+        <option value="">-- Select Type --</option>
+        <option value="COURT_CLEARANCE">Court Clearance</option>
+        <option value="LAND_TITLE_CLEARANCE">Land Title Clearance</option>
+      </select>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- COURT CLEARANCE FIELDS -->
+    <!-- ========================================= -->
+    <div id="court_fields">
+
+      <!-- ADDRESS -->
+      <div class="form-group">
+        <label>Address</label>
+        <input type="text" name="address" class="form-control">
+      </div>
+
+      <!-- GENDER -->
+      <div class="form-group">
+        <label>Gender</label>
+        <select name="gender" class="form-control">
+          <option value="">-- Select Gender --</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+        </select>
+      </div>
+
+      <!-- PURPOSE -->
+      <div class="form-group">
+        <label>Purpose</label>
+        <textarea name="purpose" class="form-control" rows="3"></textarea>
+      </div>
+
+    </div>
+
+    <!-- ========================================= -->
+    <!-- LAND TITLE CLEARANCE FIELDS -->
+    <!-- ========================================= -->
+    <div id="land_fields" style="display:none;">
+
+      <div class="form-group">
+        <label>Land Type</label>
+        <input type="text" name="land_type" class="form-control"
+               placeholder="Residential Land">
+      </div>
+
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" name="location" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Tax Declaration No.</label>
+        <input type="text" name="tax_no" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Property Identification No.</label>
+        <input type="text" name="property_id" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Cadastral Lot No.</label>
+        <input type="text" name="cadastral_lot_no" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Total Area</label>
+        <input type="text" name="total_area" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Bounded North</label>
+        <input type="text" name="bounded_north" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Bounded South</label>
+        <input type="text" name="bounded_south" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Bounded East</label>
+        <input type="text" name="bounded_east" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Bounded West</label>
+        <input type="text" name="bounded_west" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Amount in Words</label>
+        <textarea name="amount_text" class="form-control" rows="2"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Amount in Figures</label>
+        <input type="text" name="amount_figure" class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label>Gender</label>
+        <select name="gender" class="form-control">
+          <option value="">-- Select Gender --</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+        </select>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="card-footer">
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-save"></i> Save Certificate
+    </button>
+  </div>
+</form>
+
+
+</div>
+
+
+</section>
+
+<section class="col-lg-7 connectedSortable">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">card header</h3>
+     
+    </div>
+
+    <div class="card-body">
+ <table id="example2" class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>JEPS OR</th>
+            <th>Clearance Type</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+       
+<tbody>
+  {% for c in clearances %}
+  <tr>
+    <td>{{ c.full_name.upper() }}</td>
+    <td>{{ c.jeps.upper() or '' }}</td>
+    <td>{{ c.cert_type }}</td>
+
+    <td>
+      <!-- VIEW -->
+      <button class="btn btn-info btn-sm" onclick="viewCert({{ c.id }})">
+        View
+      </button>
+
+      <!-- EDIT -->
+      <button class="btn btn-warning btn-sm" onclick="editCert({{ c.id }})">
+        Edit
+      </button>
+
+      <!-- PRINT -->
+   <button class="btn btn-success btn-sm"
+    onclick='printCert({{ c.to_dict() | tojson }})'>
+    Print
+</button>
+    </td>
+  </tr>
+  {% endfor %}
+</tbody>
+      </table>
+    </div>
+
+  </div>
+
+
+
+</section>
+
+
+
+<!-- VIEW MODAL -->
+<div class="modal fade" id="viewModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">View Certificate</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <div class="modal-body" id="viewContent">
+        <!-- dynamic -->
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- EDIT MODAL -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Certificate</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+
+        <form id="editForm">
+
+          <input type="hidden" name="id" id="edit_id">
+
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="edit_full_name" name="full_name" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="edit_address" name="address" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Gender</label>
+            <select id="edit_gender" name="gender" class="form-control">
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Purpose</label>
+            <textarea id="edit_purpose" name="purpose" class="form-control"></textarea>
+          </div>
+
+          <div class="form-group">
+  <label>JEPS OR</label>
+  <input type="text" id="edit_jeps" name="jeps" class="form-control">
+</div>
+
+          <button type="submit" class="btn btn-primary">
+            Save Changes
+          </button>
+
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(function () {
+    $('#example2').DataTable({
+      "paging": true,
+      "lengthChange": false,
+      "searching": true,
+      "ordering": false,
+      "info": false,
+      "autoWidth": false,
+      "responsive": true,
+    });
+  });
+</script>
+
+
+<script src="{{ url_for('static', filename='/dist/js/court_clearance.js') }}"></script>
+
+
+
+<script>
+  function viewCert(id) {
+    fetch(`/clearance/view/${id}`)
+        .then(res => res.json())
+        .then(data => {
+
+            document.getElementById("viewContent").innerHTML = `
+                <p><b>Name:</b> ${data.full_name}</p>
+                <p><b>Type:</b> ${data.cert_type}</p>
+                <p><b>Address:</b> ${data.information.address}</p>
+                <p><b>Gender:</b> ${data.information.gender}</p>
+                <p><b>Purpose:</b> ${data.information.purpose}</p>
+                <p><b>JEPS:</b> ${data.jeps || ''}</p>
+            `;
+
+            $('#viewModal').modal('show');
+        });
+}
+</script>
+
+
+<script>
+  function editCert(id) {
+    fetch(`/clearance/view/${id}`)
+        .then(res => res.json())
+        .then(data => {
+
+            document.getElementById("edit_id").value = data.id;
+            document.getElementById("edit_full_name").value = data.full_name;
+            document.getElementById("edit_address").value = data.information.address;
+            document.getElementById("edit_gender").value = data.information.gender;
+            document.getElementById("edit_purpose").value = data.information.purpose;
+            document.getElementById("edit_jeps").value = data.jeps || '';
+
+            $('#editModal').modal('show');
+        });
+}
+</script>
+
+<script>
+document.getElementById("editForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    fetch("/clearance/update", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(resp => {
+        if (resp.success) {
+            location.reload();
+        }
+    });
+});
+</script>
+
+<script>
+$(document).ready(function () {
+
+  function toggleCertificateFields() {
+    const certType = $('#cert_type').val();
+
+    if (certType === 'COURT_CLEARANCE') {
+      $('#court_fields').show();
+      $('#land_fields').hide();
+    }
+    else if (certType === 'LAND_TITLE_CLEARANCE') {
+      $('#court_fields').hide();
+      $('#land_fields').show();
+    }
+    else {
+      $('#court_fields').hide();
+      $('#land_fields').hide();
+    }
+  }
+
+  // Hide all on page load until a type is selected
+  $('#court_fields').hide();
+  $('#land_fields').hide();
+
+  // Trigger when certificate type changes
+  $('#cert_type').on('change', toggleCertificateFields);
+
+});
+</script>
+{% endblock %}

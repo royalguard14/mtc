@@ -8,6 +8,71 @@
 <section class="col-lg-7 connectedSortable">
 
 </section>
+
+
+
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">card header</h3>
+                      <div class="card-tools">
+                      <span title="3 New Messages" class="badge text-bg-primary"> 3 </span>
+                      
+                    </div>
+    </div>
+
+    <div class="card-body">
+
+    </div>
+        <div class="card-footer">
+
+    </div>
+  </div>
+
+
+
+
+
+ <table id="example2" class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Start</th>
+            <th>Wedding Number</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+       
+        <tbody>
+          {% for item in WeddingRecordsSched %}
+
+              <tr>
+                <td>{{ item.Date }}</td>
+                <td>{{ item.Time_Start }}</td>
+                <td>{{ item.Case_Number }}</td>
+                <td>
+                  <a href="#"
+                     class="editBtn"
+                     data-id="{{ item.id }}"
+                     data-date="{{ item.Date }}"
+                     data-time="{{ item.Time_Start }}"
+                     data-number="{{ item.Case_Number }}"
+                     data-title="{{ item.Title }}">
+                    Edit
+                  </a>
+                </td>
+              </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+
+
+
+
+
+
 {% endblock %}
 
 {% block scripts %}
