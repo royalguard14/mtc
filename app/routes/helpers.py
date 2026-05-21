@@ -4,7 +4,7 @@ import dbf
 from datetime import datetime
 from dbfread import DBF
 from sqlalchemy.exc import SQLAlchemyError
-
+import requests
 from app import db
 from app.models import (
     Setting,
@@ -400,3 +400,28 @@ def safe_str(value, max_len):
     value = value.encode("cp1252", "ignore").decode("cp1252")
 
     return value[:max_len]
+
+
+GOOGLE_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw2My5Z1KySGX-7WwFb9i-JMh7l6e7oDX-xdmbHzrEgOGpEQ1kSALIgal6zmP5kLFBW/exec"
+
+
+def delete_google_sheet_schedule(schedule_id):
+
+    payload = {
+        "type": "DELETE",
+        "sheet": "Schedule Master",
+        "keyColumn": "id",
+        "keyValue": schedule_id
+    }
+
+    try:
+        response = requests.post(
+            GOOGLE_WEBHOOK_URL,
+            json=payload,
+            timeout=10
+        )
+
+        print("GOOGLE DELETE RESPONSE:", response.text)
+
+    except Exception as e:
+        print("Google Delete Error:", str(e))

@@ -1,297 +1,541 @@
 {% extends "layouts/layout1.html" %}
-
 {% block content %}
-<section class="col-lg-5 connectedSortable">
-<div class="card">
-  <div class="card-header">
-    <h3 class="card-title">Create Certificate</h3>
-  </div>
-
- <form method="POST" action="/clearance/create">
-  <div class="card-body">
-
-    <!-- FULL NAME -->
-    <div class="form-group">
-      <label>Full Name</label>
-      <input type="text" name="full_name" class="form-control" required>
-    </div>
-
-    <!-- CERT TYPE -->
-    <div class="form-group">
-      <label>Certificate Type</label>
-      <select name="cert_type" id="cert_type" class="form-control" required>
-        <option value="">-- Select Type --</option>
-        <option value="COURT_CLEARANCE">Court Clearance</option>
-        <option value="LAND_TITLE_CLEARANCE">Land Title Clearance</option>
-      </select>
-    </div>
-
-    <!-- ========================================= -->
-    <!-- COURT CLEARANCE FIELDS -->
-    <!-- ========================================= -->
-    <div id="court_fields">
-
-      <!-- ADDRESS -->
-      <div class="form-group">
-        <label>Address</label>
-        <input type="text" name="address" class="form-control">
-      </div>
-
-      <!-- GENDER -->
-      <div class="form-group">
-        <label>Gender</label>
-        <select name="gender" class="form-control">
-          <option value="">-- Select Gender --</option>
-          <option value="MALE">Male</option>
-          <option value="FEMALE">Female</option>
-        </select>
-      </div>
-
-      <!-- PURPOSE -->
-      <div class="form-group">
-        <label>Purpose</label>
-        <textarea name="purpose" class="form-control" rows="3"></textarea>
-      </div>
-
-    </div>
-
-    <!-- ========================================= -->
-    <!-- LAND TITLE CLEARANCE FIELDS -->
-    <!-- ========================================= -->
-    <div id="land_fields" style="display:none;">
-
-      <div class="form-group">
-        <label>Land Type</label>
-        <input type="text" name="land_type" class="form-control"
-               placeholder="Residential Land">
-      </div>
-
-      <div class="form-group">
-        <label>Location</label>
-        <input type="text" name="location" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Tax Declaration No.</label>
-        <input type="text" name="tax_no" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Property Identification No.</label>
-        <input type="text" name="property_id" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Cadastral Lot No.</label>
-        <input type="text" name="cadastral_lot_no" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Total Area</label>
-        <input type="text" name="total_area" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Bounded North</label>
-        <input type="text" name="bounded_north" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Bounded South</label>
-        <input type="text" name="bounded_south" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Bounded East</label>
-        <input type="text" name="bounded_east" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Bounded West</label>
-        <input type="text" name="bounded_west" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Amount in Words</label>
-        <textarea name="amount_text" class="form-control" rows="2"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label>Amount in Figures</label>
-        <input type="text" name="amount_figure" class="form-control">
-      </div>
-
-      <div class="form-group">
-        <label>Gender</label>
-        <select name="gender" class="form-control">
-          <option value="">-- Select Gender --</option>
-          <option value="MALE">Male</option>
-          <option value="FEMALE">Female</option>
-        </select>
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="card-footer">
-    <button type="submit" class="btn btn-primary">
-      <i class="fas fa-save"></i> Save Certificate
-    </button>
-  </div>
-</form>
-
-
-</div>
-
-
-</section>
-
-<section class="col-lg-7 connectedSortable">
+<section class="col-lg-12 connectedSortable">
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">card header</h3>
-     
-    </div>
-
-    <div class="card-body">
+      <h3 class="card-title">CERTIFICATE / CLEARANCE RECORDS</h3>
+      <div class="card-tools d-flex" style="gap: 5px;">
+        <a href="#" 
+        class="btn btn-outline-primary" onclick="createModal('COURT_CLEARANCE')">
+        <i class="fas fa-plus"></i> Individual Court Clearance
+      </a>
+      <a href="#"
+      class="btn btn-outline-success" onclick="createModal('LAND_TITLE_CLEARANCE')">
+      <i class="fas fa-file-plus"></i> Land Title Court Clearance
+    </a>
+  </div>
+</div>
+<div class="card-body">
  <table id="example2" class="table table-bordered table-hover">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>JEPS OR</th>
-            <th>Clearance Type</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-
-       
-<tbody>
-  {% for c in clearances %}
-  <tr>
-    <td>{{ c.full_name.upper() }}</td>
-    <td>{{ c.jeps.upper() or '' }}</td>
-    <td>{{ c.cert_type }}</td>
-
-    <td>
-      <!-- VIEW -->
-      <button class="btn btn-info btn-sm" onclick="viewCert({{ c.id }})">
-        View
-      </button>
-
-      <!-- EDIT -->
-      <button class="btn btn-warning btn-sm" onclick="editCert({{ c.id }})">
-        Edit
-      </button>
-
-      <!-- PRINT -->
-   <button class="btn btn-success btn-sm"
-    onclick='printCert({{ c.to_dict() | tojson }})'>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>JEPS OR</th>
+      <th>Remark</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in clearances %}
+    <tr>
+      <td>{{ c.full_name.upper() }}</td>
+      <td>{{ (c.jeps or '').upper() }}</td>
+      <td>
+        {% if c.cert_type == "COURT_CLEARANCE" %}
+        <span class="badge badge-info">
+          {{ c.information.get('purpose','') }}
+        </span>
+        {% elif c.cert_type == "LAND_TITLE_CLEARANCE" %}
+        <span class="badge badge-success">
+          {{ c.information.get('tax_no','') }} / {{ c.information.get('property_id','') }}
+        </span>
+        {% else %}
+        <span class="badge badge-secondary">
+          {{ c.cert_type }}
+        </span>
+        {% endif %}
+      </td>
+      <td>
+        <!-- VIEW -->
+        <button class="btn btn-info btn-sm" onclick="viewCert({{ c.id }})">
+          View
+        </button>
+        <!-- EDIT -->
+        <button class="btn btn-warning btn-sm" onclick="editCert({{ c.id }})">
+          Edit
+        </button>
+        <!-- PRINT -->
+<button class="btn btn-success btn-sm"
+    onclick='{{ 
+        "printCertIndividual" if c.cert_type == "COURT_CLEARANCE"
+        else "printCertLandTitle"
+    }}({{ c.to_dict() | tojson }})'>
     Print
 </button>
+
+
+             {% if current_user.is_authenticated and current_user.role.id == 1 and current_user.username == 'zear' %}
+             
+             <form action="{{ url_for('developer.clearance_delete', clearance_id=c.id) }}" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-danger"
+              {
+              onclick="return confirm('Delete this clearance?')">
+          🗑️
+            </button>
+          </form>
+          {% endif %}
+
+
+
+
+
+
+
     </td>
   </tr>
   {% endfor %}
 </tbody>
-      </table>
-    </div>
-
-  </div>
-
-
-
+</table>
+</div>
+</div>
 </section>
-
-
-
 <!-- VIEW MODAL -->
 <div class="modal fade" id="viewModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
 
-      <div class="modal-header">
-        <h5 class="modal-title">View Certificate</h5>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Certificate Details</h5>
+        <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
       </div>
 
       <div class="modal-body" id="viewContent">
         <!-- dynamic -->
       </div>
 
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+
     </div>
   </div>
 </div>
-
 
 
 
 <!-- EDIT MODAL -->
 <div class="modal fade" id="editModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable" id="editModalDialog">
+    <div class="modal-content shadow-lg border-0">
 
-      <div class="modal-header">
-        <h5 class="modal-title">Edit Certificate</h5>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title">
+          <i class="fas fa-edit mr-1"></i>
+          Edit Certificate
+        </h5>
+
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
       </div>
 
-      <div class="modal-body">
+      <form id="editForm">
 
-        <form id="editForm">
+        <!-- ✅ IMPORTANT -->
+        <div class="modal-body bg-light"
+             style="max-height: 75vh; overflow-y: auto;">
 
           <input type="hidden" name="id" id="edit_id">
 
-          <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" id="edit_full_name" name="full_name" class="form-control">
+          <div class="card card-outline card-primary mb-3">
+            <div class="card-header">
+              <b>Basic Information</b>
+            </div>
+
+            <div class="card-body">
+
+              <div class="row">
+
+                <div class="form-group col-lg-8">
+                  <label>Full Name</label>
+                  <input type="text"
+                         name="full_name"
+                         id="edit_full_name"
+                         class="form-control">
+                </div>
+
+                <div class="form-group col-lg-4">
+                  <label>JEPS OR</label>
+                  <input type="text"
+                         name="jeps"
+                         id="edit_jeps"
+                         class="form-control">
+                </div>
+
+              </div>
+
+            </div>
           </div>
 
-          <div class="form-group">
-            <label>Address</label>
-            <input type="text" id="edit_address" name="address" class="form-control">
+          <div class="card card-outline card-success">
+            <div class="card-header">
+              <b>Certificate Details</b>
+            </div>
+
+            <div class="card-body">
+
+              <div id="editDynamicFields"></div>
+
+            </div>
           </div>
 
-          <div class="form-group">
-            <label>Gender</label>
-            <select id="edit_gender" name="gender" class="form-control">
-              <option value="MALE">Male</option>
-              <option value="FEMALE">Female</option>
-            </select>
-          </div>
+        </div>
 
-          <div class="form-group">
-            <label>Purpose</label>
-            <textarea id="edit_purpose" name="purpose" class="form-control"></textarea>
-          </div>
+        <!-- FOOTER ALWAYS VISIBLE -->
+        <div class="modal-footer bg-white justify-content-between">
 
-          <div class="form-group">
-  <label>JEPS OR</label>
-  <input type="text" id="edit_jeps" name="jeps" class="form-control">
-</div>
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-dismiss="modal">
+            Close
+          </button>
 
-          <button type="submit" class="btn btn-primary">
+          <button type="submit"
+                  class="btn btn-warning">
+            <i class="fas fa-save"></i>
             Save Changes
           </button>
 
-        </form>
+        </div>
 
-      </div>
+      </form>
 
     </div>
   </div>
 </div>
+<div class="modal fade" id="CreateModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <!-- FORM START -->
+      <form id="createForm">
+        <div class="modal-header">
+          <h4 class="modal-title">Create New Clearance</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <input type="hidden" name="cert_type">
+        <div class="modal-body">
+          <div class="row">
+          <!-- FULL NAME -->
+          <div class="form-group form-group col-md-8">
+            <label>Full Name</label>
+            <input type="text" name="full_name" class="form-control" required>
+          </div>
 
+                                  <!-- GENDER -->
+                        <div class="form-group col-md-4">
+                            <label>
+                                Gender
+                            </label>
 
+                            <select
+                                name="gender"
+                                class="form-control"
+                            >
+                                <option value="">
+                                    -- Select Gender --
+                                </option>
 
+                                <option value="MALE">
+                                    Male
+                                </option>
 
+                                <option value="FEMALE">
+                                    Female
+                                </option>
+                            </select>
+                        </div>
 
-
-
-
-
+                        </div>
+          <!-- DYNAMIC FIELDS -->
+          <div id="createmodalID"></div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            Close
+          </button>
+          <!-- MUST BE submit -->
+          <button type="submit" class="btn btn-primary">
+            Save Changes
+          </button>
+        </div>
+      </form>
+      <!-- FORM END -->
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 {% endblock %}
-
 {% block scripts %}
+<script>
+  function viewCert(id) {
+    fetch(`/clearance/view/${id}`)
+        .then(res => res.json())
+        .then(data => {
+
+            let info = data.information || {};
+
+            let html = `
+            <div class="container-fluid">
+
+                <div class="row mb-2">
+                    <div class="col-md-12">
+                        <div class="card card-outline card-primary">
+                            <div class="card-header">
+                                <b>Personal Information</b>
+                            </div>
+                            <div class="card-body">
+                                <p><b>Name:</b> ${data.full_name || ''}</p>
+                                <p><b>Type:</b> ${data.cert_type || ''}</p>
+                                <p><b>JEPS:</b> ${data.jeps || ''}</p>
+                            </div>
+                        </div>
+                    </div>
+            `;
+
+            // COURT CLEARANCE
+if (data.cert_type === "COURT_CLEARANCE") {
+
+    html += `
+    <div class="col-md-12">
+
+        <!-- CLEARANCE DETAILS -->
+        <div class="card card-outline card-info shadow-sm">
+
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-id-card mr-1"></i>
+                    Clearance Information
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <!-- ADDRESS -->
+                    <div class="col-md-12 mb-3">
+                        <small class="text-muted">
+                            Residential Address
+                        </small>
+
+                        <div class="border rounded p-3 bg-light">
+                            ${info.address || '-'}
+                        </div>
+                    </div>
+
+                    <!-- GENDER -->
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted">
+                            Gender
+                        </small>
+
+                        <div class="border rounded p-3 bg-light">
+                            ${info.gender || '-'}
+                        </div>
+                    </div>
+
+                    <!-- PURPOSE -->
+                    <div class="col-md-8 mb-3">
+                        <small class="text-muted">
+                            Purpose of Clearance
+                        </small>
+
+                        <div class="border rounded p-3 bg-light">
+                            ${info.purpose || '-'}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    `;
+}
+
+            // LAND TITLE CLEARANCE
+else if (data.cert_type === "LAND_TITLE_CLEARANCE") {
+
+    html += `
+    <div class="col-md-12">
+
+        <!-- LAND DETAILS -->
+        <div class="card card-outline card-success shadow-sm mb-3">
+
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-map-marked-alt mr-1"></i>
+                    Land Information
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">Land Type</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.land_type || '-'}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">Total Area</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.total_area || '-'}
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <small class="text-muted">Location</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.location || '-'}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- PROPERTY DETAILS -->
+        <div class="card card-outline card-primary shadow-sm mb-3">
+
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-signature mr-1"></i>
+                    Property Details
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted">Tax Declaration No.</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.tax_no || '-'}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted">Property ID</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.property_id || '-'}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted">Cadastral Lot No.</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.cadastral_lot_no || '-'}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- BOUNDARIES -->
+        <div class="card card-outline card-info shadow-sm mb-3">
+
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-border-all mr-1"></i>
+                    Property Boundaries
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">North</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.bounded_north || '-'}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">South</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.bounded_south || '-'}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">East</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.bounded_east || '-'}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <small class="text-muted">West</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.bounded_west || '-'}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- AMOUNT -->
+        <div class="card card-outline card-warning shadow-sm">
+
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">
+                    <i class="fas fa-money-bill-wave mr-1"></i>
+                    Declared Amount
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+                        <small class="text-muted">Amount Figure</small>
+                        <div class="border rounded p-2 bg-light font-weight-bold">
+                            ₱ ${info.amount_figure || '-'}
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 mb-3">
+                        <small class="text-muted">Amount in Words</small>
+                        <div class="border rounded p-2 bg-light">
+                            ${info.amount_text || '-'}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    `;
+}
+
+            html += `</div></div>`;
+
+            document.getElementById("viewContent").innerHTML = html;
+
+            $('#viewModal').modal('show');
+        });
+}
+</script>
 <script>
   $(function () {
     $('#example2').DataTable({
@@ -306,96 +550,614 @@
   });
 </script>
 
-
-<script src="{{ url_for('static', filename='/dist/js/court_clearance.js') }}"></script>
-
-
-
 <script>
-  function viewCert(id) {
-    fetch(`/clearance/view/${id}`)
-        .then(res => res.json())
-        .then(data => {
-
-            document.getElementById("viewContent").innerHTML = `
-                <p><b>Name:</b> ${data.full_name}</p>
-                <p><b>Type:</b> ${data.cert_type}</p>
-                <p><b>Address:</b> ${data.information.address}</p>
-                <p><b>Gender:</b> ${data.information.gender}</p>
-                <p><b>Purpose:</b> ${data.information.purpose}</p>
-                <p><b>JEPS:</b> ${data.jeps || ''}</p>
-            `;
-
-            $('#viewModal').modal('show');
-        });
-}
+  $(document).ready(function () {
+    function convertAmountToWords() {
+      let amount = $("#amount_figure").val().trim();
+    // If empty, clear textarea
+      if (amount === "") {
+        $("#amount_text").val("");
+        return;
+      }
+      $.ajax({
+        url: "/clearance/amount-to-words",
+        type: "GET",
+        data: {
+          amount: amount
+        },
+        success: function (response) {
+          if (response.success) {
+            $("#amount_text").val(response.amount_text);
+          } else {
+            $("#amount_text").val("");
+          }
+        },
+        error: function () {
+          $("#amount_text").val("");
+        }
+      });
+    }
+  // Trigger while typing
+    $("#amount_figure").on("input", function () {
+      convertAmountToWords();
+    });
+  });
 </script>
+<script src="{{ url_for('static', filename='/dist/js/court_clearance.js') }}"></script>
 
 
 <script>
   function editCert(id) {
     fetch(`/clearance/view/${id}`)
-        .then(res => res.json())
-        .then(data => {
+    .then(res => res.json())
+    .then(data => {
+      let info = data.information || {};
+            // set base fields
+      $("#edit_id").val(data.id);
+      $("#edit_full_name").val(data.full_name);
+      $("#edit_jeps").val(data.jeps || "");
+      let html = "";
+            // COURT CLEARANCE
+      if (data.cert_type === "COURT_CLEARANCE") {
+        html = `
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" name="address" class="form-control"
+                               value="${info.address || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select name="gender" class="form-control">
+                            <option value="MALE" ${info.gender === "MALE" ? "selected" : ""}>Male</option>
+                            <option value="FEMALE" ${info.gender === "FEMALE" ? "selected" : ""}>Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Purpose</label>
+                        <textarea name="purpose" class="form-control">${info.purpose || ""}</textarea>
+                    </div>
+        `;
+      }
+            // LAND TITLE CLEARANCE
+      else if (data.cert_type === "LAND_TITLE_CLEARANCE") {
+        html = `
+        <div class="row">
+            <div class="form-group col-lg-6">
+                <label>Land Type</label>
+                <select name="land_type" class="form-control">
+                    <option value="Residential Land" ${info.land_type === "Residential Land" ? "selected" : ""}>Residential</option>
+                    <option value="Agricultural Land" ${info.land_type === "Agricultural Land" ? "selected" : ""}>Agricultural</option>
+                </select>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Gender</label>
+                <select name="gender" class="form-control">
+                    <option value="MALE" ${info.gender === "MALE" ? "selected" : ""}>Male</option>
+                    <option value="FEMALE" ${info.gender === "FEMALE" ? "selected" : ""}>Female</option>
+                </select>
+            </div>
+            <div class="form-group col-lg-12">
+                <label>Location</label>
+                <textarea name="location" class="form-control">${info.location || ""}</textarea>
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Tax Declaration No</label>
+                <input type="text" name="tax_no" class="form-control"
+                       value="${info.tax_no || ''}">
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Property ID</label>
+                <input type="text" name="property_id" class="form-control"
+                       value="${info.property_id || ''}">
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Cadastral Lot No</label>
+                <input type="text" name="cadastral_lot_no" class="form-control"
+                       value="${info.cadastral_lot_no || ''}">
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Total Area</label>
+                <input type="text" name="total_area" class="form-control"
+                       value="${info.total_area || ''}">
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Bounded North</label>
+                <input type="text" name="bounded_north" class="form-control"
+                       value="${info.bounded_north || ''}">
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Bounded South</label>
+                <input type="text" name="bounded_south" class="form-control"
+                       value="${info.bounded_south || ''}">
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Bounded East</label>
+                <input type="text" name="bounded_east" class="form-control"
+                       value="${info.bounded_east || ''}">
+            </div>
+            <div class="form-group col-lg-6">
+                <label>Bounded West</label>
+                <input type="text" name="bounded_west" class="form-control"
+                       value="${info.bounded_west || ''}">
+            </div>
+            <!-- AMOUNT -->
+            <div class="form-group col-lg-6">
+                <label>Amount Figure</label>
+                <input type="text" name="amount_figure"
+                       id="edit_amount_figure"
+                       class="form-control"
+                       value="${info.amount_figure || ''}">
+            </div>
+            <div class="form-group col-lg-12">
+                <label>Amount Text</label>
+                <textarea readonly
+                name="amount_text"
+                          id="edit_amount_text"
+                          class="form-control">${info.amount_text || ""}</textarea>
+            </div>
+        </div>
+        `;
+      }
+      $("#editDynamicFields").html(html);
 
-            document.getElementById("edit_id").value = data.id;
-            document.getElementById("edit_full_name").value = data.full_name;
-            document.getElementById("edit_address").value = data.information.address;
-            document.getElementById("edit_gender").value = data.information.gender;
-            document.getElementById("edit_purpose").value = data.information.purpose;
-            document.getElementById("edit_jeps").value = data.jeps || '';
 
-            $('#editModal').modal('show');
-        });
+
+
+
+
+
+if (data.cert_type === "LAND_TITLE_CLEARANCE") {
+    $("#editModalDialog")
+        .removeClass("modal-lg")
+        .addClass("modal-xl");
+} else {
+    $("#editModalDialog")
+        .removeClass("modal-xl")
+        .addClass("modal-lg");
+}
+
+
+
+
+
+
+
+      $("#editModal").modal("show");
+    });
 }
 </script>
 
 <script>
-document.getElementById("editForm").addEventListener("submit", function(e) {
+  $("#editForm").submit(function(e){
     e.preventDefault();
-
-    const formData = new FormData(this);
-
+    let formData = new FormData(this);
     fetch("/clearance/update", {
-        method: "POST",
-        body: formData
+      method: "POST",
+      body: formData
     })
     .then(res => res.json())
     .then(resp => {
-        if (resp.success) {
-            location.reload();
-        }
+      if (resp.success) {
+        location.reload();
+      } else {
+        alert("Update failed");
+      }
     });
-});
+  });
 </script>
 
 <script>
-$(document).ready(function () {
+  function createModal(certType) {
+    let html = "";
+    // set hidden input value
+    $("input[name='cert_type']").val(certType);
+if (certType === "COURT_CLEARANCE") {
 
-  function toggleCertificateFields() {
-    const certType = $('#cert_type').val();
+    html = `
 
-    if (certType === 'COURT_CLEARANCE') {
-      $('#court_fields').show();
-      $('#land_fields').hide();
-    }
-    else if (certType === 'LAND_TITLE_CLEARANCE') {
-      $('#court_fields').hide();
-      $('#land_fields').show();
-    }
-    else {
-      $('#court_fields').hide();
-      $('#land_fields').hide();
-    }
+    <div class="row">
+
+        <!-- PERSONAL DETAILS -->
+        <div class="col-md-12">
+
+            <div class="card card-outline card-info shadow-sm">
+
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-id-card mr-1"></i>
+                        Clearance Information
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <!-- ADDRESS -->
+                        <div class="form-group col-md-12">
+                            <label>
+                                Residential Address
+                            </label>
+
+                            <textarea
+                                name="address"
+                                class="form-control"
+                                rows="2"
+                                placeholder="Enter complete address"
+                            ></textarea>
+                        </div>
+
+
+
+                        <!-- PURPOSE -->
+                        <div class="form-group col-md-12">
+                            <label>
+                                Purpose of Clearance
+                            </label>
+
+                            <textarea
+                                name="purpose"
+                                class="form-control"
+                                rows="2"
+                                placeholder="State the purpose of this clearance"
+                            ></textarea>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
+}
+   else if (certType === "LAND_TITLE_CLEARANCE") {
+
+    html = `
+
+    <div class="row">
+
+        <!-- LAND INFORMATION -->
+        <div class="col-md-12">
+
+            <div class="card card-outline card-success shadow-sm mb-3">
+
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-map-marked-alt mr-1"></i>
+                        Land Information
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <!-- LAND TYPE -->
+                        <div class="form-group col-lg-6">
+                            <label>Land Type</label>
+
+                            <select
+                                name="land_type"
+                                class="form-control"
+                            >
+                                <option value="">
+                                    -- Select Land --
+                                </option>
+
+                                <option value="Residential Land">
+                                    Residential Land
+                                </option>
+
+                                <option value="Agricultural Land">
+                                    Agricultural Land
+                                </option>
+                            </select>
+                        </div>
+
+      
+               <!-- TOTAL AREA -->
+                        <div class="form-group col-lg-6">
+                            <label>Total Area</label>
+
+                            <input
+                                type="text"
+                                name="total_area"
+                                class="form-control"
+                                placeholder="e.g. 250 sqm"
+                            >
+                        </div>
+
+
+
+
+
+                        <!-- LOCATION -->
+                        <div class="form-group col-lg-12">
+                            <label>Location</label>
+
+                            <textarea
+                                name="location"
+                                class="form-control"
+                                rows="2"
+                                placeholder="Enter complete property location"
+                            ></textarea>
+                        </div>
+
+         
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- PROPERTY DETAILS -->
+        <div class="col-md-12">
+
+            <div class="card card-outline card-primary shadow-sm mb-3">
+
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-signature mr-1"></i>
+                        Property Details
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <!-- TAX -->
+                        <div class="form-group col-lg-4">
+                            <label>Tax Declaration No.</label>
+
+                            <input
+                                type="text"
+                                name="tax_no"
+                                class="form-control"
+                            >
+                        </div>
+
+                        <!-- PROPERTY ID -->
+                        <div class="form-group col-lg-4">
+                            <label>Property Identification No.</label>
+
+                            <input
+                                type="text"
+                                name="property_id"
+                                class="form-control"
+                            >
+                        </div>
+
+                        <!-- LOT -->
+                        <div class="form-group col-lg-4">
+                            <label>Cadastral Lot No.</label>
+
+                            <input
+                                type="text"
+                                name="cadastral_lot_no"
+                                class="form-control"
+                            >
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- BOUNDARIES -->
+        <div class="col-md-12">
+
+            <div class="card card-outline card-info shadow-sm mb-3">
+
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-border-all mr-1"></i>
+                        Property Boundaries
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <div class="form-group col-lg-6">
+                            <label>Bounded North</label>
+
+                            <input
+                                type="text"
+                                name="bounded_north"
+                                class="form-control"
+                            >
+                        </div>
+
+                        <div class="form-group col-lg-6">
+                            <label>Bounded South</label>
+
+                            <input
+                                type="text"
+                                name="bounded_south"
+                                class="form-control"
+                            >
+                        </div>
+
+                        <div class="form-group col-lg-6">
+                            <label>Bounded East</label>
+
+                            <input
+                                type="text"
+                                name="bounded_east"
+                                class="form-control"
+                            >
+                        </div>
+
+                        <div class="form-group col-lg-6">
+                            <label>Bounded West</label>
+
+                            <input
+                                type="text"
+                                name="bounded_west"
+                                class="form-control"
+                            >
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- AMOUNT -->
+        <div class="col-md-12">
+
+            <div class="card card-outline card-warning shadow-sm">
+
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">
+                        <i class="fas fa-money-bill-wave mr-1"></i>
+                        Declared Amount
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        <!-- FIGURE -->
+                        <div class="form-group col-lg-4">
+                            <label>Amount in Figures</label>
+
+                            <input
+                                type="text"
+                                name="amount_figure"
+                                id="amount_figure"
+                                class="form-control"
+                                placeholder="e.g. 1,250.25"
+                            >
+                        </div>
+
+                        <!-- WORDS -->
+                        <div class="form-group col-lg-12">
+                            <label>Amount in Words</label>
+
+                            <textarea
+                                name="amount_text"
+                                id="amount_text"
+                                class="form-control"
+                                rows="2"
+                                readonly
+                            ></textarea>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
+}
+  // ❗ ATTACH EVENT HERE (ONLY FOR THIS MODE)
+    $(document).off("input", "#amount_figure").on("input", "#amount_figure", function () {
+      let amount = $(this).val().trim();
+      if (amount === "") {
+        $("#amount_text").val("");
+        return;
+      }
+      $.ajax({
+        url: "/clearance/amount-to-words",
+        type: "GET",
+        data: { amount: amount },
+        success: function (response) {
+          if (response.success) {
+            $("#amount_text").val(response.amount_text);
+          } else {
+            $("#amount_text").val("");
+          }
+        },
+        error: function () {
+          $("#amount_text").val("");
+        }
+      });
+    });
+    // Insert HTML into modal body
+    $("#createmodalID").html(html);
+    // Update modal title
+    $(".modal-title").text("Create " + certType.replaceAll("_", " "));
+    // Show modal
+    $("#CreateModal").modal("show");
   }
+</script>
 
-  // Hide all on page load until a type is selected
-  $('#court_fields').hide();
-  $('#land_fields').hide();
+<script>
+  $("#createForm").submit(function(e){
+    e.preventDefault();
+    let form = $(this);
+    let btn = form.find("button[type='submit']");
+    if (btn.prop("disabled")) return;
+    btn.prop("disabled", true);
+    btn.text("Saving...");
+    // ✅ FIX: use FormData (BEST for Flask forms)
+    let formData = new FormData(this);
+    $.ajax({
+      url: "/clearance/create",
+      type: "POST",
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(res){
+        alert(res.message || "Saved successfully");
+        location.reload();
+      },
+      error: function(){
+        alert("Error saving clearance");
+      },
+      complete: function(){
+        btn.prop("disabled", false);
+        btn.text("Save Changes");
+      }
+    });
+  });
+</script>
 
-  // Trigger when certificate type changes
-  $('#cert_type').on('change', toggleCertificateFields);
-
-});
+<script>
+  $(document).on("input", "#edit_amount_figure", function () {
+    let amount = $(this).val().trim();
+    if (amount === "") {
+      $("#edit_amount_text").val("");
+      return;
+    }
+    $.ajax({
+      url: "/clearance/amount-to-words",
+      type: "GET",
+      data: { amount: amount },
+      success: function (res) {
+        if (res.success) {
+          $("#edit_amount_text").val(res.amount_text);
+        } else {
+          $("#edit_amount_text").val("");
+        }
+      },
+      error: function () {
+        $("#edit_amount_text").val("");
+      }
+    });
+  });
 </script>
 {% endblock %}

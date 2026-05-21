@@ -10,6 +10,7 @@ from .other_case import cases_bp
 from .wedding import wedding_bp
 from .generate import generate_bp
 from .clearance import clearance_bp
+from .dfo import dev_bp
 
 blueprints = [
     auth_bp,
@@ -23,6 +24,7 @@ blueprints = [
     cases_bp,
     wedding_bp,
     generate_bp,
-    clearance_bp
+    clearance_bp,
+    dev_bp
 
 ]
