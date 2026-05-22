@@ -88,27 +88,50 @@ function hideSync() {
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
-      <!-- Navbar Search -->
-      <li class="nav-item">
-        <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-          <i class="fas fa-search"></i>
-        </a>
-        <div class="navbar-search-block">
-          <form class="form-inline">
-            <div class="input-group input-group-sm">
-              <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-              <div class="input-group-append">
-                <button class="btn btn-navbar" type="submit">
-                  <i class="fas fa-search"></i>
-                </button>
-                <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-          </form>
+
+
+<li class="nav-item">
+  <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+    <i class="fas fa-search"></i>
+  </a>
+
+  <div class="navbar-search-block">
+
+    <form class="form-inline" onsubmit="return false;">
+
+      <div class="input-group input-group-sm">
+
+        <input
+          class="form-control form-control-navbar"
+          type="search"
+          id="globalSearch"
+          name="q"
+          placeholder="Search anything..."
+          aria-label="Search"
+          autocomplete="off"
+          list="globalSearchList">
+
+        <datalist id="globalSearchList"></datalist>
+
+        <div class="input-group-append">
+
+          <button class="btn btn-navbar" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+
+          <button class="btn btn-navbar" type="button" data-widget="navbar-search">
+            <i class="fas fa-times"></i>
+          </button>
+
         </div>
-      </li>
+
+      </div>
+
+    </form>
+
+  </div>
+</li>
+
 
       <!-- Messages Dropdown Menu -->
       <li class="nav-item dropdown">
@@ -361,6 +384,49 @@ function hideSync() {
   };
 </script>
  -->
+<script>
+$(document).ready(function () {
+
+  $("#globalSearch").on("input", function () {
+
+    let q = $(this).val().trim();
+
+    // optional: avoid too many requests
+    if (q.length < 2) {
+      $("#globalSearchList").empty();
+      return;
+    }
+
+    $.ajax({
+      url: "/search/api",
+      type: "GET",
+      data: { q: q },
+      dataType: "json",
+
+      success: function (response) {
+
+        $("#globalSearchList").empty();
+
+        $.each(response, function (index, item) {
+
+          $("#globalSearchList").append(
+            `<option value="${item.label}">`
+          );
+
+        });
+
+      },
+
+      error: function (xhr) {
+        console.error("Search error:", xhr.responseText);
+      }
+
+    });
+
+  });
+
+});
+</script>
 
 
 <script>

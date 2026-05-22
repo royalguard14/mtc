@@ -182,33 +182,17 @@
 
 <div class="form-group">
   <label>Hearing Type</label>
-  <select name="Hearing_Type" class="form-control" required>
-    <option value="" selected>Select Hearing Type</option>
-    <option value="ARRAIGNMENT">ARRAIGNMENT</option>
-    <option value="ARRAIGNMENT AND PRELIMINARY CONFERENCE">ARRAIGNMENT AND PRELIMINARY CONFERENCE</option>
-    <option value="ARRAIGNMENT AND PRE-TRIAL CONFERENCE">ARRAIGNMENT AND PRE-TRIAL CONFERENCE</option>
-    <option value="PRELIMINARY CONFERENCE">PRELIMINARY CONFERENCE</option>
-    <option value="CONTINUATION OF PRELIMINARY CONFERENCE">CONTINUATION OF PRELIMINARY CONFERENCE</option>
-    <option value="PRE-TRIAL CONFERENCE">PRE-TRIAL CONFERENCE</option>
-    <option value="CONTINUATION OF PRE-TRIAL CONFERENCE">CONTINUATION OF PRE-TRIAL CONFERENCE</option>
-    <option value="INITIAL PRESENTATION OF PROSECUTION'S EVIDENCE">INITIAL PRESENTATION OF PROSECUTION'S EVIDENCE</option>
-    <option value="PRESENTATION OF PROSECUTION'S EVIDENCE">PRESENTATION OF PROSECUTION'S EVIDENCE</option>
-    <option value="CONTINUATION OF PRESENTATION OF PROSECUTION'S EVIDENCE">CONTINUATION OF PRESENTATION OF PROSECUTION'S EVIDENCE</option>
-    <option value="INITIAL PRESENTATION OF DEFENSE EVIDENCE">INITIAL PRESENTATION OF DEFENSE EVIDENCE</option>
-    <option value="PRESENTATION OF DEFENSE EVIDENCE">PRESENTATION OF DEFENSE EVIDENCE</option>
-    <option value="CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE">CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE</option>
-    <option value="CONTINUATION OF RE-DIRECT EXAMINATION">CONTINUATION OF RE-DIRECT EXAMINATION</option>
-    <option value="HEARING ON MOTION TO REVIVE CASE">HEARING ON MOTION TO REVIVE CASE</option>
-    <option value="MOTION TO REVIVE CASE">MOTION TO REVIVE CASE</option>
-    <option value="HEARING ON SMALL CLAIMS">HEARING ON SMALL CLAIMS</option>
-    <option value="HEARING ON MOTION FOR WRIT OF POSSESSION AND EXECUTION">HEARING ON MOTION FOR WRIT OF POSSESSION AND EXECUTION</option>
-    <option value="CONTINUATION OF PROSECUTION'S EVIDENCE">CONTINUATION OF PROSECUTION'S EVIDENCE</option>
-    <option value="CONTINUATION ON PLAINTIFF'S EVIDENCE">CONTINUATION ON PLAINTIFF'S EVIDENCE</option>
-    <option value="CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE (CIVIL CASE)">CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE (CIVIL CASE)</option>
-    
-    <option value="PROMULGATION OF JUDGEMENT">PROMULGATION OF JUDGEMENT</option>
-    <option value="CLARIFICATORY HEARING">CLARIFICATORY HEARING</option>
-  </select>
+<input
+  type="text"
+  name="Hearing_Type"
+  class="form-control"
+  required
+  list="hearingtypeList"
+  autocomplete="off">
+
+<datalist id="hearingtypeList"></datalist>
+
+
 </div>
 
 
@@ -293,35 +277,22 @@
 <!-- IMPORTANT: use id, not name -->
 <div class="form-group">
   <label>Hearing Type</label>
-  <select id="edit_Hearing_Type"
-          name="edit_Hearing_Type"
-          class="form-control"
-          required>
-    <option value="" selected>Select Hearing Type</option>
-    <option value="ARRAIGNMENT">ARRAIGNMENT</option>
-    <option value="ARRAIGNMENT AND PRELIMINARY CONFERENCE">ARRAIGNMENT AND PRELIMINARY CONFERENCE</option>
-    <option value="ARRAIGNMENT AND PRE-TRIAL CONFERENCE">ARRAIGNMENT AND PRE-TRIAL CONFERENCE</option>
-    <option value="PRELIMINARY CONFERENCE">PRELIMINARY CONFERENCE</option>
-    <option value="CONTINUATION OF PRELIMINARY CONFERENCE">CONTINUATION OF PRELIMINARY CONFERENCE</option>
-    <option value="PRE-TRIAL CONFERENCE">PRE-TRIAL CONFERENCE</option>
-    <option value="CONTINUATION OF PRE-TRIAL CONFERENCE">CONTINUATION OF PRE-TRIAL CONFERENCE</option>
-    <option value="INITIAL PRESENTATION OF PROSECUTION'S EVIDENCE">INITIAL PRESENTATION OF PROSECUTION'S EVIDENCE</option>
-    <option value="PRESENTATION OF PROSECUTION'S EVIDENCE">PRESENTATION OF PROSECUTION'S EVIDENCE</option>
-    <option value="CONTINUATION OF PRESENTATION OF PROSECUTION'S EVIDENCE">CONTINUATION OF PRESENTATION OF PROSECUTION'S EVIDENCE</option>
-    <option value="INITIAL PRESENTATION OF DEFENSE EVIDENCE">INITIAL PRESENTATION OF DEFENSE EVIDENCE</option>
-    <option value="PRESENTATION OF DEFENSE EVIDENCE">PRESENTATION OF DEFENSE EVIDENCE</option>
-    <option value="CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE">CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE</option>
-    <option value="CONTINUATION OF RE-DIRECT EXAMINATION">CONTINUATION OF RE-DIRECT EXAMINATION</option>
-    <option value="HEARING ON MOTION TO REVIVE CASE">HEARING ON MOTION TO REVIVE CASE</option>
-    <option value="MOTION TO REVIVE CASE">MOTION TO REVIVE CASE</option>
-    <option value="HEARING ON SMALL CLAIMS">HEARING ON SMALL CLAIMS</option>
-    <option value="HEARING ON MOTION FOR WRIT OF POSSESSION AND EXECUTION">HEARING ON MOTION FOR WRIT OF POSSESSION AND EXECUTION</option>
-    <option value="CONTINUATION OF PROSECUTION'S EVIDENCE">CONTINUATION OF PROSECUTION'S EVIDENCE</option>
-    <option value="CONTINUATION ON PLAINTIFF'S EVIDENCE">CONTINUATION ON PLAINTIFF'S EVIDENCE</option>
-    <option value="CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE (CIVIL CASE)">CONTINUATION OF PRESENTATION OF DEFENSE EVIDENCE (CIVIL CASE)</option>
-    <option value="PROMULGATION OF JUDGEMENT">PROMULGATION OF JUDGEMENT</option>
-    <option value="CLARIFICATORY HEARING">CLARIFICATORY HEARING</option>
-  </select>
+
+
+
+<input
+  type="text"
+  name="edit_Hearing_Type"
+  class="form-control"
+  required
+  list="ehearingtypeList"
+  autocomplete="off"
+  id="edit_Hearing_Type">
+
+<datalist id="ehearingtypeList"></datalist>
+
+
+
 </div>
 
 
@@ -470,6 +441,45 @@ $("#edit_Title").val($(this).data("title"));
 // Set the Hearing Type dropdown based on item.Notes
 $("#edit_Hearing_Type").val($(this).data("notes"));
 
+console.log($(this).data("notes"))
+
+
+        // Load hearing types
+        $.ajax({
+            url: "court/api/SchedNotes",
+            type: "GET",
+            dataType: "json",
+
+            success: function(response) {
+
+                $("#ehearingtypeList").empty();
+
+                $.each(response, function(index, item) {
+
+                    $("#ehearingtypeList").append(
+                        `<option value="${item}">`
+                    );
+
+                });
+
+            },
+
+            error: function(xhr, status, error) {
+
+                console.error("Failed loading hearing types:", error);
+
+            }
+        });
+
+   
+
+
+
+
+
+
+
+
 
 $("#editModal").modal("show");
 });
@@ -505,70 +515,150 @@ $("#editModal").modal("show");
 </script>
 <script>
   $(document).ready(function () {
+
     // Store API records globally
     let caseRecords = [];
+    let hearingRecord = [];
+
     // Default state
     $("[name='Case_Number']").prop("readonly", true);
     $("[name='Title']").prop("readonly", true);
+
+
     // =====================================
     // WHEN CASE TYPE CHANGES
     // =====================================
+
     $("[name='Case_Type']").on("change", function () {
+
       let type = $(this).val();
-        // Reset fields
+
+      // Reset fields
       $("[name='Case_Number']").val("");
       $("[name='Title']").val("");
+
       $("#caseNumberList").empty();
+
       caseRecords = [];
+      hearingRecord = [];
+
       if (!type) {
+
         $("[name='Case_Number']").prop("readonly", true);
         return;
+
       }
-        // Enable Case Number input
+
+      // Enable Case Number input
       $("[name='Case_Number']").prop("readonly", false);
-        // Load case records
+
+      // Load case records
       $.ajax({
         url: "court/api/" + encodeURIComponent(type),
         type: "GET",
         dataType: "json",
+
         success: function(response) {
-          console.log("API Response:", response);
-                // Save records
+
           caseRecords = response;
-                // Fill datalist
+
+          // Fill datalist
           $.each(response, function(index, item) {
+
             $("#caseNumberList").append(
-          `<option value="${item.Case_Number}">`
-          );
+              `<option value="${item.Case_Number}">`
+            );
+
           });
+
         },
+
         error: function(xhr, status, error) {
+
           console.error("AJAX Error:", error);
           console.log(xhr.responseText);
+
         }
       });
+
     });
+
     // =====================================
     // WHEN USER TYPES CASE NUMBER
     // =====================================
+
     $("[name='Case_Number']").on("input", function () {
+
       let selectedNumber = $(this).val().trim();
+
       let found = null;
-        // Find matching record
+
+      // Find matching record
       $.each(caseRecords, function(index, item) {
+
         if (String(item.Case_Number).trim() === selectedNumber) {
+
           found = item;
-                return false; // break loop
-              }
-            });
+          return false;
+
+        }
+
+      });
+
       if (found) {
-            // Valid case number → show title
+
         $("[name='Title']").val(found.Title);
+
       } else {
-            // Invalid case number → clear title
+
         $("[name='Title']").val("");
+
       }
+
     });
+
   });
+</script> 
+
+<script>
+$(document).ready(function () {
+
+    // =====================================
+    // WHEN MODAL OPENS
+    // =====================================
+    $('#addModal').on('shown.bs.modal', function () {
+
+        // Load hearing types
+        $.ajax({
+            url: "court/api/SchedNotes",
+            type: "GET",
+            dataType: "json",
+
+            success: function(response) {
+
+                $("#hearingtypeList").empty();
+
+                $.each(response, function(index, item) {
+
+                    $("#hearingtypeList").append(
+                        `<option value="${item}">`
+                    );
+
+                });
+
+            },
+
+            error: function(xhr, status, error) {
+
+                console.error("Failed loading hearing types:", error);
+
+            }
+        });
+
+    });
+
+});
 </script>
+
+
 {% endblock %}

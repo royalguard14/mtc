@@ -377,3 +377,27 @@ def court_api(case_type):
         "status": "error",
         "message": f"Invalid case type: {case_type}"
     }), 400
+
+
+
+# =========================================
+# GET UNIQUE CASE TYPES
+# =========================================
+@schedule_bp.route('/court/api/SchedNotes')
+@login_required
+def case_types_api():
+
+    records = (
+        db.session.query(ScheduleMaster.Notes)
+        .filter(
+            ScheduleMaster.Notes.isnot(None),
+            func.upper(ScheduleMaster.Notes) != "FOR SOLEMNIZING"
+        )
+        .distinct()
+        .order_by(ScheduleMaster.Notes.asc())
+        .all()
+    )
+
+    return jsonify([
+        r[0] for r in records if r[0]
+    ])
