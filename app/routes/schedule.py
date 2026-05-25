@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from flask_login import login_required
 from sqlalchemy.orm import joinedload
 from app.routes.decorators import require_module
-from app.models import ScheduleMaster, Cases, CTMS1000
+from app.models import ScheduleMaster, Cases, CTMS1000, CivilWedding
 from datetime import datetime
 from sqlalchemy import cast, Integer, func
 import requests
@@ -136,7 +136,7 @@ def create_schedule():
             formatted_time = time_obj.strftime("%I:%M %p")
 
         # =========================
-        # CREATE RECORD
+        # CREATE SCHEDULE
         # =========================
         new_sched = ScheduleMaster(
             Date=formatted_date,
@@ -152,9 +152,29 @@ def create_schedule():
         db.session.commit()
 
         # =========================
+        # ONLY FOR WEDDING
+        # =========================
+        if data.get("Case_Type") == "WEDDING":
+
+            # get newly created schedule id
+            schedule_id = new_sched.id
+
+            # get wedding record
+            wedding = CivilWedding.query.filter_by(
+                id=int(data.get("Case_Number"))
+            ).first()
+
+            # update schedule link
+            if wedding:
+                wedding.schedule_id = schedule_id
+                db.session.commit()
+                sync_civil_wedding_to_google_sheet(wedding)
+
+        # =========================
         # AUTO SYNC TO GOOGLE SHEETS
         # =========================
         sync_to_google_sheet(new_sched)
+
 
         return jsonify({
             "status": "success",
@@ -173,8 +193,6 @@ def create_schedule():
 def update_schedule():
 
     data = request.get_json()
-
-
 
     sched = ScheduleMaster.query.get(data.get("id"))
 
@@ -363,8 +381,9 @@ def court_api(case_type):
         return jsonify([
             {
                 
-                "Case_Number": r.case_number,
-                "Title": r.title
+                "Case_Number": r.id,
+                "Title": r.groom + " & " + r.bride
+ 
             }
             for r in couple
         ])      
@@ -401,3 +420,39 @@ def case_types_api():
     return jsonify([
         r[0] for r in records if r[0]
     ])
+
+
+
+def sync_civil_wedding_to_google_sheet(wed):
+
+    payload = {
+        "type": "UPSERT",
+        "sheet": "Civil Wedding",
+        "keyColumn": "id",
+        "keyValue": wed.id,
+        "data": {
+            "id": wed.id,
+            "groom": wed.groom or "",
+            "bride": wed.bride or "",
+            "bday_groom": wed.bday_groom,
+            "bday_bride": wed.bday_bride,
+            "schedule_id": wed.schedule_id or "",
+            "jeeps_or": wed.jeeps_or or "",
+            "contact_no": wed.contact_no or "",
+            "register_no": wed.register_no or "",
+            "claim_by": json.dumps(wed.claim_by or [])
+        }
+    }
+
+
+    try:
+        response = requests.post(
+            GOOGLE_WEBHOOK_URL,
+            json=payload,
+            timeout=10
+        )
+
+        print("GOOGLE SYNC RESPONSE:", response.text)
+
+    except Exception as e:
+        print("Google Sync Error:", str(e))

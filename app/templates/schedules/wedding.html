@@ -90,7 +90,7 @@
           <tr>
             <th>Date</th>
             <th>Start</th>
-            <th>Wedding Number</th>
+            <th>Couple Name</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -102,7 +102,7 @@
               <tr>
                 <td>{{ item.Date }}</td>
                 <td>{{ item.Time_Start }}</td>
-                <td>{{ item.Case_Number }}</td>
+                <td>{{ item.Title }}</td>
                 <td>
                   <a href="#"
                      class="editBtn"
@@ -125,14 +125,6 @@
             </button>
           </form>
           {% endif %}
-
-
-
-
-
-
-
-
 
                 </td>
               </tr>
@@ -182,6 +174,12 @@
 
   <datalist id="caseNumberList"></datalist>
 </div>
+
+
+
+
+
+
           <!-- TITLE -->
           <div class="form-group">
             <label>Groom & Bride</label>
@@ -212,6 +210,8 @@
 
       <div class="modal-body">
         <input type="hidden" id="edit_id">
+        <input type="hidden" id="edit_Case_Type" value="WEDDING">
+        <input type="hidden" id="eNotes" value="FOR SOLEMNIZING">
 
         <!-- DATE -->
         <div class="form-group">
@@ -326,7 +326,8 @@ $("#addForm").submit(function(e){
       Time_Start: $(this).find("[name='Time_Start']").val(),
       Case_Type: $(this).find("[name='Case_Type']").val(),
       Case_Number: $(this).find("[name='Case_Number']").val(),
-      Title: $(this).find("[name='Title']").val()
+      Title: $(this).find("[name='Title']").val(),
+      Notes: "FOR SOLEMNIZING"
     }),
 
     success: function(res){
@@ -372,7 +373,7 @@ $(document).on("click", ".editBtn", function(e){
   }
   $("#edit_Time_Start").val(timeValue);
 
-  $("#edit_Case_Type").val($(this).data("type"));
+  $("#ecase_Type").val($(this).data("type"));
   $("#edit_Case_Number").val($(this).data("number"));
   $("#edit_Title").val($(this).data("title"));
 
@@ -384,6 +385,7 @@ $(document).on("click", ".editBtn", function(e){
 <script>
 $("#updateBtn").click(function(){
   let btn = $(this);
+
 
   btn.prop("disabled", true).text("Updating...");
   showSync();
@@ -398,7 +400,8 @@ $("#updateBtn").click(function(){
       Time_Start: $("#edit_Time_Start").val(),
       Case_Type: $("#edit_Case_Type").val(),
       Case_Number: $("#edit_Case_Number").val(),
-      Title: $("#edit_Title").val()
+      Title: $("#edit_Title").val(),
+      Notes: $("#eNotes").val()
     }),
 
     success: function(res){

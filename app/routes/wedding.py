@@ -157,17 +157,6 @@ def sync_civil_wedding_to_google_sheet(wed):
         }
     }
 
-    print("\n========== CIVIL WEDDING GS SYNC DEBUG ==========")
-    print("URL:", GOOGLE_WEBHOOK_URL)
-    print("TYPE:", payload["type"])
-    print("SHEET:", payload["sheet"])
-    print("KEY COLUMN:", payload["keyColumn"])
-    print("KEY VALUE:", payload["keyValue"])
-
-    print("\n--- DATA (RAW DICT) ---")
-    print(json.dumps(payload["data"], indent=4, default=str))
-
-    print("=================================================\n")
 
     try:
         response = requests.post(
