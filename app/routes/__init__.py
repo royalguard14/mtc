@@ -11,6 +11,7 @@ from .wedding import wedding_bp
 from .generate import generate_bp
 from .clearance import clearance_bp
 from .dfo import dev_bp
+from .report import reports_bp
 
 blueprints = [
     auth_bp,
@@ -25,6 +26,7 @@ blueprints = [
     wedding_bp,
     generate_bp,
     clearance_bp,
-    dev_bp
+    dev_bp,
+    reports_bp
 
 ]

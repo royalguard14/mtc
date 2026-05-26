@@ -1,28 +1,92 @@
 {% extends "layouts/layout1.html" %}
-{% block content  %}
-<div class="col-12">
-            <!-- Default box -->
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Title</h3>
-                <div class="card-tools">
-                  <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
- <div class="card-body">
+
+{% block head  %}
+
+
+{% endblock %}
+
+
+{% block dashboardDetails %}
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+
+<div class="row">
+
+  <!-- TOTAL THIS MONTH -->
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>{{ dashboard_data.totalCaseThisMonth }}</h3>
+
+        <p>Total New Case for this Month</p>
+      </div>
+
+      <div class="icon">
+        <i class="ion ion-calendar"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTAL CRIMINAL -->
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h3>{{ dashboard_data.criminalCounts }}</h3>
+
+        <p>Total Criminal Cases</p>
+      </div>
+
+      <div class="icon">
+        <i class="ion ion-alert-circled"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTAL CIVIL -->
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>{{ dashboard_data.civilCounts }}</h3>
+
+        <p>Total Civil Cases</p>
+      </div>
+
+      <div class="icon">
+        <i class="ion ion-document-text"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOTAL SMALL CLAIM -->
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-warning">
+      <div class="inner">
+        <h3>{{ dashboard_data.smallclaimsCounts }}</h3>
+
+        <p>Total Small Claim</p>
+      </div>
+
+      <div class="icon">
+        <i class="ion ion-cash"></i>
+      </div>
+    </div>
+  </div>
 
 </div>
-              <!-- /.card-body -->
-              <div class="card-footer">
-                Footer
-              </div>
-              <!-- /.card-footer-->
-            </div>
-            <!-- /.card -->
-          </div>
+
+
+{% endblock %}
+
+{% block content  %}
+<section class="col-lg-5 connectedSortable">
+  s
+</section>
+
+<section class="col-lg-7 connectedSortable">
+s
+</section>
+
+{% endblock %}
+
+{% block scripts  %}
 {% endblock %}

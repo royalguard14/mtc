@@ -2,8 +2,9 @@ from flask import Blueprint, render_template, session, request, jsonify
 from app.routes.helpers import get_all_settings
 from flask_login import login_required
 from app.routes.decorators import require_module
+from datetime import datetime
 
-from sqlalchemy import or_
+from sqlalchemy import or_ , extract
 from app.models import (
     ScheduleMaster,
     Cases,
@@ -21,15 +22,110 @@ core_bp = Blueprint('core', __name__)
 def index():
     settings = get_all_settings()
     landing = settings.get('Landing')
+
     if landing == '0':
         return render_template("login.html", settings=settings)
     return render_template("home.html", settings=settings)
 
+
 @core_bp.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
 
+    # =========================================
+    # TOTAL COUNTS
+    # =========================================
+    criminalCounts = CTMS1000.query.count()
+
+    civilCounts = Cases.query.filter(
+        Cases.case_type.ilike("CIVIL CASE")
+    ).count()
+
+    smallclaimsCounts = Cases.query.filter(
+        Cases.case_type.ilike("SMALLCLAIMS")
+    ).count()
+
+    # =========================================
+    # THIS MONTH COUNTS
+    # =========================================
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+
+    criminalCaseThisMonth = CTMS1000.query.filter(
+        extract('month', CTMS1000.DTRECEIVED) == current_month,
+        extract('year', CTMS1000.DTRECEIVED) == current_year
+    ).count()
+
+    civilCasesThisMonth = Cases.query.filter(
+        extract('month', Cases.date_filed) == current_month,
+        extract('year', Cases.date_filed) == current_year
+    ).count()
+
+    totalCaseThisMonth = criminalCaseThisMonth + civilCasesThisMonth
+
+    # =========================================
+    # SCHEDULES FOR CALENDAR (🔥 NEW ADDITION)
+    # =========================================
+    schedules = ScheduleMaster.query.all()
+
+
+    events_map = {}
+
+    for s in schedules:
+        data = s.to_dict()
+
+        print("RAW DATA:", data)  # 🔥 DEBUG
+
+        if not data.get("Date") or not data.get("Time Start"):
+            continue
+
+        try:
+            raw = f"{data['Date']} {data['Time Start']}"
+            dt = datetime.strptime(raw, "%m/%d/%Y %I:%M %p")
+        except Exception as e:
+            print("DATE PARSE ERROR:", raw, e)
+            continue
+
+        case_type = (data.get("Case Type") or "").upper()
+        case_no = data.get("Case Number") or data.get("Title")
+
+        if not (case_type or case_no):
+            continue
+
+        key = f"{case_type}-{case_no}-{dt.strftime('%Y-%m-%dT%H:%M:%S')}"
+
+        if key in events_map:
+            continue
+
+        events_map[key] = {
+            "title": (
+                data["Title"] if case_type == "WEDDING"
+                else f"{data.get('Case Type')} - {case_no}"
+            ),
+            "start": dt.strftime("%Y-%m-%dT%H:%M:%S")
+        }
+
+    events = list(events_map.values())
+
+    print("FINAL EVENTS:", events)  # 🔥 DEBUG
+
+    # =========================================
+    # DASHBOARD DATA
+    # =========================================
+    dashboard_data = {
+        "criminalCounts": criminalCounts,
+        "civilCounts": civilCounts,
+        "smallclaimsCounts": smallclaimsCounts,
+        "criminalCaseThisMonth": criminalCaseThisMonth,
+        "civilCasesThisMonth": civilCasesThisMonth,
+        "totalCaseThisMonth": totalCaseThisMonth,
+        "events": events
+    }
+
+    return render_template(
+        "dashboard.html",
+        dashboard_data=dashboard_data
+    )
 @core_bp.route("/dashboard/v1")
 @require_module(1)
 def dashboard_v1():

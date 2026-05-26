@@ -1,18 +1,22 @@
-from flask import Blueprint, render_template, jsonify, request, redirect, Response, flash, url_for
+from flask import Blueprint, render_template, jsonify, request, redirect, Response, flash, url_for, current_app, send_file
 from flask_login import login_required
+
 from app.routes.decorators import require_module
+from app.routes.helpers import touch_case
 from app.models import CTMS1000, CTMS4100, CTMS4000, CTMS2310, CTMS2300, CTMS9000, SettingsCTMS, CTMS2100
 from app import db
-from datetime import datetime, timedelta
 
 from sqlalchemy.orm import joinedload
-import csv
-from io import StringIO
 from sqlalchemy import or_, and_
-import tempfile
-import dbf, os
-from app.routes.helpers import touch_case
-import requests
+
+from datetime import datetime, timedelta
+from io import StringIO
+
+import csv, tempfile, dbf, os, shutil, requests
+
+GOOGLE_WEBHOOK_URL = (
+    "https://script.google.com/macros/s/AKfycbw2My5Z1KySGX-7WwFb9i-JMh7l6e7oDX-xdmbHzrEgOGpEQ1kSALIgal6zmP5kLFBW/exec"
+)
 
 
 
@@ -1002,36 +1006,36 @@ def generate_report():
     table.close()
 
     # =========================
-    # RESPONSE
+    # SAVE TO static/storage
     # =========================
-    with open(tmp.name, "rb") as f:
-        dbf_data = f.read()
-
-    os.unlink(tmp.name)
+    storage_dir = os.path.join(current_app.root_path, "static", "storage")
+    os.makedirs(storage_dir, exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     filename = f"CTMS{timestamp}.dbf"
 
-    return Response(
-        dbf_data,
-        mimetype="application/octet-stream",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    file_path = os.path.join(storage_dir, filename)
 
-    )
+    # close temp table first
+    table.close()
 
-    # return {
-    #     "status": "success",
-    #     "data": [r.to_dict() for r in records]
-        
-    # }
+    # copy temp dbf to storage
+    shutil.copy(tmp.name, file_path)
+
+    # remove temp file
+    os.unlink(tmp.name)
+
+    # =========================
+    # DOWNLOAD RESPONSE
+    # =========================
+
+
+    flash(f"Report successfully generated: {filename}", "success")
+    return redirect(url_for('reports.index'))
 
 
 
 
-
-GOOGLE_WEBHOOK_URL = (
-    "https://script.google.com/macros/s/AKfycbw2My5Z1KySGX-7WwFb9i-JMh7l6e7oDX-xdmbHzrEgOGpEQ1kSALIgal6zmP5kLFBW/exec"
-)
 
 
 

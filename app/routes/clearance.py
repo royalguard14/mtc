@@ -61,6 +61,7 @@ def create_certificate():
             amount_figure = request.form.get("amount_figure", "0").replace(",", "")
 
             information = {
+                "owner" : request.form.get("owner"),
                 "land_type": request.form.get("land_type"),
                 "location": request.form.get("location"),
                 "tax_no": request.form.get("tax_no"),
@@ -76,7 +77,7 @@ def create_certificate():
                 "gender": request.form.get("gender")
             }
 
-            print(information)
+            
         else:
             flash("Invalid certificate type.", "danger")
             return redirect(url_for('clearance.index'))
@@ -132,6 +133,7 @@ def update_certificate():
 
     elif cert_type == "LAND_TITLE_CLEARANCE":
         cert.information = {
+            "owner" : request.form.get("owner"),
             "land_type": request.form.get("land_type"),
             "location": request.form.get("location"),
             "tax_no": request.form.get("tax_no"),
