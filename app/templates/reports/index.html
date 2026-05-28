@@ -6,7 +6,9 @@
   <div class="card-header">
     <h3 class="card-title">card header</h3>
     <div class="card-tools">
-      <a  href="#" class="btn btn-outline-success">MONTHLY REPORT OF CASES</a>
+      <a href="#" class="btn btn-outline-success" data-toggle="modal" data-target="#mrcModal">
+    MONTHLY REPORT OF CASES
+</a>
        <a  href="#" class="btn btn-outline-danger" data-toggle="modal" data-target="#reportModal" >QUARTERLY REPORT SUBMISSION CTMS</a>
       
     </div>
@@ -47,6 +49,8 @@
 
   
 <div class="btn-group">
+
+
   <a
     href="{{ url_for('static', filename='storage/' + file.name) }}"
     class="btn btn-sm btn-success"
@@ -62,9 +66,14 @@
   >
     Delete
   </a>
-     
-    
-            </div>
+
+
+  <a href="#" class="btn btn-sm btn-info"
+   onclick="sendEmail('{{ file.name }}')">
+   Email
+</a>
+
+</div>
 
 </td>
 
@@ -135,7 +144,48 @@
 
 
 
+<!-- =========================
+     MRC MODAL
+========================= -->
+<div class="modal fade" id="mrcModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
 
+      <div class="modal-header">
+        <h4 class="modal-title font-weight-bold">Generate Monthly Report</h4>
+      </div>
+
+      <div class="modal-body">
+
+        <form id="mrcForm">
+
+          <div class="form-group">
+            <label>Month (Year-Month)</label>
+            <input type="month" name="month" class="form-control" required>
+          </div>
+
+        </form>
+
+        <!-- loading -->
+        <div id="mrcLoading" class="text-center mt-3" style="display:none;">
+          <div class="spinner-border text-success"></div>
+          <p class="mt-2 mb-0">Generating Excel report...</p>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="generateMrcBtn">
+          Generate
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -198,4 +248,92 @@ $("#generateReportBtn").on("click", function () {
     }, 10000); // 10 seconds
 });
 </script>
+
+<script>
+$("#generateMrcBtn").on("click", function () {
+
+    let month = $("input[name='month']").val();
+
+    if (!month) {
+        alert("Please select month.");
+        return;
+    }
+
+    let btn = $(this);
+
+    btn.prop("disabled", true);
+
+    btn.html(`
+        <span class="spinner-border spinner-border-sm mr-1"></span>
+        Generating...
+    `);
+
+    $("#mrcLoading").show();
+
+    // trigger download
+    window.location.href = `/report/mrc?month=${month}`;
+
+    setTimeout(function () {
+
+        btn.prop("disabled", false);
+
+        btn.html("Generate");
+
+        $("#mrcLoading").hide();
+
+    }, 8000);
+
+});
+</script>
+
+
+<script>
+ function sendEmail(filename) {
+
+    let email = "";
+    let subject = "";
+    let body = "";
+
+    let monthYear = filename.split(" MTC")[0];
+
+    if (filename.includes("MTC BUENAVISTA")) {
+
+        email = "mrc_mtc-mctc10.srd.cmo.oca";
+        subject = `${monthYear} MTC BUENAVISTA, AGUSAN DEL NORTE`;
+
+        body =
+`LEVIE ARCHIVIDO
+Area-in-charge
+MTC/MCTC Region 7 & 10
+SRD CMO OCA
+8523-6479
+
+Good day!
+
+Respectfully submitting our Monthly Report of Cases for the month of ${monthYear}.
+
+Kindly acknowledge upon receipt. Thank you.
+
+Sincerely,
+
+MARITESS M. YAMBA
+Court Stenographer I
+MTC Buenavista, Agusan del Norte`;
+
+    } else {
+
+        email = "zzz@gmail.com";
+        subject = "ctms reports";
+        body = "helo chuchu....";
+    }
+
+    let mailtoLink =
+        `mailto:${email}`
+        + `?subject=${encodeURIComponent(subject)}`
+        + `&body=${encodeURIComponent(body)}`;
+
+    window.location.href = mailtoLink;
+}
+</script>
+
 {% endblock %}
