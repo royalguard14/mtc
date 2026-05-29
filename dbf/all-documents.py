@@ -5,8 +5,8 @@ from dbfread import DBF, FieldParser
 # =========================
 # CONFIG
 # =========================
-folder = r"C:\CTMS\documents"
-output_folder = r"C:\CTMS\db"
+folder = r"C:\Users\Supreme Court\Desktop\allreportctms"
+output_folder = r"C:\Users\Supreme Court\Desktop\allreportctms"
 sqlite_path = os.path.join(output_folder, "merge_dbf.db")
 
 # =========================
