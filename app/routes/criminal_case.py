@@ -426,11 +426,20 @@ def add_case_form():
         .filter_by(CATEGORY='CATEGORY')
         .all()
     )
+
+
+    last_record = CTMS1000.query.order_by(CTMS1000.CASENUM.desc()).first()
+
+    if last_record:
+        last_casenum = str(int(last_record.CASENUM) + 1)
+    else:
+        last_casenum = "1"
     return render_template(
         'cases/criminal_case/cc_create.html',
         natures=natures,
         cstatus=cstatus,
-        case_cat=case_cat
+        case_cat=case_cat,
+        last_casenum = last_casenum 
     )
 
 
@@ -1035,10 +1044,6 @@ def generate_report():
 
 
 
-
-
-
-
 def sync_criminal_case_to_gs(record):
 
     payload = {
@@ -1087,3 +1092,21 @@ def sync_criminal_case_to_gs(record):
     )
 
     return response.text
+
+
+
+@criminals_bp.route('/caseNature/<naturecode>')
+@login_required
+def casenature(naturecode):
+
+    records = (
+        db.session.query(CTMS1000.NATUREREM)
+        .filter(CTMS1000.NATURECODE == naturecode)
+        .distinct()
+        .order_by(CTMS1000.NATUREREM.asc())
+        .all()
+    )
+
+    return jsonify([
+        r[0] for r in records if r[0]
+    ])
