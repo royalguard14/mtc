@@ -147,7 +147,20 @@
     
     <div class="col-md-9">
  
+<div class="card">
 
+        <input
+          class="form-control form-control-navbar"
+          type="search"
+          id="crimesearch"
+          name="qc"
+          placeholder="Search Criminal | Accused..."
+          aria-label="Search"
+          autocomplete="off"
+          list="allcriminal">
+
+  <datalist id="allcriminal"></datalist>
+</div>
 
 <div class="card">
 
@@ -740,12 +753,76 @@
                 name="DTPROMUL" value="{{ party.DTPROMUL }}">
               </div>
 
-              <div class="form-group col-md-4">
+              <div class="form-group col-md-6">
                 <label>Decision Code</label>
 
                 <select name="DECIDECODE" class="form-control"></select>
             </div>
 
+
+<div class="form-group col-md-6">
+    <label>Decision Type</label>
+
+    <select name="DECIDETYPE" class="form-control">
+        <option value="">-- Select Decision Type --</option>
+
+        <optgroup label="Decided/Resolved on the Merits">
+            <option value="ON_MERITS"
+                {% if party.DECIDETYPE == 'ON_MERITS' %}selected{% endif %}>
+                Decided/Resolved on the Merits
+            </option>
+        </optgroup>
+
+        <optgroup label="Compromise, JDR, Mediation, Etc.">
+
+            <option value="COMPROMISE_AGREEMENT"
+                {% if party.DECIDETYPE == 'COMPROMISE_AGREEMENT' %}selected{% endif %}>
+                Compromise Agreement Approved by the Court
+            </option>
+
+            <option value="JDR"
+                {% if party.DECIDETYPE == 'JDR' %}selected{% endif %}>
+                Judicial Dispute Resolution (JDR)
+            </option>
+
+            <option value="CAM"
+                {% if party.DECIDETYPE == 'CAM' %}selected{% endif %}>
+                Court-Annexed Mediation (CAM)
+            </option>
+
+            <option value="MEDIATION_SETTLEMENT"
+                {% if party.DECIDETYPE == 'MEDIATION_SETTLEMENT' %}selected{% endif %}>
+                Mediation Settlement
+            </option>
+
+            <option value="AMICABLE_SETTLEMENT"
+                {% if party.DECIDETYPE == 'AMICABLE_SETTLEMENT' %}selected{% endif %}>
+                Amicable Settlement
+            </option>
+
+            <option value="SETTLEMENT_PRETRIAL"
+                {% if party.DECIDETYPE == 'SETTLEMENT_PRETRIAL' %}selected{% endif %}>
+                Settlement During Pre-Trial
+            </option>
+
+            <option value="SETTLEMENT_TRIAL"
+                {% if party.DECIDETYPE == 'SETTLEMENT_TRIAL' %}selected{% endif %}>
+                Settlement During Trial Before Judgment
+            </option>
+
+            <option value="WITHDRAWAL_SETTLEMENT"
+                {% if party.DECIDETYPE == 'WITHDRAWAL_SETTLEMENT' %}selected{% endif %}>
+                Withdrawal Due to Settlement Between Parties
+            </option>
+
+            <option value="KP_SETTLEMENT"
+                {% if party.DECIDETYPE == 'KP_SETTLEMENT' %}selected{% endif %}>
+                Settlement Through Katarungang Pambarangay Referral
+            </option>
+
+        </optgroup>
+    </select>
+</div>
             <div class="form-group col-md-6">
               <label>Penalty</label>
               <textarea class="form-control"
@@ -761,6 +838,19 @@
               rows="3"
               style="resize:none;">{{ party.REMARKS }}</textarea>
             </div>
+
+
+<div class="form-group col-md-8">
+    <label>Reason / Status</label>
+    <input type="text" name="OTHER_REASON" class="form-control"
+           value="{{ party.OTHER_STATUS.split('|')[0] if party.OTHER_STATUS }}">
+</div>
+
+<div class="form-group col-md-4">
+    <label>Date</label>
+    <input type="date" name="OTHER_DATE" class="form-control"
+           value="{{ party.OTHER_STATUS.split('|')[1] if party.OTHER_STATUS }}">
+</div>
           </div>
         </div>
       </div>
@@ -1000,4 +1090,68 @@ $("#btn-edit").click(function () {
   $(this).addClass("active");
 });
 </script>
+
+<script>
+$(document).ready(function () {
+
+  // ✅ IMPORTANT: declare globally
+  let searchMap = {};
+
+  $("#crimesearch").on("input", function () {
+
+    let qc = $(this).val().trim();
+
+    // avoid too many requests
+    if (qc.length < 2) {
+      $("#allcriminal").empty();
+      searchMap = {};
+      return;
+    }
+
+    $.ajax({
+      url: "allcriminal/api",
+      type: "GET",
+      data: { q: qc },
+      dataType: "json",
+
+      success: function (response) {
+
+        $("#allcriminal").empty();
+        searchMap = {};
+
+        $.each(response, function (index, item) {
+
+          // store label -> url
+          searchMap[item.label] = item.url;
+
+          $("#allcriminal").append(
+            `<option value="${item.label}">`
+          );
+
+        });
+
+      },
+
+      error: function (xhr) {
+        console.error("Search error:", xhr.responseText);
+      }
+
+    });
+
+  });
+
+  // ✅ ADD THIS: redirect when user selects item
+  $("#crimesearch").on("change", function () {
+
+    let selected = $(this).val();
+
+    if (searchMap[selected]) {
+      window.location.href = searchMap[selected];
+    }
+
+  });
+
+});
+</script>
+
 {% endblock %}

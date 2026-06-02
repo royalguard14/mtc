@@ -292,6 +292,8 @@ def update_person(person_id):
     #     print(k, "=", v)
 
     
+    reason = request.form.get("OTHER_REASON")
+    date = request.form.get("OTHER_DATE")
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
     # ===================== ACCUSED (PERSON) =====================
@@ -372,6 +374,16 @@ def update_person(person_id):
         party.PENALTY = form.get('PENALTY')
         party.REMARKS = form.get('REMARKS')
 
+        party.DECIDETYPE = form.get('DECIDETYPE')
+
+
+
+        if reason and date:
+            party.OTHER_STATUS = f"{reason}|{date}"
+        else:
+            party.OTHER_STATUS = None
+
+        
         # ===================== SYSTEM FIELDS =====================
         party.MODIFYDT = now
         party.MODIFYBY = CURRENT_USER
@@ -1110,3 +1122,45 @@ def casenature(naturecode):
     return jsonify([
         r[0] for r in records if r[0]
     ])
+
+
+
+@criminals_bp.route('/person/allcriminal/api')
+@login_required
+def apiCriminal():
+
+    q = request.args.get("q", "").strip()
+
+    if not q:
+        return jsonify([])
+
+    results = []
+
+    # =====================================
+    # CRIMINAL CASES
+    # =====================================
+
+    criminal_cases = (
+        db.session.query(CTMS1000, CTMS4100)
+        .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
+        .filter(
+            or_(
+                CTMS1000.CASENUM.ilike(f"%{q}%"),
+                CTMS1000.CASETITLE.ilike(f"%{q}%")
+            )
+        )
+        .limit(10)
+        .all()
+    )
+
+    for case, party in criminal_cases:
+
+        results.append({
+            "type": "case",
+            "id": case.CASEID,
+            "label": f"Case: {case.CASENUM} | {case.CASETITLE}",
+            "url": url_for("criminals.view_person", person_id=party.PERSONID)
+        })
+
+
+    return jsonify(results)

@@ -5,13 +5,25 @@
   <div class="card">
   <div class="card-header">
     <h3 class="card-title">card header</h3>
-    <div class="card-tools">
-      <a href="#" class="btn btn-outline-success" data-toggle="modal" data-target="#mrcModal">
+<div class="card-tools">
+
+  <a href="#" class="btn btn-outline-success"
+     data-toggle="modal" data-target="#mrcModal">
     MONTHLY REPORT OF CASES
-</a>
-       <a  href="#" class="btn btn-outline-danger" data-toggle="modal" data-target="#reportModal" >QUARTERLY REPORT SUBMISSION CTMS</a>
-      
-    </div>
+  </a>
+
+  <a href="#" class="btn btn-outline-danger"
+     data-toggle="modal" data-target="#reportModal">
+    QUARTERLY REPORT SUBMISSION CTMS
+  </a>
+
+  <!-- ✅ NEW BUTTON -->
+  <a href="{{ url_for('reports.mrc_table') }}"
+     class="btn btn-outline-primary">
+    PRINT MRC
+  </a>
+
+</div>
   </div>
 
   <div class="card-body">
@@ -174,18 +186,30 @@
 
       </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" id="generateMrcBtn">
-          Generate
-        </button>
-        <button type="button" class="btn btn-default" data-dismiss="modal">
-          Close
-        </button>
-      </div>
+<div class="modal-footer">
+
+  <button type="button" class="btn btn-success" id="generateMrcBtn" data-action="generate">
+    Generate
+  </button>
+
+  <button type="button" class="btn btn-primary" id="printMrcBtn" data-action="print">
+    Print
+  </button>
+
+  <button type="button" class="btn btn-default" data-dismiss="modal">
+    Close
+  </button>
+
+</div>
 
     </div>
   </div>
 </div>
+
+
+
+
+
 {% endblock %}
 
 {% block scripts %}
@@ -334,6 +358,22 @@ MTC Buenavista, Agusan del Norte`;
 
     window.location.href = mailtoLink;
 }
+</script>
+
+
+<script>
+  $("#printMrcBtn").on("click", function () {
+
+    let month = $("input[name='month']").val();
+
+    if (!month) {
+        alert("Please select month.");
+        return;
+    }
+
+    window.open(`/report/mrc/table?month=${month}`, "_blank");
+});
+
 </script>
 
 {% endblock %}

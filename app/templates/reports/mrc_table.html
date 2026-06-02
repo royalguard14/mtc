@@ -1,0 +1,199 @@
+<style>
+    .report-container {
+        overflow-x: auto;
+    }
+
+    .report-table {
+        border-collapse: collapse;
+        width: auto;
+        min-width: 100%;
+        table-layout: auto;
+        margin-bottom: 20px;
+    }
+
+    .report-table th,
+    .report-table td {
+        border: 1px solid #000 !important;
+        padding: 6px 10px;
+        vertical-align: top;
+        white-space: nowrap;
+    }
+
+    .report-table th {
+        background-color: #f2f2f2;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .title-col {
+        white-space: normal !important;
+        min-width: 300px;
+    }
+
+    .nature-col {
+        white-space: normal !important;
+        min-width: 200px;
+    }
+
+    .section-title {
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #000;
+        padding-bottom: 5px;
+    }
+
+    @media print {
+
+        .card,
+        .card-body,
+        .card-header {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .report-table th,
+        .report-table td {
+            border: 1px solid #000 !important;
+        }
+    }
+</style>
+
+<div class="container-fluid">
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="text-center mb-0">
+                MONTHLY CASE REPORT - {{ month_label }}
+            </h3>
+        </div>
+    </div>
+
+    <!-- NEWLY FILED -->
+    <h4 class="section-title">
+        Newly Filed Cases ({{ filed_cases|length }})
+    </h4>
+
+    <div class="report-container">
+        <table class="report-table">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Case Number</th>
+                    <th>Title</th>
+                    <th>Nature</th>
+                    <th>Date Filed</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for c in filed_cases %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ c.CASENUM }}</td>
+                    <td class="title-col">{{ c.CASETITLE }}</td>
+                    <td class="nature-col">{{ c.NATUREREM }}</td>
+                    <td>{{ c.DTFILED }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">
+                        No records found.
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+    <!-- DISPOSED -->
+    <h4 class="section-title">
+        Disposed Cases ({{ disposed_cases|length }})
+    </h4>
+
+    <div class="report-container">
+        <table class="report-table">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Case Number</th>
+                    <th>Title</th>
+                    <th>Nature</th>
+                    <th>Date Released</th>
+                    <th>Decision Type</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for c in disposed_cases %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ c.CASENUM }}</td>
+                    <td class="title-col">{{ c.CASETITLE }}</td>
+                    <td class="nature-col">{{ c.NATUREREM }}</td>
+                    <td>{{ c.DTRELEASED }}</td>
+                    <td>{{ c.DECIDETYPE }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">
+                        No records found.
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+    <!-- PENDING -->
+    <h4 class="section-title">
+        Pending Cases ({{ pending_cases|length }})
+    </h4>
+
+    <div class="report-container">
+        <table class="report-table">
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Case Number</th>
+                    <th>Title</th>
+                    <th>Nature</th>
+                    <th>Date Filed</th>
+                    <th>Other Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for c in pending_cases %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ c.CASENUM }}</td>
+                    <td class="title-col">{{ c.CASETITLE }}</td>
+                    <td class="nature-col">{{ c.NATUREREM }}</td>
+                    <td>{{ c.DTFILED }}</td>
+                    <td>{{ c.OTHER_STATUS }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">
+                        No records found.
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+</div>

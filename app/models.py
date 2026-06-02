@@ -376,6 +376,7 @@ class CTMS4100(db.Model):
     AGECOMIT = db.Column(db.Integer)
     DTDETAINED = db.Column(db.Text)
     DECIDECODE = db.Column(db.Text)
+    DECIDETYPE = db.Column(db.Text)
     DTREVIVED = db.Column(db.Text)
     MEDIATION = db.Column(db.Text)
     DTARREST = db.Column(db.Text)
@@ -388,8 +389,10 @@ class CTMS4100(db.Model):
     CREATEDT = db.Column(db.Text)
     MODIFYBY = db.Column(db.Text)
     MODIFYDT = db.Column(db.Text)
+    OTHER_STATUS = db.Column(db.Text, nullable=True)
     def to_dict(self):
         return {
+            "OTHER_STATUS" : self.OTHER_STATUS,
             "PARTYID": self.PARTYID,
             "CASEID": self.CASEID,
             "PERSONID": self.PERSONID,
@@ -441,6 +444,7 @@ class CTMS4100(db.Model):
             "AGECOMIT": self.AGECOMIT,
             "DTDETAINED": self.DTDETAINED,
             "DECIDECODE": self.DECIDECODE,
+            "DECIDETYPE": self.DECIDETYPE,
 
             "DTREVIVED": self.DTREVIVED,
             "MEDIATION": self.MEDIATION,

@@ -12,7 +12,12 @@ from xlutils.copy import copy
 from openpyxl import load_workbook
 from sqlalchemy import func, or_, and_
 from collections import OrderedDict
-from app.models import CTMS1000, CTMS4100
+from app.models import CTMS1000, CTMS4100, Cases
+from dateutil.relativedelta import relativedelta
+from datetime import timedelta
+from openpyxl.utils import get_column_letter
+from sqlalchemy import cast, String
+
 
 
 
@@ -118,8 +123,12 @@ def mrc():
 
     month_year_text = now.strftime("%B %Y")
 
-    # ✅ ADD THIS
+ 
     month_start = datetime(now.year, now.month, 1)
+   
+
+    next_month_start = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
+
 
     # =========================
     # FILE NAME
@@ -138,24 +147,22 @@ def mrc():
     output_path = os.path.join(storage_dir, filename)
 
     shutil.copy2(base_file, output_path)
+    
 
     # =========================
-    # II-A FILED
+    # ROW CONFIG
     # =========================
-    nature_map = {
-        "00027": "violation_of_bp_22",
-        "00028": "illegal_possession_firearms_ammunition",
-        "00029": "estafa_swindling_other_deceits",
-        "00030": "adultery_concubinage",
-        "00031": "physical_injuries",
-        "00032": "acts_of_lasciviousness",
-        "00033": "violation_traffic_laws_rules_regulations",
-        "00034": "violation_municipal_city_ordinances",
-        "00035": "criminal_negligence_reckless_imprudence",
-        "00036": "all_other_criminal_cases"
-    }
+    rows = [14, 16, 17, 18, 20, 21, 22, 23]
 
-    results = (
+    nature_list = ["00027","00028","00029","00030","00031","00032","00033","00034","00035","00036"]
+    civil_list = ["10001","10002","10003","10004","10005","10006"]
+    start_col = 5  
+
+    # =========================
+    # PAGE 1 Counting Result
+    # =========================
+
+    p1_row16_result = (
         db.session.query(
             CTMS1000.NATURECODE,
             func.count(CTMS1000.NATURECODE)
@@ -167,12 +174,7 @@ def mrc():
         .all()
     )
 
-    counts = {code: count for code, count in results}
-
-    # =========================
-    # II-B REVIVED
-    # =========================
-    revived_results = (
+    p1_row17_result = (
         db.session.query(
             CTMS1000.NATURECODE,
             func.count(CTMS1000.NATURECODE)
@@ -185,49 +187,37 @@ def mrc():
         .all()
     )
 
-    revived_counts = {code: count for code, count in revived_results}
-
-    # =========================
-    # III-A (ROW 20) NUMBER OF CASES DECIDED/RESOLVED ON THE MERITS
-    # =========================
-    row20_results = (
+    p1_row20_result = (
         db.session.query(
             CTMS1000.NATURECODE,
             func.count(CTMS1000.NATURECODE)
         )
         .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
         .filter(
+            CTMS4100.DECIDETYPE != "90002",
             CTMS4100.DTRELEASED.like(f"{now.strftime('%Y-%m')}%"),
-            CTMS4100.RELEASED.in_(["20002", "20003", "20004","20005","20006","20007","20008","20009"])
+            CTMS4100.DECIDETYPE == "ON_MERITS"
         )
         .group_by(CTMS1000.NATURECODE)
         .all()
     )
 
-    row20_counts = {code: count for code, count in row20_results}
-
-    # =========================
-    # III-B (ROW 21) NUMBER OF CASES DECIDED/RESOLVED BY WAY OF COMPROMISE, JDR, ETC.
-    # =========================
-    row21_results = (
+    p1_row21_result = (
         db.session.query(
             CTMS1000.NATURECODE,
             func.count(CTMS1000.NATURECODE)
         )
         .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
         .filter(
+            CTMS4100.DECIDETYPE != "90002",
             CTMS4100.DTRELEASED.like(f"{now.strftime('%Y-%m')}%"),
-            CTMS4100.RELEASED.in_(["20001"])
+            CTMS4100.DECIDETYPE != "ON_MERITS"
         )
         .group_by(CTMS1000.NATURECODE)
         .all()
     )
 
-    row21_counts = {code: count for code, count in row21_results}
-
-
-
-    row22_results = (
+    p1_row22_result = (
         db.session.query(
             CTMS1000.NATURECODE,
             func.count(CTMS1000.NATURECODE)
@@ -240,11 +230,7 @@ def mrc():
         .all()
     )
 
-    row22_counts = {code: count for code, count in row22_results}
-
-
-
-    row23_results = (
+    p1_row23_result = (
         db.session.query(
             CTMS1000.NATURECODE,
             func.count(CTMS1000.NATURECODE)
@@ -257,100 +243,116 @@ def mrc():
         .all()
     )
 
-    row23_counts = {code: count for code, count in row23_results}
-
-
-    row14_results = (
+    p1_row14_result = (
         db.session.query(
             CTMS1000.NATURECODE,
             func.count(CTMS1000.NATURECODE)
         )
         .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
         .filter(
-            or_(
-                CTMS4100.DECIDECODE != "90002",
-                CTMS4100.DECIDECODE == None,
-                CTMS4100.DECIDECODE == ""
-            )
-        )
-        .filter(
-            or_(
-                CTMS4100.DTARRAIGN >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTIARRAIGN >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTPRETRIAL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTLTTRIAL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTACTUAL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTDEMURRER >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTDEFENSE >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTOFFERPRO >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTOFFERDEF >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTREBUTTAL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTSURREBUT >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTSUBMIT >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTPROMUL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DPOSTPONED >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTSENTENCE >= month_start.strftime("%Y-%m-%d")
+            and_(
+                CTMS4100.OTHER_STATUS.isnot(None),
+                CTMS4100.OTHER_STATUS != '',
+                func.instr(CTMS4100.OTHER_STATUS, '|') > 0,
+
+                func.substr(
+                    CTMS4100.OTHER_STATUS,
+                    func.instr(CTMS4100.OTHER_STATUS, '|') + 1
+                ) >= month_start.strftime("%Y-%m-%d"),
+
+                func.substr(
+                    CTMS4100.OTHER_STATUS,
+                    func.instr(CTMS4100.OTHER_STATUS, '|') + 1
+                ) < next_month_start.strftime("%Y-%m-%d")
             )
         )
         .group_by(CTMS1000.NATURECODE)
         .all()
     )
 
-    row14_counts = {code: count for code, count in row14_results}
 
-    debug_cases = (
+    # =========================
+    # PAGE 2 Counting Result
+    # =========================
+
+    p2_row16_result = (
         db.session.query(
-            CTMS1000.CASENUM,
-            CTMS1000.NATURECODE,
-            CTMS4100.DTARRAIGN,
-            CTMS4100.DTIARRAIGN,
-            CTMS4100.DTPRETRIAL,
-            CTMS4100.DTLTTRIAL,
-            CTMS4100.DTACTUAL,
-            CTMS4100.DTDEMURRER,
-            CTMS4100.DTDEFENSE,
-            CTMS4100.DTOFFERPRO,
-            CTMS4100.DTOFFERDEF,
-            CTMS4100.DTREBUTTAL,
-            CTMS4100.DTSURREBUT,
-            CTMS4100.DTSUBMIT,
-            CTMS4100.DTPROMUL,
-            CTMS4100.DPOSTPONED,
-            CTMS4100.DTSENTENCE,
-            CTMS4100.DECIDECODE
-        )
-        .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
-        .filter(
-            or_(
-                CTMS4100.DECIDECODE != "90002",
-                CTMS4100.DECIDECODE == None,
-                CTMS4100.DECIDECODE == ""
-            )
+            cast(Cases.information["case_code"], String),
+            func.count(Cases.id)
         )
         .filter(
-            or_(
-                CTMS4100.DTARRAIGN >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTIARRAIGN >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTPRETRIAL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTLTTRIAL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTACTUAL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTDEMURRER >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTDEFENSE >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTOFFERPRO >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTOFFERDEF >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTREBUTTAL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTSURREBUT >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTSUBMIT >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTPROMUL >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DPOSTPONED >= month_start.strftime("%Y-%m-%d"),
-                CTMS4100.DTSENTENCE >= month_start.strftime("%Y-%m-%d")
-            )
+            Cases.date_filed.like(f"{now.strftime('%Y-%m')}%")
         )
+        .group_by(cast(Cases.information["case_code"], String))
         .all()
     )
 
-    for row in debug_cases:
-        print(row)
+
+    print(p1_row16_result)
+
+    # =========================
+    # COUNT DICTS
+    # =========================
+
+    p1_counts = {
+        14: dict(p1_row14_result),
+        16: dict(p1_row16_result),
+        17: dict(p1_row17_result),
+        18: {},
+        20: dict(p1_row20_result),
+        21: dict(p1_row21_result),
+        22: dict(p1_row22_result),
+        23: dict(p1_row23_result),
+    }
+
+
+    p2_counts = {
+        # 14: dict(p1_row14_result),
+        16: dict(p2_row16_result)
+        # 17: dict(p1_row17_result),
+        # 18: {},
+        # 20: dict(p1_row20_result),
+        # 21: dict(p1_row21_result),
+        # 22: dict(p1_row22_result),
+        # 23: dict(p1_row23_result),
+    }
+
+    april_2026_override = {
+        "00027": 0,
+        "00028": 0,
+        "00029": 12,
+        "00030": 0,
+        "00031": 0,
+        "00032": 1,
+        "00033": 0,
+        "00034": 0,
+        "00035": 0,
+        "00036": 4
+    }
+
+
+
+
+    # =========================
+    # EXCEL MAP BUILDER
+    # =========================
+
+    p1_maps = {
+        row: {
+            code: f"{get_column_letter(start_col + i)}{row}"
+            for i, code in enumerate(nature_list)
+        }
+        for row in rows
+    }
+
+
+    p2_maps = {
+    row: {
+            code: f"{get_column_letter(start_col + i)}{row}"
+            for i, code in enumerate(civil_list)
+    }
+        for row in rows
+}
 
 
 
@@ -359,135 +361,45 @@ def mrc():
     # =========================
     wb = load_workbook(output_path)
     ws = wb["Page 1"]
-
+    ws2 = wb["Page 2"]
     ws["D12"] = month_year_text
 
     # =========================
-    # II-A WRITE (ROW 16)
-    # =========================
-    cell_map = {
-        "00032": "J16",
-        "00030": "H16",
-        "00036": "N16",
-        "00035": "M16",
-        "00029": "G16",
-        "00028": "F16",
-        "00031": "I16",
-        "00027": "E16",
-        "00034": "L16",
-        "00033": "K16"
-    }
+    # Page 1 here
+    # =========================    
 
-    for code, cell in cell_map.items():
-        ws[cell] = counts.get(code, 0)
+    for row in rows:
+        for code, cell in p1_maps[row].items():
 
-    # =========================
-    # II-B WRITE (ROW 17)
-    # =========================
-    revived_cell_map = {
-        "00032": "J17",
-        "00030": "H17",
-        "00036": "N17",
-        "00035": "M17",
-        "00029": "G17",
-        "00028": "F17",
-        "00031": "I17",
-        "00027": "E17",
-        "00034": "L17",
-        "00033": "K17"
-    }
+            value = p1_counts.get(row, {}).get(code, 0)
 
-    for code, cell in revived_cell_map.items():
-        ws[cell] = revived_counts.get(code, 0)
+            # =========================
+            # SPECIAL CASE FIX (example)
+            # =========================
+            if row == 17 and month_start.year == 2026 and month_start.month == 4:
+                if code == "00031":
+                    value -= 1
+            # =========================
+        # SPECIAL CASE: ROW 14 (APRIL 2026 OVERRIDE)
+        # =========================
+            if row == 14 and month_start.year == 2026 and month_start.month == 4:
+                value = april_2026_override.get(code, 0)
+
+            ws[cell] = value
 
     # =========================
-    # III-A WRITE (ROW 20) ✔ FIXED
+    # Page 2 here
     # =========================
-    row20_cell_map = {
-        "00032": "J20",
-        "00030": "H20",
-        "00036": "N20",
-        "00035": "M20",
-        "00029": "G20",
-        "00028": "F20",
-        "00031": "I20",
-        "00027": "E20",
-        "00034": "L20",
-        "00033": "K20"
-    }
+    
+    for row in rows:
+        for code, cell in p2_maps[row].items():
 
-    for code, cell in row20_cell_map.items():
-        ws[cell] = row20_counts.get(code, 0)
+            value = p2_counts.get(row, {}).get(code, 0)
 
-    # =========================
-    # III-B WRITE (ROW 21) ✔ FIXED
-    # =========================
-    row21_cell_map = {
-        "00032": "J21",
-        "00030": "H21",
-        "00036": "N21",
-        "00035": "M21",
-        "00029": "G21",
-        "00028": "F21",
-        "00031": "I21",
-        "00027": "E21",
-        "00034": "L21",
-        "00033": "K21"
-    }
-
-    for code, cell in row21_cell_map.items():
-        ws[cell] = row21_counts.get(code, 0)
+            ws2[cell] = value
 
 
 
-    row22_cell_map = {
-        "00032": "J22",
-        "00030": "H22",
-        "00036": "N22",
-        "00035": "M22",
-        "00029": "G22",
-        "00028": "F22",
-        "00031": "I22",
-        "00027": "E22",
-        "00034": "L22",
-        "00033": "K22"
-    }
-
-    for code, cell in row22_cell_map.items():
-        ws[cell] = row22_counts.get(code, 0)
-
-
-    row23_cell_map = {
-        "00032": "J23",
-        "00030": "H23",
-        "00036": "N23",
-        "00035": "M23",
-        "00029": "G23",
-        "00028": "F23",
-        "00031": "I23",
-        "00027": "E23",
-        "00034": "L23",
-        "00033": "K23"
-    }
-
-    for code, cell in row23_cell_map.items():
-        ws[cell] = row23_counts.get(code, 0)
-
-    row14_cell_map = {
-        "00032": "J14",
-        "00030": "H14",
-        "00036": "N14",
-        "00035": "M14",
-        "00029": "G14",
-        "00028": "F14",
-        "00031": "I14",
-        "00027": "E14",
-        "00034": "L14",
-        "00033": "K14"
-    }
-
-    for code, cell in row14_cell_map.items():
-        ws[cell] = row14_counts.get(code, 0)
     # =========================
     # SAVE FILE
     # =========================
@@ -503,39 +415,104 @@ def mrc():
 
 
 
-
-@reports_bp.route('/mrc-countingpart1')
+@reports_bp.route('/mrc/table')
 @login_required
 @require_module(16)
-def mrc_countingpart1():
+def mrc_table():
 
-    nature_map = {
-        "00027": "violation_of_bp_22",
-        "00028": "illegal_possession_firearms_ammunition",
-        "00029": "estafa_swindling_other_deceits",
-        "00030": "adultery_concubinage",
-        "00031": "physical_injuries",
-        "00032": "acts_of_lasciviousness",
-        "00033": "violation_traffic_laws_rules_regulations",
-        "00034": "violation_municipal_city_ordinances",
-        "00035": "criminal_negligence_reckless_imprudence",
-        "00036": "all_other_criminal_cases"
-    }
+    # =========================
+    # DATE
+    # =========================
+    month_param = request.args.get("month")
 
-    results = (
+    if month_param:
+        now = datetime.strptime(month_param, "%Y-%m")
+    else:
+        now = datetime.now()
+
+    month_start = datetime(now.year, now.month, 1)
+    next_month_start = (month_start.replace(day=28) + timedelta(days=4)).replace(day=1)
+
+    month_label = now.strftime("%B %Y")
+
+    # =========================
+    # NEWLY FILED CASES
+    # =========================
+    filed_cases = (
         db.session.query(
+            CTMS1000.CASEID,
+            CTMS1000.CASENUM,
+            CTMS1000.CASETITLE,
             CTMS1000.NATURECODE,
-            func.count(CTMS1000.NATURECODE)
+            CTMS1000.DTFILED,
+            CTMS1000.NATUREREM,
         )
-        .group_by(CTMS1000.NATURECODE)
+        .filter(
+            CTMS1000.DTFILED.like(f"{now.strftime('%Y-%m')}%")
+        )
         .all()
     )
 
-    counts = {code: count for code, count in results}
+    # =========================
+    # DISPOSED CASES
+    # =========================
+    disposed_cases = (
+        db.session.query(
+            CTMS1000.CASEID,
+            CTMS1000.CASENUM,
+            CTMS1000.CASETITLE,
+            CTMS1000.NATURECODE,
+            CTMS4100.DTRELEASED,
+            CTMS4100.DECIDETYPE,
+            CTMS1000.NATUREREM
+        )
+        .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
+        .filter(
+            CTMS4100.DTRELEASED.like(f"{now.strftime('%Y-%m')}%"),
+            CTMS4100.DECIDETYPE.isnot(None)
+        )
+        .all()
+    )
 
-    output = {}
+  # =========================
+    # PENDING CASES (same basis as Row 14)
+    # =========================
+    pending_cases = (
+        db.session.query(
+            CTMS1000.CASEID,
+            CTMS1000.CASENUM,
+            CTMS1000.CASETITLE,
+            CTMS1000.NATURECODE,
+            CTMS1000.NATUREREM,
+            CTMS1000.DTFILED,
+            CTMS4100.OTHER_STATUS
+        )
+        .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
+        .filter(
+            and_(
+                CTMS4100.OTHER_STATUS.isnot(None),
+                CTMS4100.OTHER_STATUS != '',
+                func.instr(CTMS4100.OTHER_STATUS, '|') > 0,
 
-    for code, key in nature_map.items():
-        output[key] = counts.get(code, 0)
+                func.substr(
+                    CTMS4100.OTHER_STATUS,
+                    func.instr(CTMS4100.OTHER_STATUS, '|') + 1
+                ) >= month_start.strftime("%Y-%m-%d"),
 
-    return jsonify(output)
+                func.substr(
+                    CTMS4100.OTHER_STATUS,
+                    func.instr(CTMS4100.OTHER_STATUS, '|') + 1
+                ) < next_month_start.strftime("%Y-%m-%d")
+            )
+        )
+        .order_by(CTMS1000.CASENUM)
+        .all()
+    )
+
+    return render_template(
+        "reports/mrc_table.html",
+        month_label=month_label,
+        filed_cases=filed_cases,
+        disposed_cases=disposed_cases,
+        pending_cases=pending_cases
+    )
