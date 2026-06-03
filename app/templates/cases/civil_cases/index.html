@@ -1,148 +1,135 @@
 {% extends "layouts/layout1.html" %}
 {% block content %}
-<section class="col-lg-5 connectedSortable">
-<!-- =========================
-     CREATE (RIGHT)
-========================= -->
-<div class="card">
-  <div class="card-header">
-    <h3 class="card-title">Add Civil Case</h3>
-  </div>
-  <div class="card-body">
-    <form id="createForm">
-      <div class="form-group">
-        <input type="hidden" name="case_type" value="CIVIL CASE">
-        <label>Case Number</label>
-        <input type="text" class="form-control" name="case_number" required>
-      </div>
-      <div class="form-group">
-        <label>Title</label>
-        <textarea class="form-control" name="title" required></textarea>
-      </div>
-      <div class="form-group">
-        <label>Nature</label>
-        <input type="text" class="form-control" name="nature">
-      </div>
-      <div class="form-group">
-        <label>Date Filed</label>
-        <input type="date" class="form-control" name="date_filed" required>
-      </div>
-      <button type="submit" class="btn btn-success btn-block">
-        Save Case
-      </button>
-    </form>
-  </div>
-</div>
-</section>
-<section class="col-lg-7 connectedSortable">
+<section class="col-lg-12 connectedSortable">
  <div class="card">
   <div class="card-header">
     <h3 class="card-title">Civil Cases</h3>
+    <div class="card-tools d-flex" style="gap: 5px;">
+      <a href="#" 
+      class="btn btn-outline-primary" onclick="createModal('civil')">
+      <i class="fas fa-plus"></i> Create Civil Case
+    </a>
   </div>
-  <div class="card-body">
-    <table id="example2" class="table table-bordered table-hover ">
-      <thead>
-        <tr>
-          <th>Date Filed</th>
-          <th>Case Number</th>
-          <th>Title</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for civilcase in CourtRecordsCivil %}
-        <tr>
-          <td>{{ civilcase.date_filed.strftime('%b. %d, %Y') if civilcase.date_filed else '' }}</td>
-          <td>{{ civilcase.case_number }}</td>
-          <td>{{ civilcase.title }}</td>
-          <td>
-            <button 
-            class="btn btn-sm btn-primary editBtn"
-            data-id="{{ civilcase.id }}"
-            data-case_number="{{ civilcase.case_number }}"
-            data-title="{{ civilcase.title }}"
-            data-nature="{{ civilcase.nature }}"
-            data-date="{{ civilcase.date_filed }}"
-            >
-            Edit
-          </button>
-        </td>
+</div>
+<div class="card-body">
+  <table id="example2" class="table table-bordered table-hover ">
+    <thead>
+      <tr>
+        <th>Case Number</th>
+        <th>Date Filed</th>
+        <th>Title</th>
+        <th>Action</th>
       </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    </thead>
+    <tbody>
+      {% for civilcase in CourtRecordsCivil %}
+      <tr>
+        <td>{{ civilcase.case_number }}</td>
+        <td>{{ civilcase.date_filed.strftime('%Y-%m-%d') if civilcase.date_filed else '' }}</td>
+        <td>{{ civilcase.title }}</td>
+        <td>
+
+           
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-info btn-sm">Update</button>
+                    <button type="button" class="btn btn-info dropdown-toggle dropdown-hover dropdown-icon btn-sm" data-toggle="dropdown">
+                    </button>
+        <div class="dropdown-menu" role="menu">
+  <a class="dropdown-item" href="#" onclick="editModal('geninfo', {{ civilcase.id }})">Case Info</a>
+  <a class="dropdown-item" href="#" onclick="editModal('courtAction', {{ civilcase.id }})">Actions</a>
+  <a class="dropdown-item" href="#" onclick="editModal('caseDetails', {{ civilcase.id }})">Details</a>
+  <div class="dropdown-divider"></div>
+  <a class="dropdown-item" href="#" onclick="editModal('caseNotes', {{ civilcase.id }})">Note</a>
+</div>
+                  </div>
+
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 </div>
 </div>
 </section>
 <!-- =========================
      EDIT MODAL
 ========================= -->
-      <div class="modal fade" id="editModal">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Edit Civil Case</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-             
-
-        <input type="hidden" id="case_id">
-        <div class="form-group">
-          <label>Case Number</label>
-          <input type="text" id="case_number" class="form-control" readonly>
-        </div>
-        <div class="form-group">
-          <label>Title</label>
-          <textarea id="title" class="form-control"></textarea>
-     
-        </div>
-        <div class="form-group">
-          <label>Nature</label>
-      
-          <textarea id="nature" class="form-control"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Date Filed</label>
-          <input type="date" id="date_filed" class="form-control">
-        </div>
-
-
-
-
-
-            </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" id="saveBtn">Save changes</button>
-            </div>
-          </div>
-          <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
+<div class="modal fade" id="editModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Edit Civil Case</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-      <!-- /.modal -->
+      <div class="modal-body" id="EditmodalContent">
 
 
 
 
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveBtn">Save changes</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<!-- =========================
+     Create MODAL
+========================= -->
+<div class="modal fade" id="CreateModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <!-- FORM START -->
+      <form id="createForm">
+        <div class="modal-header">
+          <h4 class="modal-title">File New Civil Case</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <input type="hidden" name="case_type" value="CIVIL CASE">
+            <label>Case Number</label>
+            <input type="text" class="form-control" name="case_number" id="ccase_number" required readonly>
+          </div>
+          <div class="form-group">
+            <label>Title</label>
+            <textarea class="form-control" name="title" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Nature</label>
+            <input type="text" class="form-control" name="nature">
+          </div>
+          <div class="form-group">
+            <label>Date Filed</label>
+            <input type="date" class="form-control" name="date_filed" required>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            Close
+          </button>
+          <!-- MUST BE submit -->
+          <button type="submit" class="btn btn-primary">
+            Save Changes
+          </button>
+        </div>
+      </form>
+      <!-- FORM END -->
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 {% endblock %}
 {% block scripts %}
 <!-- =========================
@@ -165,56 +152,189 @@
 <!-- =========================
      EDIT MODAL LOGIC
 ========================= -->
+
 <script>
-  $(document).on("click", ".editBtn", function () {
-    $("#case_id").val($(this).data("id"));
-    $("#case_number").val($(this).data("case_number"));
-    $("#title").val($(this).data("title"));
-    $("#nature").val($(this).data("nature"));
-    let rawDate = $(this).data("date");
-    if (rawDate) {
-      let d = new Date(rawDate);
-      $("#date_filed").val(d.toISOString().split('T')[0]);
+  let currentMode = "";
+
+  function editModal(command, id) {
+
+    currentMode = command;
+
+    $.getJSON(`/cases/api/case/${id}/${command}`, function(data) {
+
+        let html = "";
+
+        if (command === "geninfo") {
+            html = `
+                <input type="hidden" id="case_id" value="${id}">
+                <input type="hidden" id="mode" value="geninfo">
+
+                <div class="form-group">
+                    <label>Case Number</label>
+                    <input type="text" id="case_number" readonly class=" form-control" value="${data.case_number || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <textarea id="title" class="form-control">${data.title || ''}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Nature</label>
+                    <textarea id="nature" class="form-control">${data.nature || ''}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Date Filed</label>
+                    <input type="date" id="date_filed" class="form-control" value="${data.date_filed || ''}">
+                </div>
+            `;
+        }
+
+        else if (command === "courtAction") {
+            html = `
+                <input type="hidden" id="case_id" value="${id}">
+                <input type="hidden" id="mode" value="courtAction">
+
+                <div class="form-group">
+                    <label>Revived Date</label>
+                    <input type="date" id="revived_date" class="form-control" value="${data.revived_date || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Decision Date</label>
+                    <input type="date" id="decision_date" class="form-control" value="${data.decision_date || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Decision Type</label>
+                    <input type="text" id="decision_type" class="form-control" value="${data.decision_type || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Archived Date</label>
+                    <input type="date" id="archived_date" class="form-control" value="${data.archived_date || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Referred Date</label>
+                    <input type="date" id="referred_date" class="form-control" value="${data.referred_date || ''}">
+                </div>
+            `;
+        }
+
+else if (command === "caseNotes") {
+
+    let statusRemark = "";
+    let statusDate = "";
+
+    if (data.status) {
+        let parts = data.status.split("|");
+        statusRemark = parts[0] || "";
+        statusDate = parts[1] || "";
     }
-    $("#editModal").modal("show");
-  });
+
+    html = `
+        <input type="hidden" id="case_id" value="${id}">
+        <input type="hidden" id="mode" value="caseNotes">
+
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="status_date" class="form-control" value="${statusDate}">
+        </div>
+
+        <div class="form-group">
+            <label>Status</label>
+            <textarea id="status_remark" class="form-control">${statusRemark}</textarea>
+        </div>
+    `;
+}
+
+        else if (command === "caseDetails") {
+            html = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        $("#EditmodalContent").html(html);
+        $("#editModal").modal("show");
+
+    });
+}
+
 </script>
+
+
 <!-- =========================
      UPDATE (LOCK + SYNC)
 ========================= -->
 <script>
-  $("#saveBtn").click(function () {
+ $("#saveBtn").click(function () {
+
     let btn = $(this);
     if (btn.prop("disabled")) return;
+
     btn.prop("disabled", true);
     btn.text("Saving...");
     showSync();
+
+    let mode = $("#mode").val();
+
     let payload = {
-      id: $("#case_id").val(),
-      case_number: $("#case_number").val(),
-      title: $("#title").val(),
-      nature: $("#nature").val(),
-      date_filed: $("#date_filed").val()
+        id: $("#case_id").val()
     };
+
+    // =========================
+    // ONLY SEND RELEVANT DATA
+    // =========================
+
+    if (mode === "geninfo") {
+        payload.case_number = $("#case_number").val() || "";
+        payload.title = $("#title").val() || "";
+        payload.nature = $("#nature").val() || "";
+        payload.date_filed = $("#date_filed").val() || "";
+    }
+
+    else if (mode === "courtAction") {
+        payload.action = {
+            revived_date: $("#revived_date").val() || "",
+            decision_date: $("#decision_date").val() || "",
+            decision_type: $("#decision_type").val() || "",
+            archived_date: $("#archived_date").val() || "",
+            referred_date: $("#referred_date").val() || ""
+        };
+    }
+
+    else if (mode === "caseNotes") {
+        payload.action = {
+            status: [
+              $("#status_remark").val() || "",
+              $("#status_date").val() || ""
+          ].join("|")
+        };
+    }
+
     $.ajax({
-      url: "/cases/update",
-      type: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(payload),
-      success: function (res) {
-        alert(res.message);
-        location.reload();
-      },
-      error: function () {
-        alert("Error updating case");
-      },
-      complete: function () {
-        btn.prop("disabled", false);
-        btn.text("Save");
-        hideSync();
-      }
+        url: "/cases/update",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+
+        success: function (res) {
+            alert(res.message);
+            location.reload();
+        },
+
+        error: function (xhr) {
+            console.log(xhr.responseText);
+            alert("Error updating case");
+        },
+
+        complete: function () {
+            btn.prop("disabled", false);
+            btn.text("Save");
+            hideSync();
+        }
     });
-  });
+});
 </script>
 <!-- =========================
      CREATE (LOCK + SYNC)
@@ -254,5 +374,15 @@
       }
     });
   });
+</script>
+<script>
+  function createModal(caseType) {
+    $.getJSON(`api/last-civilno/${caseType}`, function(response) {
+      $("#ccase_number").val(response.case_number);
+      $("#CreateModal").modal("show");
+    }).fail(function() {
+      alert("Unable to get next case number.");
+    });
+  }
 </script>
 {% endblock %}

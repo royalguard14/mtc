@@ -774,8 +774,33 @@ class Cases(db.Model):
         index=True
     )
     # JSON Fields
-    action = db.Column(db.JSON, nullable=True)
-    information = db.Column(db.JSON, nullable=True)
+    action = db.Column(
+    db.JSON,
+    nullable=False,
+    default=lambda: {
+        "revived_date": "",
+        "decision_date": "",
+        "decision_type": "",
+        "archived_date": "",
+        "referred_date": "",
+        "status": ""
+    }
+        )
+
+
+
+    information = db.Column(
+        db.JSON,
+        nullable=False,
+        default=lambda: {
+            "plaintiffs": [],
+            "defendants": [],
+            "amount_claimed": "",
+            "property_location": "",
+            "election_details": "",
+            "summary_procedure_tag": False,
+        }
+    )
 
     # Optional File Storage
     filepath = db.Column(db.Text, nullable=True)

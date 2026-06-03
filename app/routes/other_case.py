@@ -6,6 +6,9 @@ import requests
 from sqlalchemy import cast, Integer, func
 from app.models import Cases
 from app.routes.decorators import require_module
+from sqlalchemy.orm.attributes import flag_modified
+
+
 cases_bp = Blueprint('cases', __name__, url_prefix='/cases')
 # =========================
 # GOOGLE SHEET WEBHOOK
@@ -122,39 +125,8 @@ def create_case():
 # UPDATE CASE
 # =========================
 
-@cases_bp.route('/update', methods=['POST'])
-@login_required
-def update_case():
-    data = request.get_json()
-    case = Cases.query.get(data['id'])
-    if not case:
-        return jsonify({
-            "status": "error",
-            "message": "Not found"
-        }), 404
-    try:
-        case.case_number = data.get('case_number')
-        case.title = data.get('title')
-        case.nature = data.get('nature') or ""
-        date_str = data.get('date_filed')
-        if date_str:
-            try:
-                case.date_filed = datetime.strptime(date_str, "%Y-%m-%d").date()
-            except:
-                case.date_filed = None
-        db.session.commit()
-        sync_to_google_sheet(case)
-        flash('Case updated successfully.', 'success')
-        return jsonify({
-            "status": "success",
-            "message": "Updated successfully"
-        })
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
+
+
 # =========================
 # GOOGLE SHEET UPSERT (IMPORTANT CORE)
 # =========================
@@ -225,3 +197,176 @@ def sync_other_cases():
             "status": "error",
             "message": str(e)
         }), 500
+
+
+
+
+@cases_bp.route('/api/last-civilno/<case_type>')
+@login_required
+def lastCivilno(case_type):
+
+    case_type_map = {
+        "civil": "civil case",
+        "smallclaim": "smallclaims"
+    }
+
+    db_case_type = case_type_map.get(case_type.lower())
+
+    if not db_case_type:
+        return jsonify({"error": "Invalid case type"}), 400
+
+    last_record = (
+        Cases.query
+        .filter(func.lower(Cases.case_type) == db_case_type.lower())
+        .order_by(Cases.id.desc())
+        .first()
+    )
+
+    # =========================
+    # SMALL CLAIMS
+    # =========================
+    if case_type.lower() == "smallclaim":
+
+        if not last_record:
+            next_no = "SC-01-"
+
+        else:
+            try:
+                parts = last_record.case_number.split("-")
+
+                # SC-05-2026 -> 05
+                seq = int(parts[1]) + 1
+
+                next_no = f"SC-{seq:02d}-"
+
+            except Exception:
+                next_no = "SC-01-"
+
+    # =========================
+    # CIVIL CASES
+    # =========================
+    else:
+
+        if not last_record:
+            next_no = 1
+        else:
+            try:
+                next_no = int(last_record.case_number) + 1
+            except ValueError:
+                next_no = last_record.case_number
+
+    return jsonify({
+        "case_number": next_no
+    })
+
+
+@cases_bp.route('/update', methods=['POST'])
+@login_required
+def update_case():
+    data = request.get_json()
+
+    print("======================>",data)
+
+    case = Cases.query.get(data.get('id'))
+    if not case:
+        return jsonify({"status": "error", "message": "Not found"}), 404
+
+    try:
+
+        # =========================
+        # BASIC FIELDS
+        # =========================
+        if "case_number" in data:
+            case.case_number = data["case_number"]
+
+        if "title" in data:
+            case.title = data["title"]
+
+        if "nature" in data:
+            case.nature = data["nature"]
+
+        if "date_filed" in data:
+            try:
+                case.date_filed = datetime.strptime(
+                    data["date_filed"],
+                    "%Y-%m-%d"
+                ).date()
+            except:
+                pass
+
+        # =========================
+        # ACTION JSON SAFE MERGE
+        # =========================
+        action = case.action or {}
+
+        if "action" in data:
+            # ALWAYS COPY DICT (VERY IMPORTANT)
+            action = dict(case.action or {})
+
+            # UPDATE ONLY SENT KEYS
+            for k, v in data["action"].items():
+                action[k] = v
+
+            case.action = action
+            flag_modified(case, "action")
+
+        # =========================
+        # INFORMATION JSON SAFE MERGE
+        # =========================
+        info = case.information or {}
+
+        if "information" in data:
+            info.update(data["information"])
+            case.information = info
+
+        # =========================
+        # SAVE
+        # =========================
+        print("FINAL ACTION:", case.action)
+        db.session.commit()
+
+        try:
+            sync_to_google_sheet(case)
+        except:
+            pass
+
+        return jsonify({
+            "status": "success",
+            "message": "Updated successfully"
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
+
+@cases_bp.route('/api/case/<int:case_id>/<command>')
+@login_required
+def get_case_data(case_id, command):
+
+    case = Cases.query.get_or_404(case_id)
+
+    if command == "geninfo":
+        return jsonify({
+            "case_number": case.case_number,
+            "title": case.title,
+            "nature": case.nature,
+            "date_filed": case.date_filed.strftime("%Y-%m-%d") if case.date_filed else ""
+        })
+
+    elif command == "courtAction":
+        return jsonify(case.action or {})
+
+    elif command == "caseDetails":
+        return jsonify(case.information or {})
+
+    elif command == "caseNotes":
+        return jsonify({
+            "status": (case.action or {}).get("status", "")
+        })
+
+    return jsonify({"error": "Invalid command"}), 400

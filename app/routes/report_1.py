@@ -17,72 +17,13 @@ from dateutil.relativedelta import relativedelta
 from datetime import timedelta
 from openpyxl.utils import get_column_letter
 from sqlalchemy import cast, String
-from collections import Counter
+
+
 
 
 
 
 reports_bp = Blueprint('reports', __name__, url_prefix='/report')
-
-
-
-civil_list = {
-    "10001": "Small Claims",
-    "10002": "Ejectment",
-    "10003": "Other Cases under Summary Procedure",
-    "10004": "Cases under Regular Procedure",
-    "10005": "Election",
-    "10006": "Other Civil Cases"
-}
-
-
-def classify_civil_case(title):
-    if not title:
-        return "10006"  # Other Civil Cases
-
-    text = title.upper().strip()
-
-    # Ejectment
-    if any(x in text for x in [
-        "UNLAWFUL DETAINER",
-        "FORCIBLE ENTRY"
-    ]):
-        return "10002"
-
-    # Election
-    if any(x in text for x in [
-        "ELECTION",
-        "ELECTION PROTEST",
-        "QUO WARRANTO"
-    ]):
-        return "10005"
-
-    # Small Claims
-    if "SMALL CLAIM" in text:
-        return "10001"
-
-    # Other Summary Procedure
-    if "SUMMARY PROCEDURE" in text:
-        return "10003"
-
-    # Default
-    return "10004"  # Cases under Regular Procedure
-
-def get_civil_case_counts(query):
-    """
-    query must return Cases.nature
-    """
-
-    counter = Counter()
-
-    for (nature,) in query.all():
-        code = classify_civil_case(nature)
-        counter[code] += 1
-
-    return [
-        (code, counter.get(code, 0))
-        for code in civil_list.keys()
-    ]
 
 
 @reports_bp.route('/')
@@ -334,65 +275,20 @@ def mrc():
     # PAGE 2 Counting Result
     # =========================
 
-    query = (
-        db.session.query(Cases.nature)
+    p2_row16_result = (
+        db.session.query(
+            cast(Cases.information["case_code"], String),
+            func.count(Cases.id)
+        )
         .filter(
             Cases.date_filed.like(f"{now.strftime('%Y-%m')}%")
         )
+        .group_by(cast(Cases.information["case_code"], String))
+        .all()
     )
 
-    p2_row16_result = get_civil_case_counts(query)
 
-    query = (
-        db.session.query(Cases.nature)
-        .filter(
-            func.json_extract(Cases.action, '$.revived_date').like(f"{now.strftime('%Y-%m')}%"),
-        )
-    )
-    p2_row17_result = get_civil_case_counts(query)
-
-
-
-    query = (
-        db.session.query(Cases.nature)
-        .filter(
-            func.json_extract(Cases.action, '$.decision_date').like(f"{now.strftime('%Y-%m')}%"),
-
-            func.json_extract(Cases.action, '$.decision_type') == "ON_MERIT",
-
-        )
-    )
-    p2_row20_result = get_civil_case_counts(query)
-
-    query = (
-        db.session.query(Cases.nature)
-        .filter(
-            func.json_extract(Cases.action, '$.decision_date').like(f"{now.strftime('%Y-%m')}%"),
-
-            func.json_extract(Cases.action, '$.decision_type') != "ON_MERIT",
-
-        )
-    )
-    p2_row21_result = get_civil_case_counts(query)
-
-    query = (
-        db.session.query(Cases.nature)
-        .filter(
-            func.json_extract(Cases.action, '$.archived_date').like(f"{now.strftime('%Y-%m')}%"),
-
-        )
-    )
-    p2_row22_result = get_civil_case_counts(query)
- 
-
-    query = (
-        db.session.query(Cases.nature)
-        .filter(
-            func.json_extract(Cases.action, '$.referred_date').like(f"{now.strftime('%Y-%m')}%"),
-
-        )
-    )
-    p2_row23_result = get_civil_case_counts(query)
+    print(p1_row16_result)
 
     # =========================
     # COUNT DICTS
@@ -412,13 +308,13 @@ def mrc():
 
     p2_counts = {
         # 14: dict(p1_row14_result),
-        16: dict(p2_row16_result),
-        17: dict(p2_row17_result),
-        18: {},
-        20: dict(p2_row20_result),
-        21: dict(p2_row21_result),
-        22: dict(p2_row22_result),
-        23: dict(p2_row23_result)
+        16: dict(p2_row16_result)
+        # 17: dict(p1_row17_result),
+        # 18: {},
+        # 20: dict(p1_row20_result),
+        # 21: dict(p1_row21_result),
+        # 22: dict(p1_row22_result),
+        # 23: dict(p1_row23_result),
     }
 
     april_2026_override = {
@@ -451,12 +347,12 @@ def mrc():
 
 
     p2_maps = {
-        row: {
-                code: f"{get_column_letter(start_col + i)}{row}"
-                for i, code in enumerate(civil_list)
-        }
-            for row in rows
+    row: {
+            code: f"{get_column_letter(start_col + i)}{row}"
+            for i, code in enumerate(civil_list)
     }
+        for row in rows
+}
 
 
 
@@ -511,6 +407,12 @@ def mrc():
 
     flash(f"Report generated: {filename}", "success")
     return redirect(url_for('reports.index'))
+
+
+
+
+
+
 
 
 @reports_bp.route('/mrc/table')

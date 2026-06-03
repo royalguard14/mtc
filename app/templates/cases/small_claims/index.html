@@ -1,40 +1,22 @@
 {% extends "layouts/layout1.html" %}
 {% block content %}
-<div id="syncStatus" style="margin-bottom:10px;font-weight:500;"></div>
-<section class="col-lg-5 connectedSortable">
-  <!-- =========================
-     CREATE FORM (RIGHT)
-========================= -->
-<div class="card">
-  <div class="card-header">
-    <h3 class="card-title">Add Small Claims Case</h3>
-  </div>
-  <div class="card-body">
-    <form id="createForm">
-      <div class="form-group">
-        <input type="hidden" name="case_type" value="SMALLCLAIMS">
-        <label>Case Number</label>
-        <input type="text" class="form-control" name="case_number" required>
-      </div>
-      <div class="form-group">
-        <label>Title</label>
-        <textarea class="form-control" name="title" required></textarea>
-      </div>
-      <div class="form-group">
-        <label>Date Filed</label>
-        <input type="date" class="form-control" name="date_filed" required>
-      </div>
-      <button type="submit" class="btn btn-success btn-block">
-        Save Case
-      </button>
-    </form>
-  </div>
-</div>
-</section>
-<section class="col-lg-7 connectedSortable">
+
+
+
+
+
+<section class="col-lg-12 connectedSortable">
   <div class="card">
     <div class="card-header">
       <h3 class="card-title">Small Claims Cases</h3>
+
+
+   <div class="card-tools d-flex" style="gap: 5px;">
+        <a href="#" 
+        class="btn btn-outline-primary" onclick="createModal('smallclaim')">
+        <i class="fas fa-plus"></i> File Small Claim Case
+      </a>
+</div>
     </div>
     <div class="card-body">
       <table id="example2" class="table table-bordered table-hover">
@@ -53,16 +35,18 @@
             <td>{{ smallcase.case_number }}</td>
             <td>{{ smallcase.title }}</td>
             <td>
-              <button 
-              class="btn btn-sm btn-primary editBtn"
-              data-id="{{ smallcase.id }}"
-              data-case_number="{{ smallcase.case_number }}"
-              data-title="{{ smallcase.title }}"
-              data-nature="{{ smallcase.nature }}"
-              data-date="{{ smallcase.date_filed }}"
-              >
-              Edit
-            </button>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-info btn-sm">Update</button>
+                    <button type="button" class="btn btn-info dropdown-toggle dropdown-hover dropdown-icon btn-sm" data-toggle="dropdown">
+                    </button>
+        <div class="dropdown-menu" role="menu">
+  <a class="dropdown-item" href="#" onclick="editModal('geninfo', {{ smallcase.id }})">Case Info</a>
+  <a class="dropdown-item" href="#" onclick="editModal('courtAction', {{ smallcase.id }})">Actions</a>
+  <a class="dropdown-item" href="#" onclick="editModal('caseDetails', {{ smallcase.id }})">Details</a>
+  <div class="dropdown-divider"></div>
+  <a class="dropdown-item" href="#" onclick="editModal('caseNotes', {{ smallcase.id }})">Note</a>
+</div>
+                  </div>
           </td>
         </tr>
         {% endfor %}
@@ -74,58 +58,78 @@
 <!-- =========================
      EDIT MODAL
 ========================= -->
-
-      <div class="modal fade" id="editModal">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Edit Small Claims Case</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-           
-
-        <input type="hidden" id="case_id">
-        <div class="form-group">
-          <label>Case Number</label>
-          <input type="text" id="case_number" class="form-control" readonly>
-        </div>
-        <div class="form-group">
-          <label>Title</label>
-          <textarea class="form-control" id="title" required></textarea>
-        </div>
-        <div class="form-group">
-          <label>Date Filed</label>
-          <input type="date" id="date_filed" class="form-control">
-        </div>
-
-
-
-
-            </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" id="saveBtn" >Save changes</button>
-            </div>
-          </div>
-          <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
+<div class="modal fade" id="editModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Edit Civil Case</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
-      <!-- /.modal -->
+      <div class="modal-body" id="EditmodalContent">
 
 
 
 
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="saveBtn">Save changes</button>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 
 
 
-
-
-
+<div class="modal fade" id="CreateModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <!-- FORM START -->
+      <form id="createForm">
+        <div class="modal-header">
+          <h4 class="modal-title">File New Small Claims</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+      <div class="form-group">
+        <input type="hidden" name="case_type" value="SMALLCLAIMS">
+        <input type="hidden" name="cnature" value="Small Claims">
+        <label>Case Number</label>
+        <input type="text" class="form-control" name="ccase_number" id="ccase_number"required readonly>
+      </div>
+      <div class="form-group">
+        <label>Title</label>
+        <textarea class="form-control" name="ctitle" required></textarea>
+      </div>
+<div class="form-group">
+    <label>Date Filed</label>
+    <input type="date" id="edate_filed" name="edate_filed" class="form-control" required>
+</div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            Close
+          </button>
+          <!-- MUST BE submit -->
+          <button type="submit" class="btn btn-primary">
+            Save Changes
+          </button>
+        </div>
+      </form>
+      <!-- FORM END -->
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 
 
@@ -153,51 +157,74 @@
      EDIT MODAL JS
 ========================= -->
 <script>
-  $(document).on("click", ".editBtn", function () {
-    $("#case_id").val($(this).data("id"));
-    $("#case_number").val($(this).data("case_number"));
-    $("#title").val($(this).data("title"));
-    $("#nature").val($(this).data("nature"));
-    let rawDate = $(this).data("date");
-    if (rawDate) {
-      let d = new Date(rawDate);
-      $("#date_filed").val(d.toISOString().split('T')[0]);
-    }
-    $("#editModal").modal("show");
-  });
-  $("#saveBtn").click(function () {
+ $("#saveBtn").click(function () {
+
     let btn = $(this);
-    // 🔒 HARD LOCK
     if (btn.prop("disabled")) return;
+
     btn.prop("disabled", true);
     btn.text("Saving...");
     showSync();
+
+    let mode = $("#mode").val();
+
     let payload = {
-      id: $("#case_id").val(),
-      case_number: $("#case_number").val(),
-      title: $("#title").val(),
-      nature: $("#nature").val(),
-      date_filed: $("#date_filed").val()
+        id: $("#case_id").val()
     };
+
+    // =========================
+    // ONLY SEND RELEVANT DATA
+    // =========================
+
+    if (mode === "geninfo") {
+        payload.case_number = $("#case_number").val() || "";
+        payload.title = $("#title").val() || "";
+        payload.nature = $("#nature").val() || "";
+        payload.date_filed = $("#date_filed").val() || "";
+    }
+
+    else if (mode === "courtAction") {
+        payload.action = {
+            revived_date: $("#revived_date").val() || "",
+            decision_date: $("#decision_date").val() || "",
+            decision_type: $("#decision_type").val() || "",
+            archived_date: $("#archived_date").val() || "",
+            referred_date: $("#referred_date").val() || ""
+        };
+    }
+
+    else if (mode === "caseNotes") {
+        payload.action = {
+            status: [
+              $("#status_remark").val() || "",
+              $("#status_date").val() || ""
+          ].join("|")
+        };
+    }
+
     $.ajax({
-      url: "/cases/update",
-      type: "POST",
-      contentType: "application/json",
-      data: JSON.stringify(payload),
-      success: function (res) {
-        alert(res.message);
-        location.reload();
-      },
-      error: function () {
-        alert("Update failed");
-      },
-      complete: function () {
-        btn.prop("disabled", false);
-        btn.text("Save");
-        hideSync();
-      }
+        url: "/cases/update",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+
+        success: function (res) {
+            alert(res.message);
+            location.reload();
+        },
+
+        error: function (xhr) {
+            console.log(xhr.responseText);
+            alert("Error updating case");
+        },
+
+        complete: function () {
+            btn.prop("disabled", false);
+            btn.text("Save");
+            hideSync();
+        }
     });
-  });
+});
 </script>
 <!-- =========================
      CREATE JS
@@ -213,10 +240,10 @@
     btn.text("Saving...");
     showSync();
     let formData = {
-      case_number: form.find("[name='case_number']").val(),
-      title: form.find("[name='title']").val(),
-      nature: form.find("[name='nature']").val(),
-      date_filed: form.find("[name='date_filed']").val(),
+      case_number: form.find("[name='ccase_number']").val(),
+      title: form.find("[name='ctitle']").val(),
+      nature: form.find("[name='cnature']").val(),
+      date_filed: form.find("[name='edate_filed']").val(),
       case_type: form.find("[name='case_type']").val()
     };
     $.ajax({
@@ -239,4 +266,159 @@
     });
   });
 </script>
+
+
+
+
+
+
+<script>
+let casePrefix = "";
+
+function createModal(caseType) {
+
+    $.getJSON(`api/last-civilno/${caseType}`, function(response) {
+
+        casePrefix = response.case_number; // SC-100-
+
+        $("#ccase_number").val(casePrefix);
+
+        $("#CreateModal").modal("show");
+
+    }).fail(function() {
+        alert("Unable to get next case number.");
+    });
+}
+
+$("#edate_filed").on("change", function() {
+
+    const dateValue = $(this).val();
+    console.log(dateValue)
+    if (!dateValue || !casePrefix)
+        return;
+
+    const d = new Date(dateValue);
+
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const yy = String(d.getFullYear()).slice(-2);
+
+    $("#ccase_number").val(
+        `${casePrefix}${mm}${dd}${yy}`
+    );
+});
+</script>
+
+
+<script>
+  let currentMode = "";
+
+  function editModal(command, id) {
+
+    currentMode = command;
+
+
+
+    $.getJSON(`/cases/api/case/${id}/${command}`, function(data) {
+
+        let html = "";
+
+        if (command === "geninfo") {
+            html = `
+                <input type="hidden" id="case_id" value="${id}">
+                <input type="hidden" id="mode" value="geninfo">
+              <input type="hidden" id="nature" readonly class=" form-control" value="${data.nature || ''}">
+
+                <div class="form-group">
+                    <label>Case Number</label>
+                    <input type="text" id="case_number" readonly class=" form-control" value="${data.case_number || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <textarea id="title" class="form-control">${data.title || ''}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Date Filed</label>
+                    <input type="date" id="date_filed" class="form-control" value="${data.date_filed || ''}">
+                </div>
+            `;
+        }
+
+        else if (command === "courtAction") {
+            html = `
+                <input type="hidden" id="case_id" value="${id}">
+                <input type="hidden" id="mode" value="courtAction">
+
+                <div class="form-group">
+                    <label>Revived Date</label>
+                    <input type="date" id="revived_date" class="form-control" value="${data.revived_date || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Decision Date</label>
+                    <input type="date" id="decision_date" class="form-control" value="${data.decision_date || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Decision Type</label>
+                    <input type="text" id="decision_type" class="form-control" value="${data.decision_type || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Archived Date</label>
+                    <input type="date" id="archived_date" class="form-control" value="${data.archived_date || ''}">
+                </div>
+
+                <div class="form-group">
+                    <label>Referred Date</label>
+                    <input type="date" id="referred_date" class="form-control" value="${data.referred_date || ''}">
+                </div>
+            `;
+        }
+
+else if (command === "caseNotes") {
+
+    let statusRemark = "";
+    let statusDate = "";
+
+    if (data.status) {
+        let parts = data.status.split("|");
+        statusRemark = parts[0] || "";
+        statusDate = parts[1] || "";
+    }
+
+    html = `
+        <input type="hidden" id="case_id" value="${id}">
+        <input type="hidden" id="mode" value="caseNotes">
+
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="status_date" class="form-control" value="${statusDate}">
+        </div>
+
+        <div class="form-group">
+            <label>Status</label>
+            <textarea id="status_remark" class="form-control">${statusRemark}</textarea>
+        </div>
+    `;
+}
+
+        else if (command === "caseDetails") {
+            html = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        $("#EditmodalContent").html(html);
+        $("#editModal").modal("show");
+
+    });
+}
+
+</script>
+
+
+
+
+
 {% endblock %}
