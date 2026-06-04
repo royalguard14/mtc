@@ -1,0 +1,110 @@
+SELECT
+    CASENUM,
+    DTFILED,
+    CASE
+        WHEN DTFILED > DATE('now', '-1 year')
+            THEN 'Less than 1 year'
+
+        WHEN DTFILED > DATE('now', '-2 years')
+            THEN '1 year to less than 2 years'
+
+        WHEN DTFILED > DATE('now', '-3 years')
+            THEN '2 years to less than 3 years'
+
+        WHEN DTFILED > DATE('now', '-4 years')
+            THEN '3 years to less than 4 years'
+
+        WHEN DTFILED > DATE('now', '-5 years')
+            THEN '4 years to less than 5 years'
+
+        WHEN DTFILED > DATE('now', '-6 years')
+            THEN '5 years to less than 6 years'
+
+        WHEN DTFILED > DATE('now', '-7 years')
+            THEN '6 years to less than 7 years'
+
+        WHEN DTFILED > DATE('now', '-8 years')
+            THEN '7 years to less than 8 years'
+
+        WHEN DTFILED > DATE('now', '-9 years')
+            THEN '8 years to less than 9 years'
+
+        WHEN DTFILED > DATE('now', '-10 years')
+            THEN '9 years to less than 10 years'
+
+        ELSE '10 years or more'
+    END AS AGE_BRACKET
+FROM ctms1000
+WHERE CASENUM IN (
+    4671,
+    4674,
+    4693,
+    4715,4716,4717,4718,4719,4720,
+    4721,4722,4723,4724,4725,4726,
+    4746,
+    4749,
+    4750,
+    4752,
+    4753,
+	4737
+)
+ORDER BY DTFILED;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT
+    case_number,
+    date_filed,
+    CASE
+        WHEN date_filed > DATE('now', '-1 year')
+            THEN 'Less than 1 year'
+        WHEN date_filed > DATE('now', '-2 years')
+            THEN '1 year to less than 2 years'
+        WHEN date_filed > DATE('now', '-3 years')
+            THEN '2 years to less than 3 years'
+        WHEN date_filed > DATE('now', '-4 years')
+            THEN '3 years to less than 4 years'
+        WHEN date_filed > DATE('now', '-5 years')
+            THEN '4 years to less than 5 years'
+        WHEN date_filed > DATE('now', '-6 years')
+            THEN '5 years to less than 6 years'
+        WHEN date_filed > DATE('now', '-7 years')
+            THEN '6 years to less than 7 years'
+        WHEN date_filed > DATE('now', '-8 years')
+            THEN '7 years to less than 8 years'
+        WHEN date_filed > DATE('now', '-9 years')
+            THEN '8 years to less than 9 years'
+        WHEN date_filed > DATE('now', '-10 years')
+            THEN '9 years to less than 10 years'
+        ELSE '10 years or more'
+    END AS age_bracket
+FROM cases
+WHERE case_number IN (
+    '744',
+    '754',
+    '755',
+    '758',
+    '761',
+    '764',
+    '765',
+    '766',
+    '767',
+    'SC-216-030426',
+    'SC-219-051926',
+    'SC-220-052526',
+    'SC-221-052526',
+    'SC-222-052526'
+)
+ORDER BY date_filed;

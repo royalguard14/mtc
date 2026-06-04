@@ -253,8 +253,8 @@ def mrc():
         )
         .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
         .filter(
-            CTMS4100.DECIDETYPE != "90002",
-            CTMS4100.DTRELEASED.like(f"{now.strftime('%Y-%m')}%"),
+            CTMS4100.DECIDECODE == "90002",
+            CTMS4100.DTPROMUL.like(f"{now.strftime('%Y-%m')}%"),
             CTMS4100.DECIDETYPE == "ON_MERITS"
         )
         .group_by(CTMS1000.NATURECODE)
@@ -268,13 +268,15 @@ def mrc():
         )
         .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
         .filter(
-            CTMS4100.DECIDETYPE != "90002",
-            CTMS4100.DTRELEASED.like(f"{now.strftime('%Y-%m')}%"),
+            CTMS4100.DECIDECODE != "90002",
+            CTMS4100.DTPROMUL.like(f"{now.strftime('%Y-%m')}%"),
             CTMS4100.DECIDETYPE != "ON_MERITS"
         )
         .group_by(CTMS1000.NATURECODE)
         .all()
     )
+
+
 
     p1_row22_result = (
         db.session.query(

@@ -480,6 +480,7 @@
             <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#m-prosecution">IV. PRESENTATION OF PROSECUTION EVIDENCE</a></li>
             <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#m-defense">V. PRESENTATION OF DEFENSE EVIDENCE</a></li>
             <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#m-decision">VI. DECISION AND PROMULGATION</a></li>
+             <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#m-notes">Notes</a></li>
           </ul>
           <div class="tab-content pt-3">
 
@@ -840,21 +841,38 @@
             </div>
 
 
-<div class="form-group col-md-8">
-    <label>Reason / Status</label>
-    <input type="text" name="OTHER_REASON" class="form-control"
-           value="{{ party.OTHER_STATUS.split('|')[0] if party.OTHER_STATUS }}">
-</div>
-
-<div class="form-group col-md-4">
-    <label>Date</label>
-    <input type="date" name="OTHER_DATE" class="form-control"
-           value="{{ party.OTHER_STATUS.split('|')[1] if party.OTHER_STATUS }}">
-</div>
           </div>
         </div>
+</form>
+
+ <div class="tab-pane fade" id="m-notes">
+
+
+
+
+
+
+NOtes design
+
+
+
+
+
+
+
+
+
+
+ </div>
+
+
+
+
+
       </div>
-    </form>
+    
+
+
   </div>
 
   <div class="modal-footer">

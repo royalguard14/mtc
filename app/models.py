@@ -3,6 +3,8 @@ from . import db  # ✅ relative import avoids the loop
 
 from datetime import datetime
 from flask_login import UserMixin
+from enum import Enum
+
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -389,10 +391,9 @@ class CTMS4100(db.Model):
     CREATEDT = db.Column(db.Text)
     MODIFYBY = db.Column(db.Text)
     MODIFYDT = db.Column(db.Text)
-    OTHER_STATUS = db.Column(db.Text, nullable=True)
     def to_dict(self):
         return {
-            "OTHER_STATUS" : self.OTHER_STATUS,
+            
             "PARTYID": self.PARTYID,
             "CASEID": self.CASEID,
             "PERSONID": self.PERSONID,
@@ -783,7 +784,6 @@ class Cases(db.Model):
         "decision_type": "",
         "archived_date": "",
         "referred_date": "",
-        "status": ""
     }
         )
 
@@ -875,4 +875,45 @@ class Certificate(db.Model):
     
             "jeps": self.jeps,
             "date": self.date_given.strftime("%m/%d/%Y") if self.date_given else ""
+        }
+
+
+
+
+class CaseType(Enum):
+    CASES = "cases"
+    CTMS4100 = "ctms4100"
+
+
+class NotesStatus(db.Model):
+    __tablename__ = "notes_status"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    case_type = db.Column(
+        db.Enum(CaseType),
+        nullable=False
+    )
+
+    case_id = db.Column(db.Integer, nullable=False)
+
+    status_date = db.Column(db.Date, nullable=False)
+    status = db.Column(db.String(255))
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "case_type": self.case_type.value if self.case_type else None,
+            "case_id": self.case_id,
+            "status_date": self.status_date.strftime("%m/%d/%Y") if self.status_date else "",
+            "status": self.status,
+            "created_at": self.created_at.strftime("%m/%d/%Y %H:%M:%S") if self.created_at else "",
+            "updated_at": self.updated_at.strftime("%m/%d/%Y %H:%M:%S") if self.updated_at else ""
         }
