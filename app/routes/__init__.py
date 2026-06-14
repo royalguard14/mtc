@@ -12,6 +12,8 @@ from .generate import generate_bp
 from .clearance import clearance_bp
 from .dfo import dev_bp
 from .report import reports_bp
+from .mobile import mobile_bp
+
 
 blueprints = [
     auth_bp,
@@ -27,6 +29,7 @@ blueprints = [
     generate_bp,
     clearance_bp,
     dev_bp,
-    reports_bp
+    reports_bp,
+    mobile_bp
 
 ]
