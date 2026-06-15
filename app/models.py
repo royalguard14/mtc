@@ -304,12 +304,19 @@ class CTMS1000(db.Model):
         viewonly=True
     )
 
+    # def to_dict(self):
+    #     return {
+    #         c.name: getattr(self, c.name)
+    #         for c in self.__table__.columns
+    #     }
     def to_dict(self):
         return {
-            c.name: getattr(self, c.name)
-            for c in self.__table__.columns
+            **{
+                c.name: getattr(self, c.name)
+                for c in self.__table__.columns
+            },
+            "parties": [party.to_dict() for party in self.parties]
         }
-
     
 class CTMS2100(db.Model):
     __tablename__ = 'ctms2100'
@@ -462,7 +469,10 @@ class CTMS4100(db.Model):
             "CREATEBY": self.CREATEBY,
             "CREATEDT": self.CREATEDT,
             "MODIFYBY": self.MODIFYBY,
-            "MODIFYDT": self.MODIFYDT
+            "MODIFYDT": self.MODIFYDT,
+
+                    # Nested Person
+            "person": self.person.to_dict() if self.person else None
         }
 
 

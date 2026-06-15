@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request, url_for
 from werkzeug.security import check_password_hash
 from secrets import token_urlsafe
 from app import db
-
+from sqlalchemy.orm import joinedload
 
 
 mobile_bp = Blueprint('apis', __name__, url_prefix='/api')
@@ -13,7 +13,7 @@ mobile_bp = Blueprint('apis', __name__, url_prefix='/api')
 
 
 @mobile_bp.route('/person/allcriminal')
-
+@remmberToken
 def apiCriminal():
 
     q = request.args.get("q", "").strip()
@@ -124,3 +124,39 @@ def mobile_login():
         },
         'routes': routes
     }), 200
+
+
+
+@mobile_bp.route('/cc')
+@remmberToken
+def getCR():
+
+    try:
+        cases = (
+            CTMS1000.query
+            .order_by(CTMS1000.CASENUM.desc())
+            
+            .all()
+        )
+
+        return jsonify({
+            "success": True,
+            "message": "Cases retrieved successfully.",
+            "data": [
+                {
+                    "CASEID": case.CASEID,
+                    "CASENUM": case.CASENUM,
+                    "CASETITLE": case.CASETITLE,
+                    "DTFILED": case.DTFILED,
+                    "NATUREREM": case.NATUREREM
+                }
+                for case in cases
+            ]
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e),
+            "data": []
+        }), 500
