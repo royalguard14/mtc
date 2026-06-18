@@ -891,38 +891,27 @@ class Certificate(db.Model):
 
 
 class CaseType(Enum):
-    CASES = "cases"
-    CTMS4100 = "ctms4100"
+    CIVIL = "cases"
+    CRIMINAL = "ctms1000"
 
 
 class NotesStatus(db.Model):
-    __tablename__ = "notes_status"
+    __tablename__ = "case_status"
 
     id = db.Column(db.Integer, primary_key=True)
-
-    case_type = db.Column(
-        db.Enum(CaseType),
-        nullable=False
-    )
-
+    case_type = db.Column(db.Enum(CaseType),nullable=False)
     case_id = db.Column(db.Integer, nullable=False)
-
-    status_date = db.Column(db.Date, nullable=False)
+    date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(255))
-
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
-    )
+    updated_at = db.Column(db.DateTime,default=datetime.utcnow,onupdate=datetime.utcnow)
 
     def to_dict(self):
         return {
             "id": self.id,
             "case_type": self.case_type.value if self.case_type else None,
             "case_id": self.case_id,
-            "status_date": self.status_date.strftime("%m/%d/%Y") if self.status_date else "",
+            "date": self.status_date.strftime("%m/%d/%Y") if self.status_date else "",
             "status": self.status,
             "created_at": self.created_at.strftime("%m/%d/%Y %H:%M:%S") if self.created_at else "",
             "updated_at": self.updated_at.strftime("%m/%d/%Y %H:%M:%S") if self.updated_at else ""
