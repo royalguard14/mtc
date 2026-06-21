@@ -1,4 +1,4 @@
-from app.models import CTMS1000,CTMS4100, User, Module, Role, Cases
+from app.models import CTMS1000,CTMS4100, User, Module, Role, Cases, NotesStatus
 from sqlalchemy import or_, and_, cast, Integer, func
 from app.routes.decorators import remmberToken
 from flask import Blueprint, jsonify, request, url_for
@@ -229,3 +229,34 @@ def getSC():
             "message": str(e),
             "data": []
         }), 500
+
+
+@mobile_bp.route('/notes')
+@remmberToken
+def getNotes():
+    casedb = request.args.get("casedb", "").strip()
+    caseid = request.args.get("caseid", "").strip()
+
+    notes = db.session.query(
+        NotesStatus.date,
+        NotesStatus.status
+    ).filter(
+        NotesStatus.case_type == "CRIMINAL",
+        NotesStatus.case_id == caseid
+    ).order_by(
+        NotesStatus.date.desc()
+    ).all()
+
+    return jsonify({
+        "success": True,
+        "notes": [
+            {
+                "date": note.date.strftime("%m/%d/%Y"),
+                "status": note.status
+            }
+            for note in notes
+        ]
+    })
+
+
+
