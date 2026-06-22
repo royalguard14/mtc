@@ -259,4 +259,20 @@ def getNotes():
     })
 
 
+@mobile_bp.route('/caseid')
+@remmberToken
+def getCASESID():
 
+    caseid = request.args.get("caseid", "").strip()
+
+    records = CTMS4100.query.filter(
+        CTMS4100.CASEID == caseid
+    ).all()
+
+    return jsonify({
+        "success": True,
+        "records": [
+            record.to_dict()
+            for record in records
+        ]
+    })
