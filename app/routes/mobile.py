@@ -260,7 +260,7 @@ def getNotes():
 
 
 @mobile_bp.route('/caseid')
-@remmberToken
+#@remmberToken
 def getCASESID():
 
     caseid = request.args.get("caseid", "").strip()

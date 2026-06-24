@@ -22,8 +22,9 @@
       <table id="example2" class="table table-bordered table-hover">
         <thead>
           <tr>
-            <th>Date Filed</th>
             <th>Case Number</th>
+            <th>Date Filed</th>
+            
             <th>Title</th>
             <th>Action</th>
           </tr>
@@ -31,8 +32,9 @@
         <tbody>
           {% for smallcase in CourtRecordsSclaims %}
           <tr>
-            <td>{{ smallcase.date_filed.strftime('%b. %d, %Y') if smallcase.date_filed else '' }}</td>
             <td>{{ smallcase.case_number }}</td>
+            <td>{{ smallcase.date_filed.strftime('%Y-%m-%d') if smallcase.date_filed else '' }}</td>
+            
             <td>{{ smallcase.title }}</td>
             <td>
                   <div class="btn-group">
@@ -146,7 +148,7 @@
       lengthChange: false,
       searching: true,
       ordering: false,
-      info: false,
+      info: true,
       autoWidth: false,
       responsive: true,
       pageLength: 5,
