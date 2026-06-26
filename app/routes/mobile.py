@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash
 from secrets import token_urlsafe
 from app import db
 from sqlalchemy.orm import joinedload
+from datetime import datetime
 
 
 
@@ -265,14 +266,28 @@ def getCASESID():
 
     caseid = request.args.get("caseid", "").strip()
 
-    records = CTMS4100.query.filter(
+    records = db.session.query(
+        CTMS4100,
+        CTMS1000.CASENUM,
+        CTMS1000.DTFILED
+    ).outerjoin(
+        CTMS1000,
+        CTMS1000.CASEID == CTMS4100.CASEID
+    ).filter(
         CTMS4100.CASEID == caseid
     ).all()
 
     return jsonify({
         "success": True,
         "records": [
-            record.to_dict()
-            for record in records
+            {
+                **record.to_dict(),
+                "CASENUM": casenum,
+                "DTFILED": (
+                        datetime.strptime(dtfiled, "%Y-%m-%d").strftime("%B %d, %Y")
+                        if dtfiled else None
+                    )
+            }
+            for record, casenum, dtfiled in records
         ]
     })
