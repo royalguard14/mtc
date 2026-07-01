@@ -310,23 +310,6 @@ def mrc():
             func.count(CTMS1000.NATURECODE)
         )
         .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
-        .filter(
-            and_(
-                CTMS4100.OTHER_STATUS.isnot(None),
-                CTMS4100.OTHER_STATUS != '',
-                func.instr(CTMS4100.OTHER_STATUS, '|') > 0,
-
-                func.substr(
-                    CTMS4100.OTHER_STATUS,
-                    func.instr(CTMS4100.OTHER_STATUS, '|') + 1
-                ) >= month_start.strftime("%Y-%m-%d"),
-
-                func.substr(
-                    CTMS4100.OTHER_STATUS,
-                    func.instr(CTMS4100.OTHER_STATUS, '|') + 1
-                ) < next_month_start.strftime("%Y-%m-%d")
-            )
-        )
         .group_by(CTMS1000.NATURECODE)
         .all()
     )
@@ -584,27 +567,9 @@ def mrc_table():
             CTMS1000.CASETITLE,
             CTMS1000.NATURECODE,
             CTMS1000.NATUREREM,
-            CTMS1000.DTFILED,
-            CTMS4100.OTHER_STATUS
+            CTMS1000.DTFILED
         )
         .join(CTMS4100, CTMS4100.CASEID == CTMS1000.CASEID)
-        .filter(
-            and_(
-                CTMS4100.OTHER_STATUS.isnot(None),
-                CTMS4100.OTHER_STATUS != '',
-                func.instr(CTMS4100.OTHER_STATUS, '|') > 0,
-
-                func.substr(
-                    CTMS4100.OTHER_STATUS,
-                    func.instr(CTMS4100.OTHER_STATUS, '|') + 1
-                ) >= month_start.strftime("%Y-%m-%d"),
-
-                func.substr(
-                    CTMS4100.OTHER_STATUS,
-                    func.instr(CTMS4100.OTHER_STATUS, '|') + 1
-                ) < next_month_start.strftime("%Y-%m-%d")
-            )
-        )
         .order_by(CTMS1000.CASENUM)
         .all()
     )
