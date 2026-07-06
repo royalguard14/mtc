@@ -74,7 +74,6 @@ def dashboard():
     for s in schedules:
         data = s.to_dict()
 
-        print("RAW DATA:", data)  # 🔥 DEBUG
 
         if not data.get("Date") or not data.get("Time Start"):
             continue
