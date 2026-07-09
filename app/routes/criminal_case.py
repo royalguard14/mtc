@@ -1164,3 +1164,6 @@ def apiCriminal():
 
 
     return jsonify(results)
+
+
+    
