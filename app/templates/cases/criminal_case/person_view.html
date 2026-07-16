@@ -472,6 +472,7 @@
       <div class="modal-body">
         <form id="modal-form">
           <input type="hidden" name="PERSONID" value="{{ person.PERSONID }}">
+          <input type="hidden" name="CASEID" value="{{ case.CASEID }}">
           
           <ul class="nav nav-tabs">
             <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#m-accused">I. Accused Information</a></li>
@@ -897,7 +898,7 @@ $(function () {
     let formData = $("#modal-form").serialize();
 
     $.ajax({
-      url: "/cc/update-person/" + $("input[name='PERSONID']").val(),
+      url: "/cc/update-person/" + $("input[name='PERSONID']").val()+"/"+ $("input[name='CASEID']").val(),
       type: "POST",
       data: formData,
 
@@ -1014,9 +1015,10 @@ else if (f === "DECIDECODE") {
 $("#btn-edit").click(function () {
 
   let personId = $("input[name='PERSONID']").val();
+  let caseId = $("input[name='CASEID']").val();
 
   $.ajax({
-    url: "/cc/get-option/" + personId,
+    url: "/cc/get-option/" + personId + "/" +caseId,
     type: "GET",
     dataType: "json",
 

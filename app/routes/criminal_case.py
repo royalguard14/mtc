@@ -120,16 +120,20 @@ def case_details(case_id):
 
 
 
-@criminals_bp.route('/person/<int:person_id>')
+@criminals_bp.route('/person/<int:person_id>/<int:case_id>')
 @login_required
-def view_person(person_id):
+def view_person(person_id, case_id):
+
+
     party = (
         CTMS4100.query
         .options(
             joinedload(CTMS4100.person),
             joinedload(CTMS4100.case)
         )
+        .filter_by(CASEID=case_id)
         .filter_by(PERSONID=person_id)
+
         .first_or_404()
     )
     pStatus = [
@@ -180,9 +184,9 @@ def view_person(person_id):
 
 
 
-@criminals_bp.route('/get-option/<int:person_id>')
+@criminals_bp.route('/get-option/<int:person_id>/<int:case_id>')
 @login_required
-def get_option(person_id):
+def get_option(person_id, case_id):
 
     pStatus = [
         "AT-LARGE",
@@ -233,10 +237,12 @@ def get_option(person_id):
             joinedload(CTMS4100.case)
         )
         .filter_by(PERSONID=person_id)
+        .filter_by(CASEID=case_id)
         .first_or_404()
     )
 
 
+    
 
 
     return jsonify({
@@ -279,9 +285,9 @@ def get_option(person_id):
 
 
 
-@criminals_bp.route('/update-person/<int:person_id>', methods=['POST'])
+@criminals_bp.route('/update-person/<int:person_id>/<int:case_id>', methods=['POST'])
 @login_required
-def update_person(person_id):
+def update_person(person_id, case_id):
     CURRENT_USER = "BCC1"
 
     person = CTMS4000.query.get_or_404(person_id)
@@ -314,7 +320,12 @@ def update_person(person_id):
     for p in parties:
         touch_case(p.CASEID)
 
-    party = CTMS4100.query.filter_by(PERSONID=person.PERSONID).first()
+    party = (
+        CTMS4100.query
+        .filter_by(CASEID=case_id)
+        .filter_by(PERSONID=person_id)
+        .first()
+    )
 
     if party:
 

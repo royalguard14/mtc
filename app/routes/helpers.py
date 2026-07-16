@@ -21,11 +21,7 @@ from app.models import (
 
 
 def touch_case(case_id):
-    from datetime import datetime
-    from app import db
-    from app.models import CTMS3000  # adjust if needed
-
-    case = CTMS3000.query.get(case_id)
+    case = CTMS1000.query.get(case_id)
     if case:
         case.MODIFYDT = datetime.now()
         db.session.add(case)

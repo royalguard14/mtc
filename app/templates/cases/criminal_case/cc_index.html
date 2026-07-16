@@ -175,7 +175,7 @@
       let name = p.FULLNAME || p.PARTYNAME || '';
       listHtml += `
       <div>
-        <a href="/cc/person/${p.PERSONID}" class="text-primary">
+        <a href="/cc/person/${p.PERSONID}/${data.case.CASEID}" class="text-primary">
           ${name}
         </a>
       </div>
