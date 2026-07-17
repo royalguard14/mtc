@@ -26,8 +26,6 @@ SELECT
     END AS age_bracket
 FROM cases
 WHERE case_number IN (
-'744',
-'754',
 '758',
 '761',
 '764',
