@@ -794,6 +794,9 @@ class Cases(db.Model):
         "decision_type": "",
         "archived_date": "",
         "referred_date": "",
+        "hearing_pretrial": "",
+        "hearing_initialpretrial": "",
+        "tad": "",
     }
         )
 

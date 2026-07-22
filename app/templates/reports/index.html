@@ -23,6 +23,15 @@
     PRINT MRC
   </a>
 
+
+<a href="#" class="btn btn-outline-warning"
+   data-toggle="modal" data-target="#createExcelModal">
+    CREATE EXCEL
+</a>
+
+
+
+
 </div>
   </div>
 
@@ -109,7 +118,233 @@
 
 </section>
 
+<!-- =========================
+     CREATE EXCEL MODAL
+========================= -->
+<div class="modal fade" id="createExcelModal">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
 
+            <div class="modal-header">
+                <h4 class="modal-title font-weight-bold">
+                    Create Docket Inventory Excel
+                </h4>
+            </div>
+
+            <div class="modal-body">
+
+                <form id="createExcelForm">
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label>Year</label>
+                                <input type="number"
+                                       class="form-control"
+                                       name="year"
+                                       value="2026"
+                                       min="2026"
+                                       max="2100"
+                                       required>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label>Semester</label>
+                                <select class="form-control"
+                                        name="semester"
+                                        required>
+
+                                    <option value="1">
+                                        January - June (1st Semester)
+                                    </option>
+
+                                    <option value="2">
+                                        July - December (2nd Semester)
+                                    </option>
+
+                                </select>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+
+                        <!-- =========================
+                             PENDING
+                        ========================== -->
+
+                        <div class="col-md-6">
+
+                            <h5 class="text-primary font-weight-bold">
+                                Pending Cases
+                            </h5>
+
+                            <div class="form-group">
+                                <label>Pending Criminal Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="pending_criminal"
+                                    rows="2"
+                                    placeholder="4745,4746,4854"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Pending Civil Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="pending_civil"
+                                    rows="2"
+                                    placeholder="1001,1002,1003"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Pending Small Claims</label>
+                                <textarea
+                                    class="form-control"
+                                    name="pending_small_claims"
+                                    rows="2"
+                                    placeholder="216,217,218"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Pending Special Civil Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="pending_special_civil"
+                                    rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Pending Special Proceedings Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="pending_special_proceedings"
+                                    rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Pending Other Civil Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="pending_other_civil"
+                                    rows="2"></textarea>
+                            </div>
+
+                        </div>
+
+                        <!-- =========================
+                             DISPOSED
+                        ========================== -->
+
+                        <div class="col-md-6">
+
+                            <h5 class="text-danger font-weight-bold">
+                                Disposed Cases
+                            </h5>
+
+                            <div class="form-group">
+                                <label>Disposed Criminal Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="disposed_criminal"
+                                    rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Disposed Civil Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="disposed_civil"
+                                    rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Disposed Small Claims</label>
+                                <textarea
+                                    class="form-control"
+                                    name="disposed_small_claims"
+                                    rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Disposed Special Civil Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="disposed_special_civil"
+                                    rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Disposed Special Proceedings Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="disposed_special_proceedings"
+                                    rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Disposed Other Civil Cases</label>
+                                <textarea
+                                    class="form-control"
+                                    name="disposed_other_civil"
+                                    rows="2"></textarea>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div id="excelLoading"
+                         class="text-center mt-3"
+                         style="display:none;">
+
+                        <div class="spinner-border text-warning"></div>
+
+                        <p class="mt-2 mb-0">
+                            Creating Excel...
+                        </p>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-warning"
+                    id="createExcelBtn">
+
+                    Create Excel
+
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal">
+
+                    Close
+
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <!-- =========================
      REPORT MODAL
@@ -374,6 +609,52 @@ MTC Buenavista, Agusan del Norte`;
     window.open(`/report/mrc/table?month=${month}`, "_blank");
 });
 
+</script>
+
+
+<script>
+$("#createExcelBtn").on("click", function () {
+
+    let year = $("input[name='year']").val();
+    let semester = $("select[name='semester']").val();
+
+    if (!year || !semester) {
+        alert("Please complete the fields.");
+        return;
+    }
+
+    let pending_criminal = $("textarea[name='pending_criminal']").val();
+    let pending_civil = $("textarea[name='pending_civil']").val();
+    let pending_small_claims = $("textarea[name='pending_small_claims']").val();
+    let pending_special_civil = $("textarea[name='pending_special_civil']").val();
+    let pending_special_proceedings = $("textarea[name='pending_special_proceedings']").val();
+    let pending_other_civil = $("textarea[name='pending_other_civil']").val();
+
+    let disposed_criminal = $("textarea[name='disposed_criminal']").val();
+    let disposed_civil = $("textarea[name='disposed_civil']").val();
+    let disposed_small_claims = $("textarea[name='disposed_small_claims']").val();
+    let disposed_special_civil = $("textarea[name='disposed_special_civil']").val();
+    let disposed_special_proceedings = $("textarea[name='disposed_special_proceedings']").val();
+    let disposed_other_civil = $("textarea[name='disposed_other_civil']").val();
+
+    window.location.href =
+        `/report/create_excel`
+        + `?year=${year}`
+        + `&semester=${semester}`
+        + `&pending_criminal=${encodeURIComponent(pending_criminal)}`
+        + `&pending_civil=${encodeURIComponent(pending_civil)}`
+        + `&pending_small_claims=${encodeURIComponent(pending_small_claims)}`
+        + `&pending_special_civil=${encodeURIComponent(pending_special_civil)}`
+        + `&pending_special_proceedings=${encodeURIComponent(pending_special_proceedings)}`
+        + `&pending_other_civil=${encodeURIComponent(pending_other_civil)}`
+        + `&disposed_criminal=${encodeURIComponent(disposed_criminal)}`
+        + `&disposed_civil=${encodeURIComponent(disposed_civil)}`
+        + `&disposed_small_claims=${encodeURIComponent(disposed_small_claims)}`
+        + `&disposed_special_civil=${encodeURIComponent(disposed_special_civil)}`
+        + `&disposed_special_proceedings=${encodeURIComponent(disposed_special_proceedings)}`
+        + `&disposed_other_civil=${encodeURIComponent(disposed_other_civil)}`;
+
+});
 </script>
 
 {% endblock %}

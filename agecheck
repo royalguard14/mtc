@@ -107,3 +107,339 @@ WHERE CASENUM IN (
 
     4746
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT
+    ROW_NUMBER() OVER (
+        ORDER BY CASE c.CASENUM
+            WHEN 4754 THEN 1
+            WHEN 4756 THEN 2
+            WHEN 4752 THEN 3
+            WHEN 4749 THEN 4
+            WHEN 4737 THEN 5
+            WHEN 4746 THEN 6
+            WHEN 4674 THEN 7
+            WHEN 4693 THEN 8
+            WHEN 4715 THEN 9
+            WHEN 4716 THEN 10
+            WHEN 4717 THEN 11
+            WHEN 4718 THEN 12
+            WHEN 4719 THEN 13
+            WHEN 4720 THEN 14
+            WHEN 4721 THEN 15
+            WHEN 4722 THEN 16
+            WHEN 4723 THEN 17
+            WHEN 4724 THEN 18
+            WHEN 4725 THEN 19
+            WHEN 4726 THEN 20
+        END
+    ) AS "No.",
+
+    c.CASENUM AS "Case Number",
+    c.CASETITLE AS "Title",
+    c.NATUREREM AS "Nature",
+    c.DTFILED AS "Date Filed",
+
+    'N/A' AS "Date Raffled",
+
+    GROUP_CONCAT(
+        DISTINCT
+        (
+            COALESCE(p.DTARRAIGN,'') ||
+            CASE p.PLEA
+                WHEN 2 THEN ' - GUILTY'
+                WHEN 1 THEN ' - NOT GUILTY'
+                ELSE ''
+            END
+        )
+    ) AS "Date of Arraignment",
+
+    GROUP_CONCAT(DISTINCT p.DTPRETRIAL) AS "Date of Pre-trial",
+
+    'N/A' AS "Date of Initial Trial",
+    'N/A' AS "Court Action Taken and Date Thereof",
+    'N/A' AS "Date Submitted for Decision",
+    'HON. SAIDAMEN M. GANIA' AS "Judge to Whom Case is Assigned"
+
+FROM ctms1000 c
+
+LEFT JOIN ctms4100 p
+    ON c.CASEID = p.CASEID
+
+WHERE c.CASENUM IN (
+4754,
+4756,
+4752,
+4749,
+4737,
+4746,
+4674,
+4693,
+4715,
+4716,
+4717,
+4718,
+4719,
+4720,
+4721,
+4722,
+4723,
+4724,
+4725,
+4726
+)
+
+GROUP BY
+    c.CASEID,
+    c.CASENUM,
+    c.CASETITLE,
+    c.NATUREREM,
+    c.DTFILED
+
+ORDER BY
+    CASE c.CASENUM
+        WHEN 4754 THEN 1
+        WHEN 4756 THEN 2
+        WHEN 4752 THEN 3
+        WHEN 4749 THEN 4
+        WHEN 4737 THEN 5
+        WHEN 4746 THEN 6
+        WHEN 4674 THEN 7
+        WHEN 4693 THEN 8
+        WHEN 4715 THEN 9
+        WHEN 4716 THEN 10
+        WHEN 4717 THEN 11
+        WHEN 4718 THEN 12
+        WHEN 4719 THEN 13
+        WHEN 4720 THEN 14
+        WHEN 4721 THEN 15
+        WHEN 4722 THEN 16
+        WHEN 4723 THEN 17
+        WHEN 4724 THEN 18
+        WHEN 4725 THEN 19
+        WHEN 4726 THEN 20
+    END;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+================Disposed Crimcase=====================
+
+SELECT
+    ROW_NUMBER() OVER (
+        ORDER BY
+            CASE c.CASENUM
+                WHEN 4568 THEN 1
+                WHEN 4648 THEN 2
+                WHEN 4671 THEN 3
+                WHEN 4713 THEN 4
+                WHEN 4732 THEN 5
+                WHEN 4733 THEN 6
+                WHEN 4734 THEN 7
+                WHEN 4735 THEN 8
+                WHEN 4736 THEN 9
+                WHEN 4737 THEN 10
+                WHEN 4738 THEN 11
+                WHEN 4739 THEN 12
+                WHEN 4740 THEN 13
+                WHEN 4741 THEN 14
+                WHEN 4742 THEN 15
+                WHEN 4743 THEN 16
+                WHEN 4744 THEN 17
+                WHEN 4745 THEN 18
+                WHEN 4747 THEN 19
+                WHEN 4748 THEN 20
+                WHEN 4750 THEN 21
+                WHEN 4751 THEN 22
+                WHEN 4753 THEN 23
+                WHEN 4755 THEN 24
+            END
+    ) AS "No.",
+
+    c.CASENUM AS "Case Number",
+    c.CASETITLE AS "Title",
+    c.NATUREREM AS "Nature",
+    c.DTFILED AS "Date Filed",
+
+    'N/A' AS "Date Raffled",
+    
+GROUP_CONCAT(
+    CASE
+        WHEN p.DTARRAIGN IS NULL OR TRIM(p.DTARRAIGN) = '' THEN NULL
+
+        WHEN p.PLEA IS NULL OR p.PLEA = '' THEN
+            p.DTARRAIGN
+
+        ELSE
+            p.DTARRAIGN ||
+            CHAR(10) ||
+            '(' ||
+            TRIM(
+                COALESCE(per.FNAME,'') || ' ' ||
+                COALESCE(per.LNAME,'')
+            ) ||
+            ' - ' ||
+            CASE p.PLEA
+                WHEN 2 THEN 'GUILTY'
+                WHEN 1 THEN 'NOT GUILTY'
+            END ||
+            ')'
+    END,
+    CHAR(10) || CHAR(10)
+) AS "Date of Arraignment",
+
+    GROUP_CONCAT(DISTINCT p.DTPRETRIAL) AS "Date of Pre-trial",
+
+    'N/A' AS "Date of Initial Trial",
+   
+   
+   CASE
+    WHEN p.DTPROMUL IS NULL OR TRIM(p.DTPROMUL) = '' THEN 'N/A'
+
+    ELSE
+        CASE p.DECIDECODE
+            WHEN '90002' THEN 'DECIDED'
+            WHEN '90003' THEN 'DISMISSED'
+            ELSE ''
+        END
+        ||
+
+        CASE
+            WHEN p.REMARKS IS NOT NULL
+                 AND TRIM(p.REMARKS) <> ''
+                 AND INSTR(p.REMARKS, ':') > 0
+            THEN
+                ' - ' ||
+                SUBSTR(
+                    p.REMARKS,
+                    1,
+                    INSTR(p.REMARKS, ':')
+                )
+            ELSE ''
+        END
+
+        ||
+
+        ' - ' || p.DTPROMUL
+END AS "Court Action Taken and Date Thereof",
+   
+   
+   
+   
+   
+   
+   
+   
+   
+COALESCE(
+    GROUP_CONCAT(
+        DISTINCT CASE
+            WHEN p.DTSUBMIT IS NOT NULL
+                 AND TRIM(p.DTSUBMIT) <> ''
+            THEN p.DTSUBMIT
+        END
+    ),
+    'N/A'
+) AS "Date Submitted for Decision",
+
+
+
+
+
+    'HON. SAIDAMEN M. GANIA' AS "Judge to Whom Case is Assigned"
+
+FROM ctms1000 c
+
+LEFT JOIN ctms4100 p
+    ON c.CASEID = p.CASEID
+
+LEFT JOIN ctms4000 per
+    ON p.PERSONID = per.PERSONID
+
+WHERE c.CASENUM IN (
+    4568,
+    4648,
+    4671,
+    4713,
+    4732,
+    4733,
+    4734,
+    4735,
+    4736,
+    4737,
+    4738,
+    4739,
+    4740,
+    4741,
+    4742,
+    4743,
+    4744,
+    4745,
+    4747,
+    4748,
+    4750,
+    4751,
+    4753,
+    4755
+)
+
+GROUP BY
+    c.CASEID,
+    c.CASENUM,
+    c.CASETITLE,
+    c.NATUREREM,
+    c.DTFILED
+
+ORDER BY
+    CASE c.CASENUM
+        WHEN 4568 THEN 1
+        WHEN 4648 THEN 2
+        WHEN 4671 THEN 3
+        WHEN 4713 THEN 4
+        WHEN 4732 THEN 5
+        WHEN 4733 THEN 6
+        WHEN 4734 THEN 7
+        WHEN 4735 THEN 8
+        WHEN 4736 THEN 9
+        WHEN 4737 THEN 10
+        WHEN 4738 THEN 11
+        WHEN 4739 THEN 12
+        WHEN 4740 THEN 13
+        WHEN 4741 THEN 14
+        WHEN 4742 THEN 15
+        WHEN 4743 THEN 16
+        WHEN 4744 THEN 17
+        WHEN 4745 THEN 18
+        WHEN 4747 THEN 19
+        WHEN 4748 THEN 20
+        WHEN 4750 THEN 21
+        WHEN 4751 THEN 22
+        WHEN 4753 THEN 23
+        WHEN 4755 THEN 24
+    END;

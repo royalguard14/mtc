@@ -9,15 +9,19 @@ from datetime import datetime, timedelta
 import os, json, requests, shutil
 from xlrd import open_workbook
 from xlutils.copy import copy
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 from sqlalchemy import func, or_, and_
 from collections import OrderedDict
-from app.models import CTMS1000, CTMS4100, Cases
+from app.models import CTMS1000, CTMS4100, Cases, CTMS4000
 from dateutil.relativedelta import relativedelta
 from datetime import timedelta
 from openpyxl.utils import get_column_letter
 from sqlalchemy import cast, String
 from collections import Counter
+from openpyxl.styles import Font, Alignment, Border, Side
+from sqlalchemy import case
+
+
 
 
 
@@ -581,3 +585,1068 @@ def mrc_table():
         disposed_cases=disposed_cases,
         pending_cases=pending_cases
     )
+
+
+
+@reports_bp.route("/create_excel")
+@login_required
+@require_module(16)
+def create_excel():
+
+    year = int(request.args.get("year"))
+    semester = int(request.args.get("semester"))
+
+    def write_civil_section(case_numbers, title, total_label, start_row):
+
+        ordering = case(
+            {num: idx for idx, num in enumerate(case_numbers, start=1)},
+            value=Cases.case_number
+        )
+
+        results = []
+
+        if case_numbers:
+            results = (
+                Cases.query
+                .filter(
+                    Cases.case_number.in_(
+                        [str(x) for x in case_numbers]
+                    )
+                )
+                .order_by(ordering)
+                .all()
+            )
+
+        # =========================
+        # TITLE
+        # =========================
+
+        ws.merge_cells(
+            start_row=start_row + 2,
+            start_column=1,
+            end_row=start_row + 2,
+            end_column=12
+        )
+
+        ws.cell(start_row + 2, 1).value = title
+        ws.cell(start_row + 2, 1).font = Font(
+            name="Arial",
+            size=12,
+            bold=True
+        )
+
+        ws.cell(start_row + 2, 1).alignment = Alignment(
+            horizontal="left",
+            vertical="center"
+        )
+
+        for col in range(1,13):
+            ws.cell(start_row+2,col).border = border
+
+        # =========================
+        # HEADER
+        # =========================
+
+        header_row = start_row + 2
+
+        # for cell,text in headers.items():
+
+        #     col = ws[cell].column
+
+        #     c = ws.cell(header_row,col)
+
+        #     c.value = text
+
+        #     c.font = Font(
+        #         name="Arial",
+        #         size=10,
+        #         bold=True
+        #     )
+
+        #     c.alignment = Alignment(
+        #         horizontal="center",
+        #         vertical="center",
+        #         wrap_text=True
+        #     )
+
+        #     c.border = border
+
+        # ws.row_dimensions[header_row].height = 30
+
+        # =========================
+        # DATA
+        # =========================
+
+        row_excel = header_row + 1
+
+        for no,c in enumerate(results,start=1):
+
+            action = c.action or {}
+
+            ws.cell(row_excel,1).value = no
+            ws.cell(row_excel,2).value = c.case_number
+            ws.cell(row_excel,3).value = c.title
+            ws.cell(row_excel,4).value = c.nature
+            ws.cell(row_excel,5).value = c.date_filed
+
+            ws.cell(row_excel,6).value = ""
+            ws.cell(row_excel,7).value = ""
+
+            ws.cell(row_excel,8).value = (
+                action.get("hearing_pretrial")
+                or "No Hearing Data"
+            )
+
+            ws.cell(row_excel,9).value = (
+                action.get("hearing_initialpretrial")
+                or "No Hearing Data"
+            )
+
+            ws.cell(row_excel,10).value = (
+                action.get("tad")
+                or ""
+            )
+
+            ws.cell(row_excel,11).value = ""
+            ws.cell(row_excel,12).value = "HON. SAIDAMEN M. GANIA"
+
+            for col in range(1,13):
+
+                cell = ws.cell(row_excel,col)
+
+                cell.font = Font(
+                    name="Arial",
+                    size=10
+                )
+
+                cell.border = border
+
+                cell.alignment = Alignment(
+                    vertical="top",
+                    wrap_text=True,
+                    horizontal="center" if col==1 else "left"
+                )
+
+            row_excel += 1
+
+        # =========================
+        # TOTAL
+        # =========================
+
+        ws.cell(row_excel,1).value = len(results)
+
+        ws.merge_cells(
+            start_row=row_excel,
+            start_column=2,
+            end_row=row_excel,
+            end_column=12
+        )
+
+        ws.cell(row_excel,2).value = total_label
+
+        ws.row_dimensions[row_excel].height = 34
+
+        total = ws.cell(row_excel,1)
+
+        total.font = Font(
+            name="Arial",
+            size=16,
+            bold=True,
+            color="FF0000"
+        )
+
+        total.alignment = Alignment(
+            horizontal="center",
+            vertical="center"
+        )
+
+        total.border = border
+
+        label = ws.cell(row_excel,2)
+
+        label.font = Font(
+            name="Arial",
+            size=11,
+            bold=True
+        )
+
+        label.alignment = Alignment(
+            horizontal="left",
+            vertical="center"
+        )
+
+        for col in range(2,13):
+            ws.cell(row_excel,col).border = border
+
+        return row_excel
+    
+
+    # =========================
+    # CASE NUMBERS FROM MODAL
+    # =========================
+
+    def parse_numeric_cases(value):
+        return [
+            int(x.strip())
+            for x in value.split(",")
+            if x.strip().isdigit()
+        ]
+
+    def parse_string_cases(value):
+        return [
+            x.strip()
+            for x in value.split(",")
+            if x.strip()
+        ]
+
+    # -------------------------
+    # PENDING
+    # -------------------------
+
+    pending_criminal = parse_numeric_cases(
+        request.args.get("pending_criminal", "")
+    )
+
+    pending_civil = parse_numeric_cases(
+        request.args.get("pending_civil", "")
+    )
+
+    pending_small_claims = parse_string_cases(
+        request.args.get("pending_small_claims", "")
+    )
+
+    pending_special_civil = parse_string_cases(
+        request.args.get("pending_special_civil", "")
+    )
+
+    pending_special_proceedings = parse_string_cases(
+        request.args.get("pending_special_proceedings", "")
+    )
+
+    pending_other_civil = parse_string_cases(
+        request.args.get("pending_other_civil", "")
+    )
+
+    # -------------------------
+    # DISPOSED
+    # -------------------------
+
+    disposed_criminal = parse_numeric_cases(
+        request.args.get("disposed_criminal", "")
+    )
+
+    disposed_civil = parse_numeric_cases(
+        request.args.get("disposed_civil", "")
+    )
+
+    disposed_small_claims = parse_string_cases(
+        request.args.get("disposed_small_claims", "")
+    )
+
+    disposed_special_civil = parse_string_cases(
+        request.args.get("disposed_special_civil", "")
+    )
+
+    disposed_special_proceedings = parse_string_cases(
+        request.args.get("disposed_special_proceedings", "")
+    )
+
+    disposed_other_civil = parse_string_cases(
+        request.args.get("disposed_other_civil", "")
+    )
+
+    if semester == 1:
+        semester_name = "January-June"
+    else:
+        semester_name = "July-December"
+
+    # =========================
+    # STORAGE
+    # =========================
+    storage_dir = os.path.join(
+        current_app.root_path,
+        "static",
+        "storage"
+    )
+
+    os.makedirs(storage_dir, exist_ok=True)
+
+    # =========================
+    # FILE NAME
+    # =========================
+    base_filename = f"{year} {semester_name} Semestral Report.xlsx"
+
+    name, ext = os.path.splitext(base_filename)
+
+    filename = base_filename
+    counter = 1
+
+    while os.path.exists(os.path.join(storage_dir, filename)):
+        filename = f"{name} ({counter}){ext}"
+        counter += 1
+
+    output_path = os.path.join(storage_dir, filename)
+
+    # =========================
+    # CREATE EXCEL
+    # =========================
+    wb = Workbook()
+    ws = wb.active
+
+
+    # =========================
+    # FIRST PAGE
+    # =========================
+
+    ws.title = "First page"
+
+    # Merge cells
+    ws.merge_cells("A1:L1")
+    ws.merge_cells("A2:L2")
+
+    # Title
+    ws["A1"] = "DOCKET INVENTORY"
+
+    # Subtitle
+    ws["A2"] = f"({semester_name} {year})"
+
+
+
+    # Fonts
+    ws["A1"].font = Font(name="Arial", size=14, bold=True)
+    ws["A2"].font = Font(name="Arial", size=12)
+
+    # Alignment
+    ws["A1"].alignment = Alignment(horizontal="center", vertical="center")
+    ws["A2"].alignment = Alignment(horizontal="center", vertical="center")
+
+    # =========================
+    # COLUMN WIDTHS
+    # =========================
+
+    ws.column_dimensions["A"].width = 4.57
+    ws.column_dimensions["B"].width = 12
+    ws.column_dimensions["C"].width = 31.29
+    ws.column_dimensions["D"].width = 20
+    ws.column_dimensions["E"].width = 14.29
+    ws.column_dimensions["F"].width = 10.57
+    ws.column_dimensions["G"].width = 14.14
+    ws.column_dimensions["H"].width = 13
+    ws.column_dimensions["I"].width = 15.29
+    ws.column_dimensions["J"].width = 30.71
+    ws.column_dimensions["K"].width = 12.29
+    ws.column_dimensions["L"].width = 28.43
+
+    # =========================
+    # ROW HEIGHTS
+    # =========================
+    ws.row_dimensions[3].height = 14.25  # empty row
+
+    # =========================
+    # ROW 4
+    # =========================
+    ws.merge_cells("C4:L4")
+
+    ws["A4"] = "Court and Station:"
+    ws["C4"] = "MTC BUENAVISTA, AGUSAN DEL NORTE"
+
+    ws["A4"].font = Font(name="Arial", size=10)
+    ws["C4"].font = Font(name="Arial", size=10)
+
+    ws["A4"].alignment = Alignment(horizontal="left", vertical="center")
+    ws["C4"].alignment = Alignment(horizontal="left", vertical="center")
+
+    # =========================
+    # ROW 5
+    # =========================
+    ws.merge_cells("C5:L5")
+
+    ws["A5"] = "Presiding Judge:"
+    ws["C5"] = "HON. SAIDAMEN M. GANIA"
+
+    ws["A5"].font = Font(name="Arial", size=10)
+    ws["C5"].font = Font(name="Arial", size=10)
+
+    ws["A5"].alignment = Alignment(horizontal="left", vertical="center")
+    ws["C5"].alignment = Alignment(horizontal="left", vertical="center")
+
+    # =========================
+    # ROW 6 (EMPTY)
+    # =========================
+    ws.row_dimensions[6].height = 14.25
+
+
+    # =========================
+    # ROW 7 PENDING CASES
+    # =========================
+    ws.merge_cells("A7:L7")
+    ws["A7"] = "PENDING CASES"
+    ws["A7"].font = Font(name="Arial", size=12, bold=True)
+    ws["A7"].alignment = Alignment(horizontal="center", vertical="center")
+
+    # All Borders
+    thin = Side(style="thin", color="000000")
+
+    border = Border(
+        left=thin,
+        right=thin,
+        top=thin,
+        bottom=thin
+    )
+
+    for row in ws["A7:L7"]:
+        for cell in row:
+            cell.border = border
+
+    # =========================
+    # ROW 8 CRIMINAL CASES
+    # =========================
+    ws.merge_cells("A8:L8")
+    ws["A8"] = "CRIMINAL CASES"
+    ws["A8"].font = Font(name="Arial", size=12, bold=True)
+    ws["A8"].alignment = Alignment(horizontal="left", vertical="center")
+
+    # All Borders
+    thin = Side(style="thin", color="000000")
+
+    border = Border(
+        left=thin,
+        right=thin,
+        top=thin,
+        bottom=thin
+    )
+
+    for row in ws["A8:L8"]:
+        for cell in row:
+            cell.border = border
+
+    # =========================
+    # ROW 9 HEADINGS
+    # =========================
+
+    headers = {
+        "A9": "No.",
+        "B9": "Case Number",
+        "C9": "Title",
+        "D9": "Nature",
+        "E9": "Date Filed",
+        "F9": "Date Raffled",
+        "G9": "Date of Arraignment",
+        "H9": "Date of Pre-trial*",
+        "I9": "Date of Initial Trial",
+        "J9": "Court Action Taken and Date Thereof**",
+        "K9": "Date Submitted for Decision",
+        "L9": "Judge to Whom Case is Assigned***"
+    }
+
+    for cell, text in headers.items():
+        ws[cell] = text
+        ws[cell].font = Font(name="Arial", size=10, bold=True)
+        ws[cell].alignment = Alignment(
+            horizontal="center",
+            vertical="center",
+            wrap_text=True
+        )
+        ws[cell].border = border
+
+    # Row height
+    ws.row_dimensions[9].height = 30
+    excel_row10 = 10
+
+    ws.freeze_panes = "A10"
+#==========================================================================
+
+    # =====================================================
+    # PENDING CRIMINAL CASES
+    # =====================================================
+
+    results = []
+
+    if pending_criminal:
+
+        ordering = case(
+            {num: idx for idx, num in enumerate(pending_criminal, start=1)},
+            value=CTMS1000.CASENUM
+        )
+
+        results = (
+            db.session.query(
+                CTMS1000,
+
+                func.group_concat(
+                    case(
+                        (
+                            CTMS4100.DTARRAIGN.is_(None),
+                            None
+                        ),
+                        (
+                            CTMS4100.PLEA.is_(None),
+                            CTMS4100.DTARRAIGN
+                        ),
+                        else_=(
+                            CTMS4100.DTARRAIGN +
+                            "\n(" +
+                            func.trim(
+                                func.coalesce(CTMS4000.FNAME, "") +
+                                " " +
+                                func.coalesce(CTMS4000.LNAME, "")
+                            ) +
+                            " - " +
+                            case(
+                                (CTMS4100.PLEA == 2, "GUILTY"),
+                                (CTMS4100.PLEA == 1, "NOT GUILTY"),
+                                else_=""
+                            ) +
+                            ")"
+                        )
+                    ),
+                    "\n\n"
+                ).label("arraignment"),
+
+                func.group_concat(
+                    func.distinct(CTMS4100.DTPRETRIAL)
+                ).label("pretrial")
+
+            )
+            .outerjoin(
+                CTMS4100,
+                CTMS4100.CASEID == CTMS1000.CASEID
+            )
+            .outerjoin(
+                CTMS4000,
+                CTMS4100.PERSONID == CTMS4000.PERSONID
+            )
+            .filter(
+                CTMS1000.CASENUM.in_(pending_criminal)
+            )
+            .group_by(
+                CTMS1000.CASEID
+            )
+            .order_by(ordering)
+            .all()
+        )
+
+        for no, row in enumerate(results, start=1):
+
+            c = row[0]
+
+            ws.cell(excel_row10, 1).value = no
+            ws.cell(excel_row10, 2).value = c.CASENUM
+            ws.cell(excel_row10, 3).value = c.CASETITLE
+            ws.cell(excel_row10, 4).value = c.NATUREREM
+            ws.cell(excel_row10, 5).value = c.DTFILED
+            ws.cell(excel_row10, 6).value = "N/A"
+            ws.cell(excel_row10, 7).value = row.arraignment or ""
+            ws.cell(excel_row10, 8).value = row.pretrial
+            ws.cell(excel_row10, 9).value = "N/A"
+            ws.cell(excel_row10, 10).value = ""
+            ws.cell(excel_row10, 11).value = ""
+            ws.cell(excel_row10, 12).value = "HON. SAIDAMEN M. GANIA"
+
+            for col in range(1, 13):
+
+                cell = ws.cell(excel_row10, col)
+
+                cell.font = Font(
+                    name="Arial",
+                    size=10
+                )
+
+                cell.border = border
+
+                cell.alignment = Alignment(
+                    vertical="top",
+                    wrap_text=True,
+                    horizontal="center" if col == 1 else "left"
+                )
+
+            excel_row10 += 1
+
+    # =====================================================
+    # TOTAL NUMBER OF CRIMINAL CASES
+    # =====================================================
+
+    ws.cell(excel_row10, 1).value = len(results)
+
+    ws.merge_cells(
+        start_row=excel_row10,
+        start_column=2,
+        end_row=excel_row10,
+        end_column=12
+    )
+
+    ws.cell(excel_row10, 2).value = "TOTAL NUMBER OF CRIMINAL CASES"
+
+    ws.row_dimensions[excel_row10].height = 34
+
+    total_cell = ws.cell(excel_row10, 1)
+    total_cell.font = Font(
+        name="Arial",
+        size=16,
+        color="FF0000",
+        bold=True
+    )
+    total_cell.alignment = Alignment(
+        horizontal="center",
+        vertical="center"
+    )
+    total_cell.border = border
+
+    label_cell = ws.cell(excel_row10, 2)
+    label_cell.font = Font(
+        name="Arial",
+        size=11,
+        bold=True
+    )
+    label_cell.alignment = Alignment(
+        horizontal="left",
+        vertical="center"
+    )
+
+    for col in range(2, 13):
+        ws.cell(excel_row10, col).border = border
+
+    excel_row10 = write_civil_section(
+        pending_civil,
+        "CIVIL CASES",
+        "TOTAL NUMBER OF CIVIL CASES",
+        excel_row10
+    )
+
+    excel_row10 = write_civil_section(
+        pending_small_claims,
+        "SMALL CLAIMS",
+        "TOTAL NUMBER OF SMALL CLAIMS CASES",
+        excel_row10
+    )
+
+    excel_row10 = write_civil_section(
+        pending_special_civil,
+        "SPECIAL CIVIL CASES",
+        "TOTAL NUMBER OF SPECIAL CIVIL CASES",
+        excel_row10
+    )
+
+    excel_row10 = write_civil_section(
+        pending_special_proceedings,
+        "SPECIAL PROCEEDINGS",
+        "TOTAL NUMBER OF SPECIAL PROCEEDINGS CASES",
+        excel_row10
+    )
+
+    excel_row10 = write_civil_section(
+        pending_other_civil,
+        "OTHER CIVIL CASES",
+        "TOTAL NUMBER OF OTHER CIVIL CASES",
+        excel_row10
+    )
+
+    # =====================================================
+    # CIVIL GRAND TOTAL
+    # =====================================================
+
+    # blank row
+    excel_row10 += 2
+
+    total_civil = (
+        len(pending_civil)
+        + len(pending_small_claims)
+        + len(pending_special_civil)
+        + len(pending_special_proceedings)
+        + len(pending_other_civil)
+    )
+
+    ws.cell(excel_row10, 1).value = total_civil
+
+    ws.merge_cells(
+        start_row=excel_row10,
+        start_column=2,
+        end_row=excel_row10,
+        end_column=3
+    )
+
+    ws.cell(excel_row10, 2).value = "TOTAL NUMBER OF CIVIL CASES"
+
+    ws.row_dimensions[excel_row10].height = 15.75
+
+    # Column A
+    cell = ws.cell(excel_row10, 1)
+    cell.font = Font(
+        name="Arial",
+        size=16,
+        bold=True,
+        color="FF0000"
+    )
+    cell.alignment = Alignment(
+        horizontal="center",
+        vertical="center"
+    )
+    cell.border = border
+
+    # Label
+    label = ws.cell(excel_row10, 2)
+    label.font = Font(
+        name="Arial",
+        size=12,
+        bold=True,
+        
+    )
+    label.alignment = Alignment(
+        horizontal="left",
+        vertical="center"
+    )
+
+    for col in range(2, 13):
+        ws.cell(excel_row10, col).border = border
+
+
+    # =====================================================
+    # PENDING GRAND TOTAL
+    # =====================================================
+
+    excel_row10 += 1
+
+    total_pending = len(pending_criminal) + total_civil
+
+    ws.cell(excel_row10, 1).value = total_pending
+
+    ws.merge_cells(
+        start_row=excel_row10,
+        start_column=2,
+        end_row=excel_row10,
+        end_column=3
+    )
+
+    ws.cell(excel_row10, 2).value = "TOTAL NUMBER OF PENDING CASES"
+
+    ws.row_dimensions[excel_row10].height = 15.75
+
+    # Column A
+    cell = ws.cell(excel_row10, 1)
+    cell.font = Font(
+        name="Arial",
+        size=16,
+        bold=True,
+        color="FF0000"
+    )
+    cell.alignment = Alignment(
+        horizontal="center",
+        vertical="center"
+    )
+    cell.border = border
+
+    # Label
+    label = ws.cell(excel_row10, 2)
+    label.font = Font(
+        name="Arial",
+        size=12,
+        bold=True,
+    )
+    label.alignment = Alignment(
+        horizontal="left",
+        vertical="center"
+    )
+
+    for col in range(2, 13):
+        ws.cell(excel_row10, col).border = border
+
+#==========================================================================
+    # Blank row before Disposed Cases
+    excel_row10 += 2
+
+    # ==========================
+    # DISPOSED CASES TITLE
+    # ==========================
+
+    ws.merge_cells(
+        start_row=excel_row10,
+        start_column=1,
+        end_row=excel_row10,
+        end_column=12
+    )
+
+    title_cell = ws.cell(excel_row10, 1)
+    title_cell.value = "DISPOSED CASES"
+
+    title_cell.font = Font(
+        name="Arial",
+        size=12,
+        bold=True
+    )
+
+    title_cell.alignment = Alignment(
+        horizontal="center",
+        vertical="center"
+    )
+
+    for col in range(1, 13):
+        ws.cell(excel_row10, col).border = border
+
+
+    # ==========================
+    # A.1. CRIMINAL CASES DECIDED/RESOLVED
+    # ==========================
+
+    excel_row10 += 1
+
+    ws.merge_cells(
+        start_row=excel_row10,
+        start_column=1,
+        end_row=excel_row10,
+        end_column=12
+    )
+
+    subtitle_cell = ws.cell(excel_row10, 1)
+    subtitle_cell.value = "A.1. CRIMINAL CASES DECIDED/RESOLVED"
+
+    subtitle_cell.font = Font(
+        name="Arial",
+        size=12,
+        bold=True
+    )
+
+    subtitle_cell.alignment = Alignment(
+        horizontal="left",
+        vertical="center"
+    )
+
+    for col in range(1, 13):
+        ws.cell(excel_row10, col).border = border
+
+
+    # ==========================
+    # HEADER
+    # ==========================
+
+    excel_row10 += 1
+
+    for cell, text in headers.items():
+
+        col = ws[cell].column
+
+        c = ws.cell(excel_row10, col)
+
+        c.value = text
+        c.font = Font(
+            name="Arial",
+            size=10,
+            bold=True
+        )
+
+        c.alignment = Alignment(
+            horizontal="center",
+            vertical="center",
+            wrap_text=True
+        )
+
+        c.border = border
+
+    ws.row_dimensions[excel_row10].height = 30
+
+
+
+
+#==========================================================================
+
+    # =====================================================
+    # Dismiss CRIMINAL CASES
+    # =====================================================
+
+    results = []
+
+    if disposed_criminal:
+
+        ordering = case(
+            {num: idx for idx, num in enumerate(disposed_criminal, start=1)},
+            value=CTMS1000.CASENUM
+        )
+
+        results = (
+            db.session.query(
+                CTMS1000,
+
+                func.group_concat(
+                    case(
+                        (
+                            CTMS4100.DTARRAIGN.is_(None),
+                            None
+                        ),
+                        (
+                            CTMS4100.PLEA.is_(None),
+                            CTMS4100.DTARRAIGN
+                        ),
+                        else_=(
+                            CTMS4100.DTARRAIGN +
+                            "\n(" +
+                            func.trim(
+                                func.coalesce(CTMS4000.FNAME, "") +
+                                " " +
+                                func.coalesce(CTMS4000.LNAME, "")
+                            ) +
+                            " - " +
+                            case(
+                                (CTMS4100.PLEA == 2, "GUILTY"),
+                                (CTMS4100.PLEA == 1, "NOT GUILTY"),
+                                else_=""
+                            ) +
+                            ")"
+                        )
+                    ),
+                    "\n\n"
+                ).label("arraignment"),
+
+                func.group_concat(
+                    func.distinct(CTMS4100.DTPRETRIAL)
+                ).label("pretrial")
+
+            )
+            .outerjoin(
+                CTMS4100,
+                CTMS4100.CASEID == CTMS1000.CASEID
+            )
+            .outerjoin(
+                CTMS4000,
+                CTMS4100.PERSONID == CTMS4000.PERSONID
+            )
+            .filter(
+                CTMS1000.CASENUM.in_(disposed_criminal)
+            )
+            .group_by(
+                CTMS1000.CASEID
+            )
+            .order_by(ordering)
+            .all()
+        )
+
+        for no, row in enumerate(results, start=1):
+
+            c = row[0]
+
+            ws.cell(excel_row10, 1).value = no
+            ws.cell(excel_row10, 2).value = c.CASENUM
+            ws.cell(excel_row10, 3).value = c.CASETITLE
+            ws.cell(excel_row10, 4).value = c.NATUREREM
+            ws.cell(excel_row10, 5).value = c.DTFILED
+            ws.cell(excel_row10, 6).value = "N/A"
+            ws.cell(excel_row10, 7).value = row.arraignment or ""
+            ws.cell(excel_row10, 8).value = row.pretrial
+            ws.cell(excel_row10, 9).value = "N/A"
+            ws.cell(excel_row10, 10).value = ""
+            ws.cell(excel_row10, 11).value = ""
+            ws.cell(excel_row10, 12).value = "HON. SAIDAMEN M. GANIA"
+
+            for col in range(1, 13):
+
+                cell = ws.cell(excel_row10, col)
+
+                cell.font = Font(
+                    name="Arial",
+                    size=10
+                )
+
+                cell.border = border
+
+                cell.alignment = Alignment(
+                    vertical="top",
+                    wrap_text=True,
+                    horizontal="center" if col == 1 else "left"
+                )
+
+            excel_row10 += 1
+
+    # =====================================================
+    # TOTAL NUMBER OF CRIMINAL CASES
+    # =====================================================
+
+    ws.cell(excel_row10, 1).value = len(results)
+
+    ws.merge_cells(
+        start_row=excel_row10,
+        start_column=2,
+        end_row=excel_row10,
+        end_column=12
+    )
+
+    ws.cell(excel_row10, 2).value = "TOTAL NUMBER OF CRIMINAL CASES"
+
+    ws.row_dimensions[excel_row10].height = 34
+
+    total_cell = ws.cell(excel_row10, 1)
+    total_cell.font = Font(
+        name="Arial",
+        size=16,
+        color="FF0000",
+        bold=True
+    )
+    total_cell.alignment = Alignment(
+        horizontal="center",
+        vertical="center"
+    )
+    total_cell.border = border
+
+    label_cell = ws.cell(excel_row10, 2)
+    label_cell.font = Font(
+        name="Arial",
+        size=11,
+        bold=True
+    )
+    label_cell.alignment = Alignment(
+        horizontal="left",
+        vertical="center"
+    )
+
+    for col in range(2, 13):
+        ws.cell(excel_row10, col).border = border
+
+
+
+
+
+
+
+
+
+
+
+
+#==========================================================================
+    excel_row10 = write_civil_section(
+        disposed_civil,
+        "CIVIL CASES",
+        "TOTAL NUMBER OF CIVIL CASES",
+        excel_row10
+    )
+
+    excel_row10 = write_civil_section(
+        disposed_small_claims,
+        "SMALL CLAIMS",
+        "TOTAL NUMBER OF SMALL CLAIMS CASES",
+        excel_row10
+    )
+
+    excel_row10 = write_civil_section(
+        disposed_special_civil,
+        "SPECIAL CIVIL CASES",
+        "TOTAL NUMBER OF SPECIAL CIVIL CASES",
+        excel_row10
+    )
+
+    excel_row10 = write_civil_section(
+        disposed_special_proceedings,
+        "SPECIAL PROCEEDINGS",
+        "TOTAL NUMBER OF SPECIAL PROCEEDINGS CASES",
+        excel_row10
+    )
+
+    excel_row10 = write_civil_section(
+        disposed_other_civil,
+        "OTHER CIVIL CASES",
+        "TOTAL NUMBER OF OTHER CIVIL CASES",
+        excel_row10
+    )
+#==========================================================================
+    wb.save(output_path)
+
+    flash(f"Excel created successfully: {filename}", "success")
+
+    return redirect(url_for("reports.index"))
