@@ -125,119 +125,162 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
 
-            <div class="modal-header">
-                <h4 class="modal-title font-weight-bold">
+            <!-- =========================
+                 HEADER
+            ========================== -->
+            <div class="modal-header bg-primary text-white">
+                <h4 class="modal-title font-weight-bold mb-0">
                     Create Docket Inventory Excel
                 </h4>
+
+                <button type="button"
+                        class="close text-white"
+                        data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
             </div>
 
+            <!-- =========================
+                 BODY
+            ========================== -->
             <div class="modal-body">
 
                 <form id="createExcelForm">
 
-                    <div class="row">
+                    <!-- =========================
+                         GENERAL INFORMATION
+                    ========================== -->
+                    <div class="card shadow-sm mb-4">
 
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-                                <label>Year</label>
-                                <input type="number"
-                                       class="form-control"
-                                       name="year"
-                                       value="2026"
-                                       min="2026"
-                                       max="2100"
-                                       required>
-                            </div>
-
+                        <div class="card-header bg-light">
+                            <strong>General Information</strong>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="card-body">
 
-                            <div class="form-group">
-                                <label>Semester</label>
-                                <select class="form-control"
-                                        name="semester"
-                                        required>
+                            <div class="row">
 
-                                    <option value="1">
-                                        January - June (1st Semester)
-                                    </option>
+                                <div class="col-md-6">
 
-                                    <option value="2">
-                                        July - December (2nd Semester)
-                                    </option>
+                                    <div class="form-group mb-0">
 
-                                </select>
+                                        <label class="font-weight-bold">
+                                            Year
+                                        </label>
+
+                                        <input type="number"
+                                               class="form-control"
+                                               name="year"
+                                               value="2026"
+                                               min="2026"
+                                               max="2100"
+                                               required>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="form-group mb-0">
+
+                                        <label class="font-weight-bold">
+                                            Semester
+                                        </label>
+
+                                        <select class="form-control"
+                                                name="semester"
+                                                required>
+
+                                            <option value="1">
+                                                January - June (1st Semester)
+                                            </option>
+
+                                            <option value="2">
+                                                July - December (2nd Semester)
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+                                </div>
+
                             </div>
 
                         </div>
 
                     </div>
 
-                    <hr>
-
+                    <!-- =========================
+                         CASES
+                    ========================== -->
                     <div class="row">
 
                         <!-- =========================
                              PENDING
                         ========================== -->
 
-                        <div class="col-md-6">
+                        <div class="col-lg-6 mb-3">
 
-                            <h5 class="text-primary font-weight-bold">
-                                Pending Cases
-                            </h5>
+                            <div class="card border-success shadow-sm h-100">
 
-                            <div class="form-group">
-                                <label>Pending Criminal Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="pending_criminal"
-                                    rows="2"
-                                    placeholder="4745,4746,4854"></textarea>
-                            </div>
+                                <div class="card-header bg-success text-white">
 
-                            <div class="form-group">
-                                <label>Pending Civil Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="pending_civil"
-                                    rows="2"
-                                    placeholder="1001,1002,1003"></textarea>
-                            </div>
+                                    <strong>
+                                        Pending Cases
+                                    </strong>
 
-                            <div class="form-group">
-                                <label>Pending Small Claims</label>
-                                <textarea
-                                    class="form-control"
-                                    name="pending_small_claims"
-                                    rows="2"
-                                    placeholder="216,217,218"></textarea>
-                            </div>
+                                </div>
 
-                            <div class="form-group">
-                                <label>Pending Special Civil Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="pending_special_civil"
-                                    rows="2"></textarea>
-                            </div>
+                                <div class="card-body">
 
-                            <div class="form-group">
-                                <label>Pending Special Proceedings Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="pending_special_proceedings"
-                                    rows="2"></textarea>
-                            </div>
+                                    <div class="form-group">
+                                        <label><strong>Criminal</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="pending_criminal"
+                                                  rows="3"
+                                                  placeholder="4745,4746,4854"></textarea>
+                                    </div>
 
-                            <div class="form-group">
-                                <label>Pending Other Civil Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="pending_other_civil"
-                                    rows="2"></textarea>
+                                    <div class="form-group">
+                                        <label><strong>Civil</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="pending_civil"
+                                                  rows="3"
+                                                  placeholder="1001,1002,1003"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Small Claims</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="pending_small_claims"
+                                                  rows="3"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Special Civil</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="pending_special_civil"
+                                                  rows="3"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>Special Proceedings</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="pending_special_proceedings"
+                                                  rows="3"></textarea>
+                                    </div>
+
+                                    <div class="form-group mb-0">
+                                        <label><strong>Other Civil</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="pending_other_civil"
+                                                  rows="3"></textarea>
+                                    </div>
+
+                                </div>
+
                             </div>
 
                         </div>
@@ -246,71 +289,74 @@
                              DISPOSED
                         ========================== -->
 
-                        <div class="col-md-6">
+                        <div class="col-lg-6 mb-3">
 
-                            <h5 class="text-danger font-weight-bold">
-                                Disposed Cases
-                            </h5>
+                            <div class="card border-danger shadow-sm h-100">
 
-                            <div class="form-group">
-                                <label>Disposed Criminal Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="disposed_criminal"
-                                    rows="2"></textarea>
-                            </div>
+                                <div class="card-header bg-danger text-white">
 
-                            <div class="form-group">
-                                <label>Disposed Civil Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="disposed_civil"
-                                    rows="2"></textarea>
-                            </div>
+                                    <strong>
+                                        Disposed Cases
+                                    </strong>
 
-                            <div class="form-group">
-                                <label>Disposed Small Claims</label>
-                                <textarea
-                                    class="form-control"
-                                    name="disposed_small_claims"
-                                    rows="2"></textarea>
-                            </div>
+                                </div>
 
-                            <div class="form-group">
-                                <label>Disposed Special Civil Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="disposed_special_civil"
-                                    rows="2"></textarea>
-                            </div>
+                                <div class="card-body">
 
-                            <div class="form-group">
-                                <label>Disposed Special Proceedings Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="disposed_special_proceedings"
-                                    rows="2"></textarea>
-                            </div>
+                                    <div class="form-group">
+                                        <label><strong>CRIMINAL CASES DECIDED/RESOLVED</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="disposed_criminal"
+                                                  rows="3"></textarea>
+                                    </div>
 
-                            <div class="form-group">
-                                <label>Disposed Other Civil Cases</label>
-                                <textarea
-                                    class="form-control"
-                                    name="disposed_other_civil"
-                                    rows="2"></textarea>
+                                    <div class="form-group">
+                                        <label><strong>CIVIL CASES DECIDED/RESOLVED</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="disposed_civil"
+                                                  rows="3"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>CRIMINAL CASES ARCHIVED</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="archived_criminal"
+                                                  rows="3"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label><strong>CIVIL CASES ARCHIVED</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="archived_civil"
+                                                  rows="3"></textarea>
+                                    </div>
+
+                                    <div class="form-group mb-0">
+                                        <label><strong>Transferred to Other Court</strong></label>
+                                        <textarea class="form-control font-monospace"
+                                                  name="transferred_to_other_court"
+                                                  rows="3"></textarea>
+                                    </div>
+
+                                </div>
+
                             </div>
 
                         </div>
 
                     </div>
 
+                    <!-- =========================
+                         LOADING
+                    ========================== -->
+
                     <div id="excelLoading"
-                         class="text-center mt-3"
+                         class="text-center mt-4"
                          style="display:none;">
 
                         <div class="spinner-border text-warning"></div>
 
-                        <p class="mt-2 mb-0">
+                        <p class="mt-3 mb-0 font-weight-bold">
                             Creating Excel...
                         </p>
 
@@ -320,21 +366,24 @@
 
             </div>
 
+            <!-- =========================
+                 FOOTER
+            ========================== -->
+
             <div class="modal-footer">
 
-                <button
-                    type="button"
-                    class="btn btn-warning"
-                    id="createExcelBtn">
+                <button type="button"
+                        class="btn btn-warning"
+                        id="createExcelBtn">
 
+                    <i class="fas fa-file-excel mr-1"></i>
                     Create Excel
 
                 </button>
 
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
 
                     Close
 
@@ -345,6 +394,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- =========================
      REPORT MODAL
@@ -632,15 +682,14 @@ $("#createExcelBtn").on("click", function () {
 
     let disposed_criminal = $("textarea[name='disposed_criminal']").val();
     let disposed_civil = $("textarea[name='disposed_civil']").val();
-    let disposed_small_claims = $("textarea[name='disposed_small_claims']").val();
-    let disposed_special_civil = $("textarea[name='disposed_special_civil']").val();
-    let disposed_special_proceedings = $("textarea[name='disposed_special_proceedings']").val();
-    let disposed_other_civil = $("textarea[name='disposed_other_civil']").val();
+    let archived_criminal = $("textarea[name='archived_criminal']").val();
+    let archived_civil = $("textarea[name='archived_civil']").val();
+    let transferred_to_other_court = $("textarea[name='transferred_to_other_court']").val();
 
     window.location.href =
         `/report/create_excel`
-        + `?year=${year}`
-        + `&semester=${semester}`
+        + `?year=${encodeURIComponent(year)}`
+        + `&semester=${encodeURIComponent(semester)}`
         + `&pending_criminal=${encodeURIComponent(pending_criminal)}`
         + `&pending_civil=${encodeURIComponent(pending_civil)}`
         + `&pending_small_claims=${encodeURIComponent(pending_small_claims)}`
@@ -649,12 +698,10 @@ $("#createExcelBtn").on("click", function () {
         + `&pending_other_civil=${encodeURIComponent(pending_other_civil)}`
         + `&disposed_criminal=${encodeURIComponent(disposed_criminal)}`
         + `&disposed_civil=${encodeURIComponent(disposed_civil)}`
-        + `&disposed_small_claims=${encodeURIComponent(disposed_small_claims)}`
-        + `&disposed_special_civil=${encodeURIComponent(disposed_special_civil)}`
-        + `&disposed_special_proceedings=${encodeURIComponent(disposed_special_proceedings)}`
-        + `&disposed_other_civil=${encodeURIComponent(disposed_other_civil)}`;
-
-});
+        + `&archived_criminal=${encodeURIComponent(archived_criminal)}`
+        + `&archived_civil=${encodeURIComponent(archived_civil)}`
+        + `&transferred_to_other_court=${encodeURIComponent(transferred_to_other_court)}`;
+        });
 </script>
 
 {% endblock %}
