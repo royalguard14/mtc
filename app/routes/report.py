@@ -918,7 +918,7 @@ def create_excel():
         request.args.get("disposed_criminal", "")
     )
 
-    disposed_civil = parse_numeric_cases(
+    disposed_civil = parse_string_cases(
         request.args.get("disposed_civil", "")
     )
 
