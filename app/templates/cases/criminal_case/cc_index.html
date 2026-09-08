@@ -1,272 +1,136 @@
 {% extends "layouts/layout1.html" %}
 {% block content %}
 <style>
-  .case-col {
-    white-space: nowrap;
-    width: 1%;
+  .criminal-page { width:100%; max-width:100%; flex:0 0 100%; padding:0 0 18px; }
+  .criminal-toolbar { background:#fff; border:1px solid #e7eaee; border-radius:8px; padding:12px 14px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+  .criminal-heading { display:flex; align-items:center; min-width:0; }
+  .criminal-icon { width:34px; height:34px; border-radius:7px; background:#eef5ff; color:#0d6efd; display:flex; align-items:center; justify-content:center; margin-right:10px; flex:0 0 auto; }
+  .criminal-heading h1 { font-size:19px; line-height:1.2; margin:0; font-weight:700; color:#252a30; }
+  .criminal-heading p { margin:2px 0 0; font-size:12px; color:#7a828a; }
+  .criminal-btn { border-radius:6px; font-size:12px; font-weight:600; padding:7px 12px; }
+  .criminal-actions { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .criminal-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:12px; }
+  .criminal-stat { background:#fff; border:1px solid #e7eaee; border-radius:8px; padding:10px 12px; min-height:62px; display:flex; align-items:center; box-shadow:0 1px 3px rgba(0,0,0,.035); }
+  .criminal-stat-icon { width:34px; height:34px; border-radius:7px; background:#f3f6fa; color:#647180; display:flex; align-items:center; justify-content:center; margin-right:10px; flex:0 0 auto; }
+  .criminal-label { font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:#7b838c; font-weight:700; line-height:1.2; }
+  .criminal-value { font-size:18px; font-weight:700; color:#252a30; line-height:1.2; margin-top:2px; }
+  .criminal-registry { width:100%; border:1px solid #e2e6ea; border-radius:8px; box-shadow:0 2px 7px rgba(0,0,0,.045); overflow:visible; background:#fff; }
+  .criminal-registry-header { min-height:48px; padding:10px 14px; border-bottom:1px solid #e9ecef; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .registry-title { font-size:14px; font-weight:700; color:#30353a; }
+  .registry-subtitle { font-size:11px; color:#8a9198; margin-left:7px; }
+  .registry-count { font-size:11px; color:#7a828a; white-space:nowrap; }
+  .criminal-table-wrap { width:100%; overflow-x:auto; }
+  #example2 { width:100% !important; margin:0 !important; }
+  #example2 thead th { background:#f7f8fa; border-top:0; border-bottom:1px solid #e5e8eb; color:#6f7780; font-size:10px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; padding:9px 11px; white-space:nowrap; }
+  #example2 tbody td { padding:10px 11px; vertical-align:middle; font-size:12px; border-top:1px solid #f0f2f4; }
+  #example2 tbody tr:hover { background:#fafcff; }
+  .case-number { font-weight:700; color:#1769d1; white-space:nowrap; }
+  .case-title { max-width:950px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; color:#30353a; }
+  .case-date { white-space:nowrap; color:#737b83; }
+  .criminal-edit { border-radius:5px !important; font-size:11px; font-weight:600; padding:5px 9px; }
+  .dataTables_wrapper { padding:0 12px 10px; }
+  .dataTables_wrapper .dataTables_filter { margin:9px 0 7px; }
+  .dataTables_wrapper .dataTables_filter input { height:30px; width:220px; border:1px solid #dfe3e7; border-radius:5px; font-size:12px; padding:5px 9px; margin-left:5px; }
+  .dataTables_wrapper .dataTables_info,.dataTables_wrapper .dataTables_paginate { font-size:11px; }
+  .dataTables_wrapper .dataTables_paginate .paginate_button { padding:3px 7px !important; font-size:11px; }
+  .spin { animation:spin 1s linear infinite; }
+  @keyframes spin { 100% { transform:rotate(360deg); } }
+  .modal-content { border:0; border-radius:8px; box-shadow:0 12px 35px rgba(0,0,0,.16); }
+  .modal-header { padding:12px 16px; border-bottom:1px solid #e9ecef; }
+  .modal-header .modal-title { font-size:16px; font-weight:700; }
+  .modal-body { padding:16px; }
+  .modal-footer { padding:10px 16px; border-top:1px solid #e9ecef; }
+  @media (max-width:767px) {
+    .criminal-toolbar { padding:10px; }
+    .criminal-heading h1 { font-size:17px; }
+    .criminal-heading p { display:none; }
+    .criminal-actions { margin-top:8px; width:100%; }
+    .criminal-btn { padding:6px 9px; }
+    .criminal-btn i { display:none; }
+    .criminal-stats { grid-template-columns:1fr; gap:7px; }
+    .criminal-stat { min-height:54px; padding:8px 10px; }
+    .criminal-registry-header { padding:9px 10px; }
+    .registry-subtitle,.registry-count { display:none; }
+    .dataTables_wrapper { padding:0 7px 8px; }
+    .dataTables_wrapper .dataTables_filter input { width:calc(100vw - 92px); max-width:220px; }
+    #example2 { min-width:700px !important; }
+    .criminal-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .modal-dialog { margin:8px; }
   }
 </style>
 
-
-<style>
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
-</style>
-
-
-
-<section class="col-lg-12 connectedSortable">
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Criminal Case Record</h3>
-   <div class="card-tools d-flex" style="gap: 5px;">
-  <a href="/cc/add" class="btn btn-outline-primary">
-    <i class="fas fa-plus"></i> Add Case
-  </a>
-
-
-
-<button id="syncBtn" class="btn btn-outline-primary">
-  <i class="fas fa-sync"></i> Sync to GS
-</button>
-
-<span id="syncStatus" class="ml-2"></span>
-</div>
-
+<section class="criminal-page">
+  <div class="criminal-toolbar">
+    <div class="d-flex align-items-center justify-content-between flex-wrap">
+      <div class="criminal-heading">
+        <div class="criminal-icon"><i class="fas fa-gavel"></i></div>
+        <div>
+          <h1>Criminal Cases</h1>
+          <p>Criminal case docket records and case information</p>
+        </div>
+      </div>
+      <div class="criminal-actions">
+        <a href="/cc/add" class="btn btn-primary criminal-btn"><i class="fas fa-plus mr-1"></i> New Criminal Case</a>
+        <button id="syncBtn" type="button" class="btn btn-outline-primary criminal-btn"><i class="fas fa-sync mr-1"></i> Sync to GS</button>
+        <span id="syncStatus" class="ml-1" style="font-size:11px;"></span>
+      </div>
     </div>
-    <div class="card-body">
-      <table id="example2" class="table table-bordered table-striped">
-        <thead>
-          <tr>
-            <th class="case-col">Case Number</th>
-            <th>Date Filed</th>
-            <th>Title</th>
-            <th width="120">Action</th>
-          </tr>
-        </thead>
+  </div>
+
+  <div class="criminal-stats">
+    <div class="criminal-stat"><div class="criminal-stat-icon"><i class="fas fa-folder-open"></i></div><div><div class="criminal-label">Total Criminal Cases</div><div class="criminal-value">{{ criminal_records|length }}</div></div></div>
+    <div class="criminal-stat"><div class="criminal-stat-icon"><i class="fas fa-calendar-alt"></i></div><div><div class="criminal-label">Filed This Year</div><div class="criminal-value" id="criminalFiledThisYear">0</div></div></div>
+    <div class="criminal-stat"><div class="criminal-stat-icon"><i class="fas fa-list"></i></div><div><div class="criminal-label">Registry</div><div class="criminal-value">Criminal</div></div></div>
+  </div>
+
+  <div class="criminal-registry">
+    <div class="criminal-registry-header">
+      <div><span class="registry-title">Criminal Case Registry</span><span class="registry-subtitle">Search and manage filed cases</span></div>
+      <span class="registry-count">{{ criminal_records|length }} record{% if criminal_records|length != 1 %}s{% endif %}</span>
+    </div>
+    <div class="criminal-table-wrap">
+      <table id="example2" class="table table-hover">
+        <thead><tr><th>Case Number</th><th>Date Filed</th><th>Case Title</th><th class="text-right">Action</th></tr></thead>
         <tbody>
           {% for record in criminal_records %}
           <tr>
-            <td>
-              <a href="#"
-              class="open-case-modal"
-              data-toggle="modal"
-              data-target="#caseModal"
-              data-caseid="{{ record.CASEID }}">
-              {{ record.CASENUM }}
-            </a>
-          </td>
-          <td class="case-col">{{ record.DTFILED }}</td>
-          <td>{{ record.CASETITLE.replace(" Y ", " y ") }}</td>
-          <td>
-  <a href="/cc/edit/{{ record.CASEID }}"
-     class="btn btn-outline-primary btn-sm">
-    <i class="fas fa-edit"></i> Edit
-  </a>
-
-
-
-
-
-</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-</section>
-<!-- =========================
-     MODAL
-========================= -->
-<div class="modal fade" id="caseModal">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title font-weight-bold">Case Number: <span>xx</span></h4>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <section class="col-lg-7">
-            <div id="case-info-body"></div>
-          </section>
-          <section class="col-lg-5">
-            <ul id="parties-body" class="list-group"></ul>
-          </section>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
+            <td><a href="#" class="open-case-modal case-number" data-toggle="modal" data-target="#caseModal" data-caseid="{{ record.CASEID }}">{{ record.CASENUM }}</a></td>
+            <td class="case-date">{{ record.DTFILED }}</td>
+            <td><div class="case-title" title="{{ record.CASETITLE or '' }}">{{ record.CASETITLE.replace(" Y ", " y ") }}</div></td>
+            <td class="text-right"><a href="/cc/edit/{{ record.CASEID }}" class="btn btn-outline-primary btn-sm criminal-edit"><i class="fas fa-edit mr-1"></i> Edit</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <!-- /.modal-content -->
   </div>
-<!-- /.modal-dialog -->
+</section>
+
+<div class="modal fade" id="caseModal">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h4 class="modal-title font-weight-bold">Case Number: <span>xx</span></h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
+    <div class="modal-body">
+      <div class="row"><section class="col-lg-7"><div id="case-info-body"></div></section><section class="col-lg-5"><ul id="parties-body" class="list-group"></ul></section></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-default" data-dismiss="modal">Close</button></div>
+  </div></div>
 </div>
-<!-- /.modal -->
-
-
-
-
 {% endblock %}
+
 {% block scripts %}
-
 <script>
-  $("#generateReportBtn").on("click", function () {
-  let from = $("input[name='from']").val();
-  let to = $("input[name='to']").val();
-
-  if (!from || !to) {
-    alert("Please select both dates.");
-    return;
-  }
-
-  // Example: redirect with query params
-  window.location.href = `/cc/report-email?from=${from}&to=${to}`;
+function formatDate(dateStr){if(!dateStr)return '';let date=new Date(dateStr);if(isNaN(date))return dateStr;return date.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});}
+function renderCaseInfo(data){let c=data.case;$(".modal-title span").text(c.CASENUM??'');let html=`<table class="table table-bordered table-sm"><tr><th>Case Title</th><td>${c.CASETITLE??''}</td></tr><tr><th>Date Filed</th><td>${formatDate(c.DTFILED)}</td></tr><tr><th>Date Received</th><td>${formatDate(c.DTRECEIVED)}</td></tr><tr><th>Nature</th><td>${c.NATUREREM??''}</td></tr></table>`;$("#case-info-body").html(html);}
+function renderParties(data){let listHtml='';data.parties.forEach(p=>{let name=p.FULLNAME||p.PARTYNAME||'';listHtml+=`<div><a href="/cc/person/${p.PERSONID}/${data.case.CASEID}" class="text-primary">${name}</a></div>`;});let html=`<table class="table table-bordered table-sm"><tr><th class="text-center">Accused</th></tr><tr><td><a href="/cc/add_person/${data.case.CASEID}" class="btn btn-block btn-outline-secondary btn-xs mb-2">Register New</a>${listHtml||'<span class="text-muted">No accused found</span>'}</td></tr></table>`;$("#parties-body").html(html);}
+$(document).on("click",".open-case-modal",function(){let caseId=$(this).data("caseid");$("#case-info-body").html('<div class="text-muted p-2">Loading...</div>');$("#parties-body").html('<div class="text-muted p-2">Loading...</div>');$.get("/cc/case-details/"+caseId,function(data){renderCaseInfo(data);renderParties(data);});});
+$(function(){
+  $('#example2').DataTable({paging:true,lengthChange:false,searching:true,ordering:false,info:true,autoWidth:false,responsive:false,pageLength:10,language:{search:"",searchPlaceholder:"Search criminal cases...",emptyTable:"No criminal cases found",zeroRecords:"No matching criminal cases found"}});
+  let currentYear=new Date().getFullYear(),count=0;
+  {% for record in criminal_records %}{% if record.DTFILED %}if(new Date("{{ record.DTFILED }}").getFullYear()===currentYear)count++;{% endif %}{% endfor %}
+  $('#criminalFiledThisYear').text(count);
 });
-
 </script>
 <script>
-  function formatDate(dateStr) {
-    if (!dateStr) return '';
-    let date = new Date(dateStr);
-    if (isNaN(date)) return dateStr;
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  }
-  function renderCaseInfo(data) {
-    let c = data.case;
-  // Update modal title (Case Number)
-    $(".modal-title span").text(c.CASENUM ?? '');
-    let html = `
-    <table class="table table-bordered table-sm">
-      <tr>
-        <th>Case Title</th>
-        <td>${c.CASETITLE ?? ''}</td>
-      </tr>
-      <tr>
-        <th>Date Filed</th>
-        <td>${formatDate(c.DTFILED)}</td>
-      </tr>
-      <tr>
-        <th>Date Received</th>
-        <td>${formatDate(c.DTRECEIVED)}</td>
-      </tr>
-      <tr>
-        <th>Nature</th>
-        <td>${c.NATUREREM ?? ''}</td>
-      </tr>
-    </table>
-    `;
-  // Insert into modal
-    $("#case-info-body").html(html);
-  }
-  function renderParties(data) {
-    let listHtml = '';
-    data.parties.forEach(p => {
-      let name = p.FULLNAME || p.PARTYNAME || '';
-      listHtml += `
-      <div>
-        <a href="/cc/person/${p.PERSONID}/${data.case.CASEID}" class="text-primary">
-          ${name}
-        </a>
-      </div>
-      `;
-    });
-    let html = `
-    <table class="table table-bordered table-sm">
-      <tr>
-        <th class="text-center">Accused</th>
-        <a href="/cc/add_person/${data.case.CASEID}"  class="btn btn-block btn-outline-secondary btn-xs">Register New</a>
-      
-      </tr>
-      <tr>
-        <td>
-          ${listHtml || '<span class="text-muted">No accused found</span>'}
-        </td>
-      </tr>
-    </table>
-    `;
-    $("#parties-body").html(html);
-  }
-// =========================
-// CLICK EVENT
-// =========================
-  $(document).on("click", ".open-case-modal", function () {
-    let caseId = $(this).data("caseid");
-  // Loading state
-    $("#case-info-body").html('<tr><td colspan="2">Loading...</td></tr>');
-    $("#parties-body").html('<tr><td colspan="4">Loading...</td></tr>');
-    $.get("/cc/case-details/" + caseId, function (data) {
-    // Render everything dynamically
-      renderCaseInfo(data);
-      renderParties(data);
-    });
-  });
-// =========================
-// DATATABLE
-// =========================
-  $(function () {
-    $('#example2').DataTable({
-      paging: true,
-      lengthChange: false,
-      searching: true,
-      ordering: false,
-      info: true,
-      autoWidth: false,
-      responsive: true,
-    });
-  });
-</script>
-
-<script>
-  
-
-  $("#syncBtn").on("click", function () {
-
-  let btn = $(this);
-  let status = $("#syncStatus");
-
-  // UI: loading state
-  btn.prop("disabled", true);
-  btn.html('<i class="fas fa-spinner spin"></i> Syncing...');
-
-  status.html("⏳ Syncing...").css("color", "#888");
-
-  $.ajax({
-    url: "/cc/api/google-sheet",
-    method: "GET",
-    success: function (res) {
-
-      if (res.status === "success") {
-        status.html("✅ Sync Complete").css("color", "green");
-        btn.html('<i class="fas fa-sync"></i> Sync to GS');
-      } else {
-        status.html("❌ Sync Failed").css("color", "red");
-      }
-
-    },
-    error: function () {
-      status.html("❌ Sync Failed (Server Error)").css("color", "red");
-    },
-    complete: function () {
-      btn.prop("disabled", false);
-
-      // auto clear message after 3 seconds
-      setTimeout(() => {
-        status.html("");
-      }, 3000);
-    }
-  });
-
-});
+$("#syncBtn").on("click",function(){let btn=$(this),status=$("#syncStatus");btn.prop("disabled",true).html('<i class="fas fa-spinner spin"></i> Syncing...');status.html("⏳ Syncing...").css("color","#888");$.ajax({url:"/cc/api/google-sheet",method:"GET",success:function(res){if(res.status==="success"){status.html("✓ Sync Complete").css("color","green");btn.html('<i class="fas fa-sync"></i> Sync to GS');}else{status.html("✕ Sync Failed").css("color","red");}},error:function(){status.html("✕ Sync Failed (Server Error)").css("color","red");},complete:function(){btn.prop("disabled",false);setTimeout(()=>{status.html("");},3000);}});});
 </script>
 {% endblock %}
