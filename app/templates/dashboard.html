@@ -2,271 +2,189 @@
 
 {% block head %}
 <style>
+  .dashboard-wrap { margin-top: 2px; }
   .dashboard-hero {
-    position: relative;
-    overflow: hidden;
-    border-radius: 16px;
-    padding: 24px 28px;
-    margin-bottom: 22px;
-    background: linear-gradient(135deg, #1f4e79 0%, #163a5c 55%, #102a43 100%);
+    background: linear-gradient(135deg, #173f63 0%, #245f8f 100%);
     color: #fff;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .10);
+    border-radius: 14px;
+    padding: 24px 26px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 24px rgba(23,63,99,.16);
   }
+  .dashboard-hero h2 { margin: 0; font-size: 1.55rem; font-weight: 700; }
+  .dashboard-hero p { margin: 5px 0 0; opacity: .82; font-size: .9rem; }
+  .dashboard-hero .hero-date { margin-top: 12px; font-size: .8rem; opacity: .72; }
 
-  .dashboard-hero:after {
-    content: "";
-    position: absolute;
-    width: 220px;
-    height: 220px;
-    right: -70px;
-    top: -100px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.08);
-  }
-
-  .dashboard-hero h2 {
-    margin: 0 0 6px;
-    font-size: 1.65rem;
-    font-weight: 700;
-  }
-
-  .dashboard-hero p {
-    margin: 0;
-    opacity: .82;
-    font-size: .96rem;
-  }
-
-  .dashboard-date {
-    margin-top: 10px;
-    font-size: .85rem;
-    opacity: .75;
-  }
-
-  .stat-card {
-    position: relative;
-    min-height: 142px;
+  .dashboard-card {
     border: 0;
-    border-radius: 15px;
-    overflow: hidden;
+    border-radius: 14px;
     background: #fff;
-    box-shadow: 0 7px 24px rgba(0,0,0,.07);
-    transition: transform .18s ease, box-shadow .18s ease;
+    box-shadow: 0 6px 22px rgba(0,0,0,.055);
+    height: 100%;
   }
-
-  .stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(0,0,0,.11);
-  }
-
-  .stat-card .card-body {
-    padding: 20px;
-  }
-
-  .stat-label {
-    margin: 0 0 5px;
-    color: #6c757d;
-    font-size: .82rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-  }
-
-  .stat-number {
-    margin: 0;
-    color: #212529;
-    font-size: 2rem;
-    line-height: 1.1;
-    font-weight: 700;
-  }
-
-  .stat-subtitle {
-    margin: 8px 0 0;
-    color: #8a94a6;
-    font-size: .82rem;
-  }
-
-  .stat-icon {
-    position: absolute;
-    right: 18px;
-    top: 20px;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 13px;
-    font-size: 1.15rem;
-  }
-
-  .stat-card.month .stat-icon { background: #e8f5e9; color: #28a745; }
-  .stat-card.criminal .stat-icon { background: #fdecec; color: #dc3545; }
-  .stat-card.civil .stat-icon { background: #e9f4fb; color: #17a2b8; }
-  .stat-card.smallclaim .stat-icon { background: #fff6df; color: #d89b00; }
-
-  .dashboard-panel {
-    border: 0;
-    border-radius: 15px;
-    box-shadow: 0 7px 24px rgba(0,0,0,.06);
-    background: #fff;
-  }
-
-  .dashboard-panel .card-header {
+  .dashboard-card .card-header {
     background: transparent;
     border-bottom: 1px solid #edf0f4;
-    padding: 18px 20px;
+    padding: 17px 19px;
   }
+  .dashboard-card .card-title { margin: 0; font-size: .98rem; font-weight: 700; }
+  .dashboard-card .card-body { padding: 18px 19px; }
 
-  .dashboard-panel .card-title {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
-  }
+  .monthly-number { font-size: 3rem; line-height: 1; font-weight: 700; color: #173f63; }
+  .monthly-label { margin-top: 7px; color: #6c757d; font-size: .84rem; }
+  .monthly-meta { margin-top: 22px; display: flex; gap: 18px; flex-wrap: wrap; }
+  .monthly-meta-item { font-size: .78rem; color: #7b8490; }
+  .monthly-meta-item strong { display: block; color: #343a40; font-size: 1rem; margin-bottom: 2px; }
 
-  .dashboard-panel .card-body {
-    padding: 20px;
-  }
-
-  .overview-item {
+  .case-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 13px 0;
+    padding: 11px 0;
     border-bottom: 1px solid #f0f2f5;
   }
-
-  .overview-item:last-child { border-bottom: 0; }
-
-  .overview-name {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #495057;
-    font-size: .9rem;
+  .case-row:last-child { border-bottom: 0; padding-bottom: 0; }
+  .case-name { display: flex; align-items: center; gap: 10px; font-size: .86rem; color: #495057; }
+  .case-icon {
+    width: 31px; height: 31px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; font-size: .78rem;
   }
+  .case-icon.criminal { background: #fdebed; color: #dc3545; }
+  .case-icon.civil { background: #e8f4fa; color: #16859b; }
+  .case-icon.small { background: #fff5dc; color: #bd8300; }
+  .case-count { font-size: 1rem; font-weight: 700; color: #343a40; }
 
-  .overview-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
+  .hearing-empty { text-align: center; padding: 30px 10px; color: #8b949e; font-size: .85rem; }
+  .hearing-item {
+    display: flex; gap: 13px; padding: 12px 0;
+    border-bottom: 1px solid #f0f2f5;
   }
+  .hearing-item:last-child { border-bottom: 0; }
+  .hearing-date {
+    flex: 0 0 52px; text-align: center; border-radius: 9px;
+    background: #f3f6f9; padding: 7px 3px; height: fit-content;
+  }
+  .hearing-date .month { display: block; font-size: .65rem; font-weight: 700; text-transform: uppercase; color: #6c757d; }
+  .hearing-date .day { display: block; font-size: 1.1rem; line-height: 1.1; font-weight: 700; color: #173f63; }
+  .hearing-info { min-width: 0; }
+  .hearing-title { font-size: .84rem; font-weight: 600; color: #343a40; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hearing-time { margin-top: 3px; font-size: .75rem; color: #8a94a0; }
 
-  .overview-value {
-    font-weight: 700;
-    color: #343a40;
+  .dashboard-link {
+    font-size: .76rem; color: #2874a6; text-decoration: none;
   }
-
-  @media (max-width: 767.98px) {
-    .dashboard-hero { padding: 20px; }
-    .dashboard-hero h2 { font-size: 1.35rem; }
-    .stat-number { font-size: 1.75rem; }
-  }
+  .dashboard-link:hover { text-decoration: underline; }
 </style>
 {% endblock %}
 
 {% block dashboardDetails %}
-<div class="dashboard-hero">
-  <h2>Good day! Welcome to MTC Court System</h2>
-  <p>Central dashboard for monitoring the court's case records and workload.</p>
-  <div class="dashboard-date"><i class="far fa-calendar-alt mr-1"></i> <span id="dashboardDate">Loading date...</span></div>
-</div>
-
-<div class="row">
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stat-card month">
-      <div class="card-body">
-        <p class="stat-label">New Cases</p>
-        <h3 class="stat-number">{{ dashboard_data.totalCaseThisMonth }}</h3>
-        <p class="stat-subtitle">Filed this month</p>
-        <div class="stat-icon"><i class="fas fa-calendar-plus"></i></div>
-      </div>
-    </div>
+<div class="dashboard-wrap">
+  <div class="dashboard-hero">
+    <h2>Court Dashboard</h2>
+    <p>At-a-glance view of case records and upcoming court schedules.</p>
+    <div class="hero-date"><i class="far fa-calendar-alt mr-1"></i><span id="dashboardDate">—</span></div>
   </div>
 
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stat-card criminal">
-      <div class="card-body">
-        <p class="stat-label">Criminal Cases</p>
-        <h3 class="stat-number">{{ dashboard_data.criminalCounts }}</h3>
-        <p class="stat-subtitle">Total recorded cases</p>
-        <div class="stat-icon"><i class="fas fa-gavel"></i></div>
+  <div class="row">
+    <!-- Monthly filing activity -->
+    <div class="col-lg-4 mb-4">
+      <div class="card dashboard-card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-chart-line mr-2 text-muted"></i>This Month</h3>
+        </div>
+        <div class="card-body">
+          <div class="monthly-number">{{ dashboard_data.totalCaseThisMonth }}</div>
+          <div class="monthly-label">new cases filed this month</div>
+          <div class="monthly-meta">
+            <div class="monthly-meta-item"><strong>{{ dashboard_data.criminalCaseThisMonth }}</strong>Criminal</div>
+            <div class="monthly-meta-item"><strong>{{ dashboard_data.civilCasesThisMonth }}</strong>Civil / Small Claims</div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stat-card civil">
-      <div class="card-body">
-        <p class="stat-label">Civil Cases</p>
-        <h3 class="stat-number">{{ dashboard_data.civilCounts }}</h3>
-        <p class="stat-subtitle">Total recorded cases</p>
-        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+    <!-- Existing case registry -->
+    <div class="col-lg-4 mb-4">
+      <div class="card dashboard-card">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-folder-open mr-2 text-muted"></i>Case Registry</h3>
+        </div>
+        <div class="card-body">
+          <div class="case-row">
+            <div class="case-name"><span class="case-icon criminal"><i class="fas fa-gavel"></i></span>Criminal Cases</div>
+            <span class="case-count">{{ dashboard_data.criminalCounts }}</span>
+          </div>
+          <div class="case-row">
+            <div class="case-name"><span class="case-icon civil"><i class="fas fa-file-alt"></i></span>Civil Cases</div>
+            <span class="case-count">{{ dashboard_data.civilCounts }}</span>
+          </div>
+          <div class="case-row">
+            <div class="case-name"><span class="case-icon small"><i class="fas fa-coins"></i></span>Small Claims</div>
+            <span class="case-count">{{ dashboard_data.smallclaimsCounts }}</span>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="col-xl-3 col-md-6 mb-4">
-    <div class="stat-card smallclaim">
-      <div class="card-body">
-        <p class="stat-label">Small Claims</p>
-        <h3 class="stat-number">{{ dashboard_data.smallclaimsCounts }}</h3>
-        <p class="stat-subtitle">Total recorded cases</p>
-        <div class="stat-icon"><i class="fas fa-coins"></i></div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock %}
-
-{% block content %}
-<div class="col-lg-7 mb-4">
-  <div class="card dashboard-panel h-100">
-    <div class="card-header">
-      <h3 class="card-title"><i class="fas fa-chart-pie mr-2 text-muted"></i>Case Overview</h3>
-    </div>
-    <div class="card-body">
-      <div class="overview-item">
-        <div class="overview-name"><span class="overview-dot bg-danger"></span> Criminal Cases</div>
-        <span class="overview-value">{{ dashboard_data.criminalCounts }}</span>
-      </div>
-      <div class="overview-item">
-        <div class="overview-name"><span class="overview-dot bg-info"></span> Civil Cases</div>
-        <span class="overview-value">{{ dashboard_data.civilCounts }}</span>
-      </div>
-      <div class="overview-item">
-        <div class="overview-name"><span class="overview-dot bg-warning"></span> Small Claims</div>
-        <span class="overview-value">{{ dashboard_data.smallclaimsCounts }}</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="col-lg-5 mb-4">
-  <div class="card dashboard-panel h-100">
-    <div class="card-header">
-      <h3 class="card-title"><i class="fas fa-info-circle mr-2 text-muted"></i>Quick Summary</h3>
-    </div>
-    <div class="card-body d-flex align-items-center">
-      <div>
-        <div class="text-muted text-uppercase" style="font-size:.78rem;font-weight:600;letter-spacing:.04em;">New cases this month</div>
-        <div class="display-4 font-weight-bold mb-2">{{ dashboard_data.totalCaseThisMonth }}</div>
-        <p class="text-muted mb-0" style="font-size:.88rem;">Use the navigation menu to access case records, schedules, reports, and other court system modules.</p>
+    <!-- Upcoming schedules from existing dashboard events -->
+    <div class="col-lg-4 mb-4">
+      <div class="card dashboard-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h3 class="card-title"><i class="far fa-clock mr-2 text-muted"></i>Upcoming Hearings</h3>
+          <span id="hearingCount" class="badge badge-light">0</span>
+        </div>
+        <div class="card-body" id="upcomingHearings">
+          <div class="hearing-empty"><i class="far fa-calendar-times fa-lg mb-2"></i><br>No upcoming schedule.</div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 {% endblock %}
+
+{% block content %}{% endblock %}
 
 {% block scripts %}
 <script>
-  $(function () {
-    const now = new Date();
-    const formatted = now.toLocaleDateString('en-PH', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-    $('#dashboardDate').text(formatted);
+(function () {
+  const now = new Date();
+  $('#dashboardDate').text(now.toLocaleDateString('en-PH', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  }));
+
+  const events = {{ dashboard_data.events | tojson }};
+  const container = $('#upcomingHearings');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcoming = events
+    .map(function (event) {
+      const date = new Date(event.start);
+      return { event: event, date: date };
+    })
+    .filter(function (item) { return !isNaN(item.date) && item.date >= today; })
+    .sort(function (a, b) { return a.date - b.date; })
+    .slice(0, 4);
+
+  $('#hearingCount').text(upcoming.length);
+
+  if (!upcoming.length) return;
+
+  container.empty();
+  upcoming.forEach(function (item) {
+    const date = item.date;
+    const month = date.toLocaleDateString('en-PH', { month: 'short' });
+    const day = date.toLocaleDateString('en-PH', { day: '2-digit' });
+    const time = date.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
+
+    container.append(
+      '<div class="hearing-item">' +
+        '<div class="hearing-date"><span class="month">' + month + '</span><span class="day">' + day + '</span></div>' +
+        '<div class="hearing-info"><div class="hearing-title" title="' + $('<div>').text(item.event.title || 'Court Schedule').html() + '">' + $('<div>').text(item.event.title || 'Court Schedule').html() + '</div>' +
+        '<div class="hearing-time"><i class="far fa-clock mr-1"></i>' + time + '</div></div>' +
+      '</div>'
+    );
   });
+})();
 </script>
 {% endblock %}
