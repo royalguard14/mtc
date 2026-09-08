@@ -106,7 +106,7 @@ def dashboard():
 
     events = list(events_map.values())
 
-    print("FINAL EVENTS:", events)  # 🔥 DEBUG
+    #print("FINAL EVENTS:", events)  # 🔥 DEBUG
 
     # =========================================
     # DASHBOARD DATA
