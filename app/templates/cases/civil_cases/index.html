@@ -2,7 +2,8 @@
 
 {% block content %}
 <style>
-  .civil-page { padding: 0 0 18px; }
+  /* Fill the AdminLTE/Bootstrap row so the registry uses the available screen width. */
+  .civil-page { width:100%; max-width:100%; flex:0 0 100%; padding:0 0 18px; min-width:0; }
   .civil-toolbar {
     background:#fff; border:1px solid #e7eaee; border-radius:8px;
     padding:12px 14px; margin-bottom:12px;
@@ -190,42 +191,41 @@ function editModal(command,id){
   $.getJSON(`/cases/api/case/${id}/${command}`,function(data){
     let html="";
     if(command==="geninfo"){
-      html=`<input type="hidden" id="case_id" value="${id}"><input type="hidden" id="mode" value="geninfo"><div class="form-group"><label>Case Number</label><input type="text" id="case_number" readonly class="form-control" value="${data.case_number||''}"></div><div class="form-group"><label>Case Title</label><textarea id="title" class="form-control" rows="3">${data.title||''}</textarea></div><div class="form-group"><label>Nature</label><textarea id="nature" class="form-control" rows="2">${data.nature||''}</textarea></div><div class="form-group mb-0"><label>Date Filed</label><input type="date" id="date_filed" class="form-control" value="${data.date_filed||''}"></div>`;
+      html=`<input type="hidden" id="case_id" value="${id}"><input type="hidden" id="mode" value="geninfo"><div class="form-group"><label>Case Number</label><input type="text" id="case_number" readonly class="form-control" value="${data.case_number||''}"></div><div class="form-group"><label>Case Title</label><textarea id="title" class="form-control" rows="3">${data.title||''}</textarea></div><div class="form-group"><label>Nature</label><textarea id="nature" class="form-control" rows="2">${data.nature||''}</textarea></div><div class="form-group"><label>Date Filed</label><input type="date" id="date_filed" class="form-control" value="${data.date_filed||''}"></div>`;
     }else if(command==="courtAction"){
-      html=`<input type="hidden" id="case_id" value="${id}"><input type="hidden" id="mode" value="courtAction"><div class="row"><div class="col-md-6"><div class="form-group"><label>Revived Date</label><input type="date" id="revived_date" class="form-control" value="${data.revived_date||''}"></div></div><div class="col-md-6"><div class="form-group"><label>Decision Date</label><input type="date" id="decision_date" class="form-control" value="${data.decision_date||''}"></div></div><div class="col-md-6"><div class="form-group"><label>Dismissed Date</label><input type="date" id="dismissed_date" class="form-control" value="${data.dismissed_date||''}"></div></div><div class="col-md-6"><div class="form-group"><label>Promulgated Date</label><input type="date" id="promulgated_date" class="form-control" value="${data.promulgated_date||''}"></div></div></div>`;
+      const a=data||{};
+      html=`<input type="hidden" id="case_id" value="${id}"><input type="hidden" id="mode" value="courtAction"><div class="row"><div class="col-md-6"><div class="form-group"><label>Revived Date</label><input type="date" id="revived" class="form-control" value="${a.revived||''}"></div></div><div class="col-md-6"><div class="form-group"><label>Decision Date</label><input type="date" id="decision" class="form-control" value="${a.decision||''}"></div></div></div><div class="row"><div class="col-md-6"><div class="form-group"><label>Dismissed Date</label><input type="date" id="dismissed" class="form-control" value="${a.dismissed||''}"></div></div><div class="col-md-6"><div class="form-group"><label>Promulgated Date</label><input type="date" id="promulgated" class="form-control" value="${a.promulgated||''}"></div></div></div>`;
     }else if(command==="caseDetails"){
-      html=`<input type="hidden" id="case_id" value="${id}"><input type="hidden" id="mode" value="caseDetails"><div id="caseDetailsContainer"></div>`;
+      html=`<input type="hidden" id="case_id" value="${id}"><input type="hidden" id="mode" value="caseDetails"><div class="form-group"><label>Case Details (JSON)</label><textarea id="information" class="form-control" rows="10">${JSON.stringify(data||{},null,2)}</textarea></div>`;
     }else if(command==="caseNotes"){
-      html=`<input type="hidden" id="case_id" value="${id}"><input type="hidden" id="mode" value="caseNotes"><div class="form-group"><label>Status</label><input type="text" id="status" class="form-control" value="${data.status||''}"></div>`;
+      html=`<input type="hidden" id="case_id" value="${id}"><input type="hidden" id="mode" value="caseNotes"><div class="form-group"><label>Status / Note</label><textarea id="status" class="form-control" rows="4">${data.status||''}</textarea></div>`;
     }
     $('#EditmodalContent').html(html); $('#editModal').modal('show');
-    if(command==="courtAction" || command==="caseDetails" || command==="caseNotes") loadFullCaseData(id,command);
-  }).fail(function(){Swal.fire({icon:'error',title:'Unable to load case',text:'Please try again.'});});
+  }).fail(function(){ toastr.error('Unable to load case information.'); });
 }
-function loadFullCaseData(id,command){
-  $.getJSON(`/cases/api/case/${id}/caseDetails`,function(details){
-    if(command==="caseDetails") $('#caseDetailsContainer').html('<div class="form-group mb-0"><label>Case Details</label><textarea id="information" class="form-control" rows="10">'+JSON.stringify(details,null,2)+'</textarea></div>');
-  });
-  if(command==="courtAction") $.getJSON(`/cases/api/case/${id}/courtAction`,function(action){ $('#EditmodalContent').find('#revived_date').val(action.revived_date||''); $('#EditmodalContent').find('#decision_date').val(action.decision_date||''); $('#EditmodalContent').find('#dismissed_date').val(action.dismissed_date||''); $('#EditmodalContent').find('#promulgated_date').val(action.promulgated_date||''); });
-  if(command==="caseNotes") $.getJSON(`/cases/api/case/${id}/caseNotes`,function(notes){ $('#status').val(notes.status||''); });
-}
+
 $('#saveBtn').on('click',function(){
-  const id=$('#case_id').val(); const mode=$('#mode').val(); let payload={id:id};
+  const id=$('#case_id').val(), mode=$('#mode').val();
+  let payload={id:id};
   if(mode==='geninfo') payload={id:id,case_number:$('#case_number').val(),title:$('#title').val(),nature:$('#nature').val(),date_filed:$('#date_filed').val()};
-  else if(mode==='courtAction') payload={id:id,action:{revived_date:$('#revived_date').val(),decision_date:$('#decision_date').val(),dismissed_date:$('#dismissed_date').val(),promulgated_date:$('#promulgated_date').val()}};
-  else if(mode==='caseNotes') payload={id:id,action:{status:$('#status').val()}};
-  else if(mode==='caseDetails'){let raw=$('#information').val()||'{}';try{payload={id:id,information:JSON.parse(raw)}}catch(e){Swal.fire({icon:'warning',title:'Invalid details',text:'Please enter valid JSON.'});return;}}
-  $.ajax({url:'/cases/update',method:'POST',contentType:'application/json',data:JSON.stringify(payload),success:function(resp){Swal.fire({icon:'success',title:'Saved',text:'Civil case updated successfully.',timer:1300,showConfirmButton:false}).then(function(){location.reload();});},error:function(xhr){Swal.fire({icon:'error',title:'Update failed',text:(xhr.responseJSON&&xhr.responseJSON.error)||'Unable to update case.'});}});
+  if(mode==='courtAction') payload.action={revived:$('#revived').val(),decision:$('#decision').val(),dismissed:$('#dismissed').val(),promulgated:$('#promulgated').val()};
+  if(mode==='caseDetails') { try{payload.information=JSON.parse($('#information').val()||'{}');}catch(e){toastr.error('Invalid JSON format.');return;} }
+  if(mode==='caseNotes') payload.action={status:$('#status').val()};
+  $.ajax({url:'/cases/update',type:'POST',contentType:'application/json',data:JSON.stringify(payload),success:function(){toastr.success('Civil case updated successfully.');$('#editModal').modal('hide');setTimeout(function(){location.reload();},500);},error:function(xhr){toastr.error(xhr.responseJSON?.error||'Unable to update civil case.');}});
 });
+
 function createModal(caseType){
-  $('#createForm')[0].reset();
-  $.getJSON(`api/last-civilno/${caseType}`,function(data){$('#ccase_number').val(data.case_number||'');}).fail(function(){ $('#ccase_number').val(''); });
-  $('#CreateModal').modal('show');
+  $.getJSON(`/cases/api/last-civilno/${caseType}`,function(data){
+    $('#ccase_number').val(data.case_number||'');
+    $('#CreateModal input[name="date_filed"]').val(new Date().toISOString().slice(0,10));
+    $('#CreateModal').modal('show');
+  }).fail(function(){toastr.error('Unable to generate the next civil case number.');});
 }
+
 $('#createForm').on('submit',function(e){
-  e.preventDefault(); const form=$(this); const data=Object.fromEntries(new FormData(this).entries());
-  if(typeof showSync==='function') showSync();
-  $.ajax({url:'/cases/create',method:'POST',contentType:'application/json',data:JSON.stringify(data),success:function(resp){if(typeof hideSync==='function') hideSync();$('#CreateModal').modal('hide');Swal.fire({icon:'success',title:'Case filed',text:'Civil case has been added to the registry.',timer:1400,showConfirmButton:false}).then(function(){location.reload();});},error:function(xhr){if(typeof hideSync==='function') hideSync();Swal.fire({icon:'error',title:'Unable to save',text:(xhr.responseJSON&&xhr.responseJSON.error)||'Please check the entries and try again.'});}});
+  e.preventDefault();
+  const form={}; $(this).serializeArray().forEach(x=>form[x.name]=x.value);
+  $.ajax({url:'/cases/create',type:'POST',contentType:'application/json',data:JSON.stringify(form),success:function(){toastr.success('Civil case created successfully.');$('#CreateModal').modal('hide');setTimeout(function(){location.reload();},500);},error:function(xhr){toastr.error(xhr.responseJSON?.error||'Unable to create civil case.');}});
 });
 </script>
 {% endblock %}
