@@ -10,10 +10,7 @@
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
-      "position": [
-        3056,
-        -4656
-      ],
+      "position": [3056, -4656],
       "id": "bd35deb2-3d01-4eaa-93ba-4882c6b15ae3",
       "name": "Webhook",
       "webhookId": "71ce0a56-e75a-46a3-9bfd-be67771a05de"
@@ -26,10 +23,7 @@
       },
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
-      "position": [
-        3152,
-        -4880
-      ],
+      "position": [3152, -4880],
       "id": "557b22ea-1698-47df-a0ed-6e497bf47f2b",
       "name": "Respond to Webhook"
     },
@@ -60,10 +54,7 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [
-        2960,
-        -4864
-      ],
+      "position": [2960, -4864],
       "id": "a16ac4a8-7e01-4b90-8b6a-00f1640b6bae",
       "name": "If"
     },
@@ -77,10 +68,7 @@
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
-      "position": [
-        4016,
-        -4784
-      ],
+      "position": [4016, -4784],
       "id": "986eab56-6205-4d14-aa1e-f37a45fdc08b",
       "name": "AI Agent"
     },
@@ -93,7 +81,7 @@
           "parameters": [
             {
               "name": "access_token",
-              "value": "EAAXB6LhVjZCQBSfCOalxxEoEfzEVWwWgV5gown3HSYS9DFXPTfkbwSCQ73xukFAeyi2a0OKtHvUJ03FrNZAJsZAwczv8InVhAvvNbzXn3Oq8sszxTUzwXQZB2NicbgR5js1wxUI8bbUAqzgk4PIU2HH2MCF09blD5R7OpQnEOzbRpYwju7SM7ZC7bnZBciDbYBfyzFpaoNHXjsngsVZBmsc0wZDZD"
+              "value": "EAAXB6LhVjZCQBSfCOalxxEoEfzEVWwWgV5gown3HSYS9DFXPTfkbwSCQ73xukFAeyi2a0OKtHvUJ03FrNZAJsZAwczv8InVhAvvNbzXn3Oq8sszxTUzwXQZ2BNicbgR5js1wxUI8bbUAqzgk4PIU2HH2MCF09blD5R7OpQnEOzbRpYwju7SM7ZC7bnZBciDbYBfyzFpaoNHXjsngsVZBmsc0wZDZD"
             }
           ]
         },
@@ -113,10 +101,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
-      "position": [
-        4704,
-        -4800
-      ],
+      "position": [4704, -4800],
       "id": "5f93795c-f800-463a-9abc-0c5b94fb891f",
       "name": "HTTP Request"
     },
@@ -127,10 +112,7 @@
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
-      "position": [
-        3984,
-        -4416
-      ],
+      "position": [3984, -4416],
       "id": "ad7f8532-2454-4ff7-90ab-536763a80027",
       "name": "Ollama Chat Model",
       "credentials": {
@@ -168,10 +150,7 @@
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
-      "position": [
-        3344,
-        -4560
-      ],
+      "position": [3344, -4560],
       "id": "77806c9a-beac-4f44-b355-62bab334e7b0",
       "name": "FBM Variables"
     },
@@ -222,10 +201,7 @@
       },
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
-      "position": [
-        3168,
-        -4336
-      ],
+      "position": [3168, -4336],
       "id": "c80989c5-ce3b-4275-bb5c-01e7d2cd98b7",
       "name": "Validation"
     },
@@ -237,10 +213,7 @@
       },
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
-      "position": [
-        3520,
-        -4384
-      ],
+      "position": [3520, -4384],
       "id": "042e98f3-3a5b-42eb-86bb-3c67a5af9cd5",
       "name": "Response WH"
     },
@@ -287,10 +260,7 @@
       },
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.7,
-      "position": [
-        4416,
-        -4432
-      ],
+      "position": [4416, -4432],
       "id": "82ce1de6-8bcc-4aea-a6a4-77aefad51ca1",
       "name": "Civil Wedding Schedule",
       "credentials": {
@@ -313,10 +283,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [
-        3696,
-        -4768
-      ],
+      "position": [3696, -4768],
       "id": "68b52430-514f-4ae4-9f6f-d1e54dddcd92",
       "name": "Get AI System Prompt"
     },
@@ -337,14 +304,19 @@
           "cachedResultName": "01_COURT_INFO",
           "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M/edit#gid=0"
         },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Field",
+              "lookupValue": "={{ $fromAI('field', 'The exact Court Info Field requested by the user, such as Address, Contact, Email, Office Hours, Presiding Judge, Clerk of Court, or Court Name.', 'string') }}"
+            }
+          ]
+        },
         "options": {}
       },
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.7,
-      "position": [
-        4512,
-        -4592
-      ],
+      "position": [4512, -4592],
       "id": "d7432ef5-5d9b-4ad5-8f54-8b7151bd3b21",
       "name": "Court Info",
       "credentials": {
@@ -358,133 +330,22 @@
   "pinData": {},
   "connections": {
     "Webhook": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Validation",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "If", "type": "main", "index": 0}], [{"node": "Validation", "type": "main", "index": 0}]]
     },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "Respond to Webhook",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "HTTP Request",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "FBM Variables": {
-      "main": [
-        [
-          {
-            "node": "Response WH",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Validation": {
-      "main": [
-        [
-          {
-            "node": "FBM Variables",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Response WH": {
-      "main": [
-        [
-          {
-            "node": "Get AI System Prompt",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Civil Wedding Schedule": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get AI System Prompt": {
-      "main": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Court Info": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    }
+    "If": {"main": [[{"node": "Respond to Webhook", "type": "main", "index": 0}]]},
+    "AI Agent": {"main": [[{"node": "HTTP Request", "type": "main", "index": 0}]]},
+    "Ollama Chat Model": {"ai_languageModel": [[{"node": "AI Agent", "type": "ai_languageModel", "index": 0}]]},
+    "FBM Variables": {"main": [[{"node": "Response WH", "type": "main", "index": 0}]]},
+    "Validation": {"main": [[{"node": "FBM Variables", "type": "main", "index": 0}]]},
+    "Response WH": {"main": [[{"node": "Get AI System Prompt", "type": "main", "index": 0}]]},
+    "Civil Wedding Schedule": {"ai_tool": [[{"node": "AI Agent", "type": "ai_tool", "index": 0}]]},
+    "Get AI System Prompt": {"main": [[{"node": "AI Agent", "type": "main", "index": 0}]]},
+    "Court Info": {"ai_tool": [[{"node": "AI Agent", "type": "ai_tool", "index": 0}]]}
   },
   "active": true,
-  "settings": {
-    "executionOrder": "v1",
-    "binaryMode": "separate"
-  },
+  "settings": {"executionOrder": "v1", "binaryMode": "separate"},
   "versionId": "ff613364-d890-43d7-8b6e-282b5d38fd51",
-  "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "13c9af6d849158b84c66afe2049002522fd09a80a72c05c79f2ca757b3f42639"
-  },
+  "meta": {"templateCredsSetupCompleted": true, "instanceId": "13c9af6d849158b84c66afe2049002522fd09a80a72c05c79f2ca757b3f42639"},
   "nodeGroups": [],
   "id": "ScCz2T8hOuH7zbt0",
   "tags": []
