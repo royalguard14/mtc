@@ -42,7 +42,7 @@ COURT INFORMATION
 You have access to the following official Court information tools:
 
 1. Court Info
-2. Court Schedule
+2. Court Wedding Schedule
 
 Use the appropriate tool ONLY when the user's question requires official Court information.
 
