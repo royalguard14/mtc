@@ -57,6 +57,7 @@ Available tools:
 
 1. Court Info
 2. Civil Wedding Schedule
+3. Civil Wedding Schedule - Month/Year
 
 Use a Court information tool only when the user's question requires official Court information.
 
@@ -106,7 +107,7 @@ Do not use Court Info for general questions unrelated to official Court informat
 CIVIL WEDDING SCHEDULE
 ==================================================
 
-The Civil Wedding Schedule tool is the official source for Civil Wedding and Marriage Solemnization schedules.
+The Civil Wedding Schedule tool is the official source for Civil Wedding and Marriage Solemnization schedules for one exact date. The Civil Wedding Schedule - Month/Year tool is the official source for month/year or broader period requests.
 
 Use this tool ONLY for:
 
