@@ -11,10 +11,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        1392,
-        400
+        1472,
+        -5472
       ],
-      "id": "d6b38576-3da4-4e99-994e-7d22f92031b3",
+      "id": "c0bb5f56-c9a8-4e22-81a2-79d892373ee2",
       "name": "Webhook",
       "webhookId": "71ce0a56-e75a-46a3-9bfd-be67771a05de"
     },
@@ -27,10 +27,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        1488,
-        176
+        1568,
+        -5696
       ],
-      "id": "6d79498f-d76b-40ee-a321-98796ae1e404",
+      "id": "df0bd9eb-2804-49b1-aa91-0fe784c21b50",
       "name": "Respond to Webhook"
     },
     {
@@ -61,10 +61,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1296,
-        192
+        1376,
+        -5680
       ],
-      "id": "ce1eb21c-92b2-4ca6-bc75-b954a1d61c4d",
+      "id": "4d811d76-a519-4891-bb5f-fb21652d9a8e",
       "name": "If"
     },
     {
@@ -78,10 +78,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        2336,
-        352
+        2464,
+        -5568
       ],
-      "id": "a73072b4-cc84-425d-bfa2-d2713d720b34",
+      "id": "4efbf26f-4a59-4329-af2c-a24915045809",
       "name": "AI Agent"
     },
     {
@@ -114,10 +114,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        3040,
-        256
+        3120,
+        -5616
       ],
-      "id": "ef2b4d6f-c9d7-421e-8fc0-b377089bfea8",
+      "id": "5463a0fe-9403-4aea-81b8-459395f9bbe9",
       "name": "HTTP Request"
     },
     {
@@ -128,10 +128,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        2320,
-        640
+        2400,
+        -5232
       ],
-      "id": "332026c1-5540-42c3-982f-54545ef69bf9",
+      "id": "db4faac6-f10a-4dd2-9730-33e6dfdbbb30",
       "name": "Ollama Chat Model",
       "credentials": {
         "ollamaApi": {
@@ -169,10 +169,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        1856,
-        336
+        1760,
+        -5376
       ],
-      "id": "9c7b7559-b58e-429f-a8c0-973dfca5fa3b",
+      "id": "e80a9d6e-6e59-4c01-baec-c999432a8f18",
       "name": "FBM Variables"
     },
     {
@@ -223,10 +223,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1632,
-        416
+        1584,
+        -5152
       ],
-      "id": "741ea774-1559-4365-b7f0-4026967d7f59",
+      "id": "6f9d0dfe-968c-40c8-ae43-a4f24f7cb717",
       "name": "Validation"
     },
     {
@@ -238,48 +238,11 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        2096,
-        368
+        1936,
+        -5200
       ],
-      "id": "895c418d-a61c-4bfa-a40a-33f112adbf67",
+      "id": "95fc5169-4a22-4ace-8a26-df41576d9aa7",
       "name": "Response WH"
-    },
-    {
-      "parameters": {
-        "authentication": "serviceAccount",
-        "documentId": {
-          "__rl": true,
-          "value": "1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M",
-          "mode": "list",
-          "cachedResultName": "MTC PIO DATABASE",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "01_COURT_INFO",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M/edit#gid=0"
-        },
-        "filtersUI": {
-          "values": []
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.googleSheetsTool",
-      "typeVersion": 4.7,
-      "position": [
-        2624,
-        768
-      ],
-      "id": "dbf46f37-a2ce-4360-b4cf-4fabd6a146ba",
-      "name": "Court Info",
-      "credentials": {
-        "googleApi": {
-          "id": "PLbNNhEerTcXRHIm",
-          "name": "Google Service Account account"
-        }
-      }
     },
     {
       "parameters": {
@@ -321,10 +284,10 @@
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.7,
       "position": [
-        2480,
-        768
+        2624,
+        -5136
       ],
-      "id": "98e0a575-828d-43c3-bd31-9be92596f021",
+      "id": "31c9bce8-fba2-4ed9-a6a3-a71e83675c57",
       "name": "Civil Wedding Schedule - Month/Year",
       "credentials": {
         "googleApi": {
@@ -377,10 +340,10 @@
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.7,
       "position": [
-        2480,
-        1028
+        2912,
+        -5168
       ],
-      "id": "fca7c8e1-8f05-4832-807f-607cb15dc3af",
+      "id": "b850ea50-2c3c-44a1-a9ce-0c220a757c9f",
       "name": "Civil Wedding Schedule",
       "credentials": {
         "googleApi": {
@@ -391,11 +354,7 @@
     },
     {
       "parameters": {
-        "method": "GET",
         "url": "https://raw.githubusercontent.com/royalguard14/mtc/main/app/static/n8n/prompts/ai-clerk-system.md",
-        "sendQuery": false,
-        "sendHeaders": false,
-        "sendBody": false,
         "options": {
           "response": {
             "response": {
@@ -407,10 +366,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1600,
-        400
+        1984,
+        -5552
       ],
-      "id": "bf99fca4-06a2-499e-9386-8916fe586110",
+      "id": "bfb51e46-34a8-4537-9589-50673ee52d36",
       "name": "Get AI System Prompt"
     }
   ],
@@ -500,17 +459,6 @@
         ]
       ]
     },
-    "Court Info": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Civil Wedding Schedule": {
       "ai_tool": [
         [
@@ -550,7 +498,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "ab4e62c7-d2a9-4906-93cb-e5e3903354b4",
+  "versionId": "baa0f497-d6b6-4d24-aee0-4432bd2d7a52",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "13c9af6d849158b84c66afe2049002522fd09a80a72c05c79f2ca757b3f42639"
