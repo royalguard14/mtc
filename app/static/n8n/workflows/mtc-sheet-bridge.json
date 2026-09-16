@@ -110,57 +110,21 @@
   ],
   "connections": {
     "Court Info Webhook": {
-      "main": [
-        [
-          {
-            "node": "Read Court Info",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Read Court Info", "type": "main", "index": 0}]]
     },
     "Read Court Info": {
-      "main": [
-        [
-          {
-            "node": "Return Court Info",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Return Court Info", "type": "main", "index": 0}]]
     },
     "Civil Wedding Webhook": {
-      "main": [
-        [
-          {
-            "node": "Read Civil Wedding",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Read Civil Wedding", "type": "main", "index": 0}]]
     },
     "Read Civil Wedding": {
-      "main": [
-        [
-          {
-            "node": "Return Civil Wedding",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Return Civil Wedding", "type": "main", "index": 0}]]
     }
   },
   "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
+  "settings": {"executionOrder": "v1"},
   "versionId": "9d3c7b1a-5e62-4f08-b9d4-1c7a6e3f2058",
-  "meta": {
-    "templateCredsSetupCompleted": true
-  },
+  "meta": {"templateCredsSetupCompleted": true},
   "tags": []
 }
