@@ -11,10 +11,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        1472,
-        -5472
+        3056,
+        -4656
       ],
-      "id": "c0bb5f56-c9a8-4e22-81a2-79d892373ee2",
+      "id": "bd35deb2-3d01-4eaa-93ba-4882c6b15ae3",
       "name": "Webhook",
       "webhookId": "71ce0a56-e75a-46a3-9bfd-be67771a05de"
     },
@@ -27,10 +27,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        1568,
-        -5696
+        3152,
+        -4880
       ],
-      "id": "df0bd9eb-2804-49b1-aa91-0fe784c21b50",
+      "id": "557b22ea-1698-47df-a0ed-6e497bf47f2b",
       "name": "Respond to Webhook"
     },
     {
@@ -61,10 +61,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1376,
-        -5680
+        2960,
+        -4864
       ],
-      "id": "4d811d76-a519-4891-bb5f-fb21652d9a8e",
+      "id": "a16ac4a8-7e01-4b90-8b6a-00f1640b6bae",
       "name": "If"
     },
     {
@@ -78,10 +78,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        2464,
-        -5568
+        4048,
+        -4752
       ],
-      "id": "4efbf26f-4a59-4329-af2c-a24915045809",
+      "id": "986eab56-6205-4d14-aa1e-f37a45fdc08b",
       "name": "AI Agent"
     },
     {
@@ -114,10 +114,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        3120,
-        -5616
+        4704,
+        -4800
       ],
-      "id": "5463a0fe-9403-4aea-81b8-459395f9bbe9",
+      "id": "5f93795c-f800-463a-9abc-0c5b94fb891f",
       "name": "HTTP Request"
     },
     {
@@ -128,10 +128,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        2400,
-        -5232
+        3984,
+        -4416
       ],
-      "id": "db4faac6-f10a-4dd2-9730-33e6dfdbbb30",
+      "id": "ad7f8532-2454-4ff7-90ab-536763a80027",
       "name": "Ollama Chat Model",
       "credentials": {
         "ollamaApi": {
@@ -169,10 +169,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.5,
       "position": [
-        1760,
-        -5376
+        3344,
+        -4560
       ],
-      "id": "e80a9d6e-6e59-4c01-baec-c999432a8f18",
+      "id": "77806c9a-beac-4f44-b355-62bab334e7b0",
       "name": "FBM Variables"
     },
     {
@@ -223,10 +223,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        1584,
-        -5152
+        3168,
+        -4336
       ],
-      "id": "6f9d0dfe-968c-40c8-ae43-a4f24f7cb717",
+      "id": "c80989c5-ce3b-4275-bb5c-01e7d2cd98b7",
       "name": "Validation"
     },
     {
@@ -238,63 +238,11 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        1936,
-        -5200
+        3520,
+        -4384
       ],
-      "id": "95fc5169-4a22-4ace-8a26-df41576d9aa7",
+      "id": "042e98f3-3a5b-42eb-86bb-3c67a5af9cd5",
       "name": "Response WH"
-    },
-    {
-      "parameters": {
-        "authentication": "serviceAccount",
-        "documentId": {
-          "__rl": true,
-          "value": "1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M",
-          "mode": "list",
-          "cachedResultName": "MTC PIO DATABASE",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": 1589695556,
-          "mode": "list",
-          "cachedResultName": "02_CIVIL_WEDDING",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M/edit#gid=1589695556"
-        },
-        "filtersUI": {
-          "values": [
-            {
-              "lookupColumn": "Case Type",
-              "lookupValue": "={{ $fromAI('case_type', 'The type of court schedule to search for, such as WEDDING, CRIMINAL CASE, or CIVIL CASE') }}"
-            },
-            {
-              "lookupColumn": "Month",
-              "lookupValue": "={{ $fromAI('month', 'Return the month as a number from 1 to 12. September = 9.') }}"
-            },
-            {
-              "lookupColumn": "Year",
-              "lookupValue": "={{ $fromAI('year', 'Return the four-digit year, such as 2026.') }}"
-            }
-          ]
-        },
-        "options": {
-          "returnFirstMatch": false
-        }
-      },
-      "type": "n8n-nodes-base.googleSheetsTool",
-      "typeVersion": 4.7,
-      "position": [
-        2624,
-        -5136
-      ],
-      "id": "31c9bce8-fba2-4ed9-a6a3-a71e83675c57",
-      "name": "Civil Wedding Schedule - Month/Year",
-      "credentials": {
-        "googleApi": {
-          "id": "PLbNNhEerTcXRHIm",
-          "name": "Google Service Account account"
-        }
-      }
     },
     {
       "parameters": {
@@ -340,10 +288,10 @@
       "type": "n8n-nodes-base.googleSheetsTool",
       "typeVersion": 4.7,
       "position": [
-        2912,
-        -5168
+        4496,
+        -4352
       ],
-      "id": "b850ea50-2c3c-44a1-a9ce-0c220a757c9f",
+      "id": "82ce1de6-8bcc-4aea-a6a4-77aefad51ca1",
       "name": "Civil Wedding Schedule",
       "credentials": {
         "googleApi": {
@@ -366,11 +314,45 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1984,
-        -5552
+        3696,
+        -4768
       ],
-      "id": "bfb51e46-34a8-4537-9589-50673ee52d36",
+      "id": "68b52430-514f-4ae4-9f6f-d1e54dddcd92",
       "name": "Get AI System Prompt"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M",
+          "mode": "list",
+          "cachedResultName": "MTC PIO DATABASE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "01_COURT_INFO",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FfhfkeoD4fh5PHoy2567qMLdYp2wZqoj4j8zjClEI7M/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        4208,
+        -4400
+      ],
+      "id": "d7432ef5-5d9b-4ad5-8f54-8b7151bd3b21",
+      "name": "Court Info",
+      "credentials": {
+        "googleApi": {
+          "id": "PLbNNhEerTcXRHIm",
+          "name": "Google Service Account account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -481,7 +463,7 @@
         ]
       ]
     },
-    "Civil Wedding Schedule - Month/Year": {
+    "Court Info": {
       "ai_tool": [
         [
           {
@@ -498,7 +480,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "baa0f497-d6b6-4d24-aee0-4432bd2d7a52",
+  "versionId": "1c89fa92-ae2c-44bb-9117-0feab6272fce",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "13c9af6d849158b84c66afe2049002522fd09a80a72c05c79f2ca757b3f42639"
