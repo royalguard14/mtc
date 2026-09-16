@@ -1,0 +1,155 @@
+name: Temporary Messenger AI Clerk patch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/temporary-patch-messenger-ai-clerk.yml'
+      - 'app/static/n8n/workflows/messenger-ai-clerk.json'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch workflow
+        run: |
+          python - <<'PY'
+          import json, copy, uuid, pathlib
+
+          workflow_path = pathlib.Path('app/static/n8n/workflows/messenger-ai-clerk.json')
+          with workflow_path.open(encoding='utf-8') as f:
+              wf = json.load(f)
+
+          nodes = wf.get('nodes', [])
+          con = wf.setdefault('connections', {})
+
+          def find_node(name):
+              return next((n for n in nodes if n.get('name') == name), None)
+
+          schedule = find_node('Court Schedule') or find_node('Civil Wedding Schedule - Month/Year')
+          if schedule is None:
+              raise SystemExit('Court Schedule node not found')
+
+          schedule['name'] = 'Civil Wedding Schedule - Month/Year'
+
+          # Create an exact-date copy while preserving the existing credentials and sheet configuration.
+          exact = find_node('Civil Wedding Schedule')
+          if exact is None:
+              exact = copy.deepcopy(schedule)
+              exact['id'] = str(uuid.uuid4())
+              exact['name'] = 'Civil Wedding Schedule'
+              pos = exact.get('position', [0, 0])
+              exact['position'] = [pos[0], pos[1] + 260]
+              params = exact.setdefault('parameters', {})
+              filters = params.setdefault('filtersUI', {}).setdefault('values', [])
+              filters = [x for x in filters if x.get('lookupColumn') != 'Date']
+              filters.append({
+                  'lookupColumn': 'Date',
+                  'lookupValue': "={{ $fromAI('date', 'Exact civil wedding date in MM/DD/YYYY format. Use this only when the user requests one specific date.', 'string') }}"
+              })
+              params['filtersUI']['values'] = filters
+              params['combineFilters'] = 'AND'
+              if 'returnAllMatches' in params:
+                  params['returnAllMatches'] = 'returnAllMatches'
+              nodes.append(exact)
+
+          # AI Agent uses the incoming Messenger text directly and loads its system prompt from GitHub.
+          agent = find_node('AI Agent')
+          if agent is None:
+              raise SystemExit('AI Agent node not found')
+          agent.setdefault('parameters', {})['text'] = "={{ $('FBM Variables').item.json.message_text }}"
+          agent['parameters'].setdefault('options', {})['systemMessage'] = "={{ $('Get AI System Prompt').item.json.system_prompt }}"
+
+          # Add the GitHub prompt loader.
+          loader = find_node('Get AI System Prompt')
+          if loader is None:
+              loader = {
+                  'parameters': {
+                      'url': 'https://raw.githubusercontent.com/royalguard14/mtc/main/app/static/n8n/prompts/ai-clerk-system.md',
+                      'options': {
+                          'response': {
+                              'response': {
+                                  'responseFormat': 'text'
+                              }
+                          }
+                      }
+                  },
+                  'type': 'n8n-nodes-base.httpRequest',
+                  'typeVersion': 4.1,
+                  'position': [1640, 400],
+                  'id': str(uuid.uuid4()),
+                  'name': 'Get AI System Prompt'
+              }
+              nodes.append(loader)
+
+          # Rewire the existing main connection into AI Agent through the prompt loader.
+          for src, outs in list(con.items()):
+              for connection_type, groups in list(outs.items()):
+                  if connection_type != 'main':
+                      continue
+                  for group in groups:
+                      for link in group:
+                          if link.get('node') == 'AI Agent':
+                              link['node'] = 'Get AI System Prompt'
+
+          con.setdefault('Get AI System Prompt', {}).setdefault('main', [[]])
+          if not any(x.get('node') == 'AI Agent' for x in con['Get AI System Prompt']['main'][0]):
+              con['Get AI System Prompt']['main'][0].append({'node': 'AI Agent', 'type': 'main', 'index': 0})
+
+          # Preserve the existing period/month tool and connect the exact-date tool to the AI Agent.
+          con.setdefault('Civil Wedding Schedule - Month/Year', {}).setdefault('ai_tool', [[]])
+          if not any(x.get('node') == 'AI Agent' for x in con['Civil Wedding Schedule - Month/Year']['ai_tool'][0]):
+              con['Civil Wedding Schedule - Month/Year']['ai_tool'][0].append({'node': 'AI Agent', 'type': 'ai_tool', 'index': 0})
+          con.setdefault('Civil Wedding Schedule', {}).setdefault('ai_tool', [[]])
+          if not any(x.get('node') == 'AI Agent' for x in con['Civil Wedding Schedule']['ai_tool'][0]):
+              con['Civil Wedding Schedule']['ai_tool'][0].append({'node': 'AI Agent', 'type': 'ai_tool', 'index': 0})
+
+          with workflow_path.open('w', encoding='utf-8') as f:
+              json.dump(wf, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+          PY
+
+      - name: Update centralized prompt references
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('app/static/n8n/prompts/ai-clerk-system.md')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace(
+              '1. Court Info\n2. Civil Wedding Schedule',
+              '1. Court Info\n2. Civil Wedding Schedule\n3. Civil Wedding Schedule - Month/Year'
+          )
+          s = s.replace(
+              'The Civil Wedding Schedule tool is the official source for Civil Wedding and Marriage Solemnization schedules.',
+              'The Civil Wedding Schedule tool is the official source for Civil Wedding and Marriage Solemnization schedules for specific-date requests. The Civil Wedding Schedule - Month/Year tool is the official source for month/year or period requests.'
+          )
+          s = s.replace(
+              'For month/year requests:',
+              'For exact-date requests, ALWAYS use the Civil Wedding Schedule tool. It filters by the exact Date together with Month and Year.\n\nFor month/year requests, use the Civil Wedding Schedule - Month/Year tool:'
+          )
+          s = s.replace(
+              'Civil Wedding Schedule → Civil wedding and marriage solemnization schedule records only.',
+              'Civil Wedding Schedule → Civil wedding and marriage solemnization records for one exact date.\n\nCivil Wedding Schedule - Month/Year → Civil wedding and marriage solemnization records for a month/year or broader period.'
+          )
+          s = s.replace(
+              'For civil wedding or marriage solemnization schedule requests, ALWAYS use the Civil Wedding Schedule tool.',
+              'For civil wedding or marriage solemnization schedule requests, ALWAYS use the appropriate Civil Wedding Schedule tool. Use Civil Wedding Schedule for one exact date; use Civil Wedding Schedule - Month/Year for month/year or broader period requests.'
+          )
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Validate and commit
+        run: |
+          python -m json.tool app/static/n8n/workflows/messenger-ai-clerk.json >/dev/null
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/static/n8n/workflows/messenger-ai-clerk.json app/static/n8n/prompts/ai-clerk-system.md
+          git rm .github/workflows/temporary-patch-messenger-ai-clerk.yml
+          git commit -m 'Update Messenger AI Clerk prompt loading and wedding schedule tools'
+          git push
