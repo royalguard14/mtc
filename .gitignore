@@ -1,5 +1,6 @@
 app/core/*.json
 *.json
+!messenger-ai-clerk.json
 .env
 __pycache__
 build/
