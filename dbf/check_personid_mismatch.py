@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from tkinter import ttk, messagebox, filedialog
 
-DB_PATH = Path(r"D:\\PyZar\\db\\zear.db")
+DB_PATH = Path(r"D:\PyZar\db\zear.db")
 PERSON_ID_COLUMN = "PERSONID"
 TABLE_MASTER = "ctms4000"
 TABLE_REFERENCES = "ctms4100"
@@ -14,7 +14,7 @@ TABLE_REFERENCES = "ctms4100"
 
 def connect():
     if not DB_PATH.exists():
-        raise FileNotFoundError(f"Database not found:\\n{DB_PATH}")
+        raise FileNotFoundError(f"Database not found:\n{DB_PATH}")
 
     con = sqlite3.connect(str(DB_PATH), timeout=30)
     con.row_factory = sqlite3.Row
@@ -218,7 +218,7 @@ class App:
             for row in self.master_only:
                 writer.writerow({"DIRECTION": "ctms4000 NOT in ctms4100", **row})
 
-        messagebox.showinfo("Export complete", f"Report saved to:\\n{path}")
+        messagebox.showinfo("Export complete", f"Report saved to:\n{path}")
 
 
 if __name__ == "__main__":
