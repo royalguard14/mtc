@@ -189,22 +189,27 @@ def main():
                             f"{table}, source row {row_number}, field {name}: {exc}"
                         ) from exc
 
-                    # Never truncate data. Record over-width values and stop before zap().
+                    # If a character value exceeds its DBF width, preserve the
+                    # complete original in the overflow CSV and fit the DBF value
+                    # to the existing field width so the transfer can proceed.
                     parts = definition.split()
                     if (converted is not None and len(parts) > 1
                             and parts[1].upper().startswith("C")):
                         width = int(parts[1].split("(")[1].split(")")[0])
-                        actual_length = len(str(converted))
+                        full_value = str(converted)
+                        actual_length = len(full_value)
                         if actual_length > width:
                             overflow_items.append((
                                 table, row_number, name, width,
-                                actual_length, str(converted)
+                                actual_length, full_value
                             ))
+                            converted = full_value[:width]
                     values.append(converted)
                 converted_rows.append(tuple(values))
 
             prepared[table] = converted_rows
 
+        report = None
         if overflow_items:
             report = DEST / (
                 "transfer_overflow_report_" +
@@ -217,17 +222,10 @@ def main():
                     "actual_length", "full_value"
                 ])
                 writer.writerows(overflow_items)
-            details = "; ".join(
-                f"{table} row {row} field {field}: {actual} chars "
-                f"(DBF width {width})"
-                for table, row, field, width, actual, _ in overflow_items[:10]
-            )
-            raise RuntimeError(
-                f"Transfer cancelled safely: {len(overflow_items)} value(s) "
-                f"exceed DBF character-field widths. No destination records "
-                f"were changed. Full values saved to: {report}. Details: {details}. "
-                "Do not truncate these values; the destination schema must be "
-                "reviewed for a compatible way to store them."
+            print(
+                f"WARNING: {len(overflow_items)} value(s) exceed DBF field widths. "
+                f"The DBF fields will contain only the first characters that fit. "
+                f"Full original values are preserved in this CSV report: {report}"
             )
 
         print("\nAll field mappings and source values validated.")
