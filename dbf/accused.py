@@ -10,7 +10,7 @@ from tkinter import ttk, messagebox, filedialog
 from collections import defaultdict
 from difflib import SequenceMatcher
 
-DB_PATH = Path(r"D:\PyZar\forCompare\zear.db")
+DB_PATH = Path(r"D:\PyZar\db\zear.db")
 TABLE = "ctms4000"
 
 
