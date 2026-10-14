@@ -69,6 +69,31 @@ def get_records():
         con.close()
 
 
+def get_case_links(person_id):
+    """Return only PARTYID and CASEID rows linked to one PERSONID."""
+    con = connect()
+    try:
+        cols = table_columns(con, REFERENCE_TABLE)
+        required = ("PERSONID", "PARTYID", "CASEID")
+        missing = [name for name in required if name not in cols]
+        if missing:
+            raise RuntimeError(
+                f"{REFERENCE_TABLE} is missing required column(s): {', '.join(missing)}"
+            )
+
+        person_col = cols["PERSONID"]
+        party_col = cols["PARTYID"]
+        case_col = cols["CASEID"]
+        sql = (
+            f'SELECT "{party_col}" AS PARTYID, "{case_col}" AS CASEID '
+            f'FROM "{REFERENCE_TABLE}" WHERE "{person_col}"=? '
+            f'ORDER BY "{case_col}", "{party_col}"'
+        )
+        return [dict(row) for row in con.execute(sql, (person_id,))]
+    finally:
+        con.close()
+
+
 def compare_names(records, threshold):
     results = []
     for i, r1 in enumerate(records):
@@ -231,6 +256,7 @@ class App:
         ttk.Button(
             options, text="Merge Selected Accused", command=self.merge_selected
         ).pack(side="left", padx=6)
+        ttk.Button(options, text="View Conflict Cases", command=self.view_conflict_cases).pack(side="left", padx=6)
         ttk.Button(options, text="Export CSV", command=self.export_csv).pack(side="left", padx=6)
 
         ttk.Label(
@@ -299,6 +325,74 @@ class App:
             )
         except Exception as e:
             messagebox.showerror("Error", str(e))
+
+    def view_conflict_cases(self):
+        selection = self.tree.selection()
+        if not selection:
+            messagebox.showwarning(
+                "Select a conflict first",
+                "Pumili muna ng isang comparison row para makita ang case records."
+            )
+            return
+
+        values = self.tree.item(selection[0], "values")
+        id1, name1 = values[2], values[3]
+        id2, name2 = values[6], values[7]
+
+        try:
+            rows1 = get_case_links(id1)
+            rows2 = get_case_links(id2)
+        except Exception as e:
+            messagebox.showerror("Unable to load case records", str(e))
+            return
+
+        win = tk.Toplevel(self.root)
+        win.title(f"ctms4100 Case Links — PERSONID {id1} and {id2}")
+        win.geometry("700x560")
+
+        ttk.Label(
+            win,
+            text=(
+                f"Conflict pair: PERSONID {id1} — {name1}    |    "
+                f"PERSONID {id2} — {name2}"
+            ),
+            padding=10,
+            wraplength=660
+        ).pack(fill="x")
+
+        def add_person_table(parent, person_id, person_name, rows):
+            section = ttk.LabelFrame(
+                parent,
+                text=f"PERSONID {person_id} — {person_name} ({len(rows)} record(s))",
+                padding=8
+            )
+            section.pack(fill="both", expand=True, padx=10, pady=6)
+
+            columns = ("PARTYID", "CASEID")
+            table = ttk.Treeview(
+                section, columns=columns, show="headings", height=7
+            )
+            table.heading("PARTYID", text="PARTYID")
+            table.heading("CASEID", text="CASEID")
+            table.column("PARTYID", width=180, anchor="w")
+            table.column("CASEID", width=300, anchor="w")
+
+            scrollbar = ttk.Scrollbar(section, orient="vertical", command=table.yview)
+            table.configure(yscrollcommand=scrollbar.set)
+            table.pack(side="left", fill="both", expand=True)
+            scrollbar.pack(side="right", fill="y")
+
+            for row in rows:
+                table.insert("", "end", values=(row["PARTYID"], row["CASEID"]))
+
+            if not rows:
+                ttk.Label(
+                    section,
+                    text="Walang ctms4100 record para sa PERSONID na ito."
+                ).pack(anchor="w", pady=4)
+
+        add_person_table(win, id1, name1, rows1)
+        add_person_table(win, id2, name2, rows2)
 
     def merge_selected(self):
         selection = self.tree.selection()
