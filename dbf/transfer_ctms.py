@@ -1,4 +1,5 @@
 import sqlite3
+import csv
 import shutil
 from pathlib import Path
 from datetime import datetime, date
@@ -145,6 +146,7 @@ def main():
 
     tables = {}
     prepared = {}
+    overflow_items = []
     backup_dir = None
     write_started = False
 
@@ -187,20 +189,46 @@ def main():
                             f"{table}, source row {row_number}, field {name}: {exc}"
                         ) from exc
 
-                    # Fail before writing if a character value exceeds its DBF field.
+                    # Never truncate data. Record over-width values and stop before zap().
                     parts = definition.split()
                     if (converted is not None and len(parts) > 1
                             and parts[1].upper().startswith("C")):
                         width = int(parts[1].split("(")[1].split(")")[0])
-                        if len(str(converted)) > width:
-                            raise ValueError(
-                                f"{table}, source row {row_number}, field {name}: "
-                                f"value length {len(str(converted))} exceeds field width {width}"
-                            )
+                        actual_length = len(str(converted))
+                        if actual_length > width:
+                            overflow_items.append((
+                                table, row_number, name, width,
+                                actual_length, str(converted)
+                            ))
                     values.append(converted)
                 converted_rows.append(tuple(values))
 
             prepared[table] = converted_rows
+
+        if overflow_items:
+            report = DEST / (
+                "transfer_overflow_report_" +
+                datetime.now().strftime("%Y%m%d_%H%M%S") + ".csv"
+            )
+            with report.open("w", newline="", encoding="utf-8-sig") as handle:
+                writer = csv.writer(handle)
+                writer.writerow([
+                    "table", "source_row", "field", "dbf_width",
+                    "actual_length", "full_value"
+                ])
+                writer.writerows(overflow_items)
+            details = "; ".join(
+                f"{table} row {row} field {field}: {actual} chars "
+                f"(DBF width {width})"
+                for table, row, field, width, actual, _ in overflow_items[:10]
+            )
+            raise RuntimeError(
+                f"Transfer cancelled safely: {len(overflow_items)} value(s) "
+                f"exceed DBF character-field widths. No destination records "
+                f"were changed. Full values saved to: {report}. Details: {details}. "
+                "Do not truncate these values; the destination schema must be "
+                "reviewed for a compatible way to store them."
+            )
 
         print("\nAll field mappings and source values validated.")
         print("No destination records have been changed yet.")
