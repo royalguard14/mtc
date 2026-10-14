@@ -1,7 +1,7 @@
 import sqlite3
 
-old_db = r"C:\Users\Supreme Court\Desktop\New folder\combined1.db"
-new_db = r"C:\Users\Supreme Court\Desktop\New folder\combined2.db"
+old_db = r"D:\PyZar\forCompare\combined.db"
+new_db = r"D:\PyZar\forCompare\zear.db"
 
 
 def get_tables(conn):
