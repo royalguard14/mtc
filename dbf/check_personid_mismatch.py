@@ -136,7 +136,12 @@ class App:
             ("PERSONID", "PARTYID", "CASEID"),
             {"PERSONID": 180, "PARTYID": 180, "CASEID": 400}
         )
-        self.master_tree = None
+        self.master_name_cols = ["FNAME", "MNAME", "LNAME", "ENAME", "ANAME"]
+        self.master_tree = self.make_tree(
+            self.master_tab,
+            ("PERSONID", *self.master_name_cols),
+            {"PERSONID": 180, **{col: 200 for col in self.master_name_cols}}
+        )
 
         self.status = ttk.Label(root, text="Click Check Differences to begin.", padding=10)
         self.status.pack(fill="x")
@@ -169,17 +174,8 @@ class App:
                     values=(row.get("PERSONID"), row.get("PARTYID"), row.get("CASEID"))
                 )
 
-            if self.master_tree is not None:
-                self.master_tree.destroy()
-
-            self.master_name_cols = [
-                col for col in ("FNAME", "MNAME", "LNAME", "ENAME", "ANAME")
-                if any(col in row for row in self.master_only)
-            ]
+            self.master_tree.delete(*self.master_tree.get_children())
             master_columns = ("PERSONID", *self.master_name_cols)
-            master_widths = {"PERSONID": 180, **{col: 200 for col in self.master_name_cols}}
-            self.master_tree = self.make_tree(self.master_tab, master_columns, master_widths)
-
             for row in self.master_only:
                 self.master_tree.insert(
                     "", "end",
